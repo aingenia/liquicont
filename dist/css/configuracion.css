@@ -1,0 +1,92 @@
+/* ============================================================
+   Módulo Configuración
+   ============================================================ */
+
+/* Tabs */
+.cfg-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--krown-border);
+}
+.cfg-tab {
+    background: transparent;
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--krown-text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color .15s, border-color .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.cfg-tab:hover { color: var(--krown-text); }
+.cfg-tab.active {
+    color: var(--krown-black);
+    border-bottom-color: var(--krown-gold);
+}
+.cfg-tab-count {
+    display: inline-block;
+    background: var(--krown-black);
+    color: var(--krown-gold-light);
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.cfg-tab-content { display: none; }
+.cfg-tab-content.active { display: block; }
+
+/* Grid interno de las cards */
+.cfg-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 20px;
+}
+.cfg-grid-2 .field-full {
+    grid-column: 1 / -1;
+}
+@media (max-width: 700px) {
+    .cfg-grid-2 { grid-template-columns: 1fr; }
+    .cfg-grid-2 .field-full { grid-column: auto; }
+}
+
+/* Checkbox activo */
+.cfg-check-activo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 0;
+}
+.cfg-check-activo input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--krown-teal);
+}
+
+/* Listado de emisores */
+.cfg-emisores-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.cfg-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--krown-text-muted);
+    border: 2px dashed var(--krown-border);
+    border-radius: var(--radius-md);
+    background: #FAFAFA;
+    font-size: 14px;
+}

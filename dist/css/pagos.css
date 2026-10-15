@@ -1,0 +1,258 @@
+/* ============================================================
+   Módulo Cobros
+   ============================================================ */
+
+/* Filtros del listado */
+.cob-filters {
+    display: grid;
+    grid-template-columns: 140px 140px 2fr 1.5fr 130px;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 12px;
+}
+@media (max-width: 1100px) { .cob-filters { grid-template-columns: 1fr 1fr 1fr; } }
+@media (max-width: 700px)  { .cob-filters { grid-template-columns: 1fr; } }
+
+/* Grid interno del form */
+.cob-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 20px;
+}
+@media (max-width: 700px) { .cob-grid-2 { grid-template-columns: 1fr; } }
+
+/* Badges de medio de pago */
+.cob-medio-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+}
+.cob-medio-efectivo      { background: rgba(15, 92, 82, .12);  color: var(--krown-teal); }
+.cob-medio-transferencia { background: rgba(107, 79, 160, .12); color: #6B4FA0; }
+.cob-medio-cheque        { background: rgba(201, 151, 58, .15); color: #8a6a14; }
+.cob-medio-tarjeta       { background: rgba(91, 107, 140, .12); color: #5B6B8C; }
+.cob-medio-retencion     { background: rgba(178, 58, 72, .12); color: var(--krown-crimson); }
+.cob-medio-otro          { background: rgba(120, 120, 120, .12); color: #666; }
+
+/* ============================================================
+   FORM DE COBRO
+   ============================================================ */
+
+/* Bloque de facturas pendientes */
+.cob-facturas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.cob-factura-item {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1.5px solid var(--krown-border);
+    border-radius: var(--radius-md);
+    background: #FCFCFC;
+    transition: border-color .15s, background .15s;
+}
+.cob-factura-item.selected {
+    background: #FFFDF5;
+    border-color: var(--krown-gold);
+}
+.cob-factura-check {
+    flex-shrink: 0;
+}
+.cob-factura-check input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--krown-teal);
+    cursor: pointer;
+}
+.cob-factura-info {
+    flex: 1;
+    min-width: 0;
+}
+.cob-factura-titulo {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--krown-black);
+}
+.cob-factura-meta {
+    font-size: 12px;
+    color: var(--krown-text-muted);
+    margin-top: 2px;
+}
+.cob-factura-importes {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+.cob-factura-importes .total {
+    color: var(--krown-text-muted);
+}
+.cob-factura-importes .saldo {
+    font-weight: 700;
+    color: var(--krown-crimson);
+    font-size: 15px;
+}
+.cob-factura-input {
+    flex: 0 0 130px;
+}
+.cob-factura-input input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid var(--krown-border);
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: right;
+    font-weight: 600;
+}
+.cob-factura-input input:focus {
+    outline: none;
+    border-color: var(--krown-gold);
+    box-shadow: 0 0 0 3px rgba(201, 151, 58, .18);
+}
+
+/* Bloque de medios de pago */
+.cob-medios-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.cob-medio-item {
+    padding: 14px;
+    border: 1.5px solid var(--krown-border);
+    border-radius: var(--radius-md);
+    background: #FCFCFC;
+    position: relative;
+}
+.cob-medio-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.cob-medio-item-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--krown-text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.cob-medio-remove {
+    color: var(--krown-crimson);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.cob-medio-remove:hover {
+    background: rgba(178, 58, 72, .1);
+}
+.cob-medio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+@media (max-width: 700px) { .cob-medio-grid { grid-template-columns: 1fr; } }
+
+.cob-medio-fields-extra {
+    grid-column: 1 / -1;
+    padding-top: 12px;
+    border-top: 1px dashed var(--krown-border);
+    margin-top: 6px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+@media (max-width: 700px) { .cob-medio-fields-extra { grid-template-columns: 1fr; } }
+
+.cob-medio-fields-extra .field-full {
+    grid-column: 1 / -1;
+}
+
+/* Totales del cobro */
+.cob-totales {
+    background: var(--krown-black);
+    color: var(--krown-paper);
+    border-radius: var(--radius-lg);
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.cob-totales-item {
+    display: flex;
+    flex-direction: column;
+}
+.cob-totales-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #7A7266;
+    margin-bottom: 4px;
+}
+.cob-totales-valor {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--krown-paper);
+}
+.cob-totales-total {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--krown-gold-light);
+}
+.cob-totales-ok    { color: #8FD9A8; }
+.cob-totales-error { color: #E8A0A0; }
+
+/* Alerta de diferencia */
+.cob-alerta-diferencia {
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.cob-alerta-ok {
+    background: rgba(15, 92, 82, .1);
+    color: var(--krown-teal);
+    border: 1px solid rgba(15, 92, 82, .25);
+}
+.cob-alerta-error {
+    background: rgba(178, 58, 72, .1);
+    color: var(--krown-crimson);
+    border: 1px solid rgba(178, 58, 72, .25);
+}
+
+/* Badges nuevos para estado de pago */
+.badge-warning {
+    background: rgba(201, 151, 58, .15);
+    color: #8a6a14;
+}
+.badge-pending {
+    background: rgba(178, 58, 72, .12);
+    color: var(--krown-crimson);
+}
+
+/* Botón chico */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+}

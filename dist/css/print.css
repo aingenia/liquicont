@@ -1,0 +1,179 @@
+/* ============================================================
+   KROWN SPIRITS — Estilos de impresión
+   Se usa en TODAS las vistas print (usuarios, clientes, artículos...)
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+body.print-page {
+    margin: 0;
+    padding: 0;
+    font-family: 'Work Sans', Arial, sans-serif;
+    color: #211B14;
+    background: #fff;
+    font-size: 12px;
+}
+
+/* ---------- Barra de acciones (no se imprime) ---------- */
+.print-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+    padding: 12px 24px;
+    background: #F1F1F1;
+    border-bottom: 1px solid #cbd5e1;
+}
+
+.print-toolbar .btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.print-toolbar .btn-primary {
+    background: #14110E;
+    color: #E4C077;
+}
+
+.print-toolbar .btn-outline {
+    background: #fff;
+    color: #14110E;
+    border-color: #cbd5e1;
+}
+
+/* ---------- Encabezado del reporte ---------- */
+.print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px;
+    border-bottom: 2px solid #14110E;
+    margin-bottom: 20px;
+}
+
+.print-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.print-logo {
+    height: 48px;
+    width: auto;
+}
+
+.print-brand h1 {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: #14110E;
+}
+
+.print-brand p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #7A7266;
+}
+
+.print-meta {
+    text-align: right;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.print-meta p { margin: 0; }
+
+/* ---------- Tabla ---------- */
+.print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 24px;
+    width: calc(100% - 48px);
+    font-size: 12px;
+}
+
+.print-table thead th {
+    text-align: left;
+    padding: 10px 8px;
+    background: #14110E;
+    color: #F1F1F1;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    border: 1px solid #14110E;
+}
+
+.print-table td {
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    vertical-align: middle;
+}
+
+.print-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+/* ---------- Pie ---------- */
+.print-footer {
+    margin-top: 30px;
+    padding: 16px 24px;
+    border-top: 1px solid #cbd5e1;
+    text-align: center;
+    font-size: 11px;
+    color: #7A7266;
+}
+
+/* ============================================================
+   REGLAS DE IMPRESIÓN
+   ============================================================ */
+@media print {
+    /* Todo lo que no debe salir en papel */
+    .no-print,
+    .print-toolbar {
+        display: none !important;
+    }
+
+    /* Márgenes de la página */
+    @page {
+        margin: 15mm 12mm;
+        size: A4 portrait;
+    }
+
+    body.print-page {
+        font-size: 11px;
+    }
+
+    .print-header {
+        padding: 0 0 16px;
+        margin-bottom: 14px;
+    }
+
+    .print-table {
+        margin: 0;
+        width: 100%;
+        page-break-inside: auto;
+    }
+
+    .print-table thead {
+        display: table-header-group; /* Repite el encabezado en cada página */
+    }
+
+    .print-table tbody tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    .print-footer {
+        padding: 12px 0 0;
+        margin-top: 20px;
+    }
+}

@@ -1,0 +1,162 @@
+/* ============================================================
+   Módulo Facturación
+   ============================================================ */
+
+.fac-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--krown-border);
+}
+.fac-tab {
+    background: transparent;
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--krown-text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color .15s, border-color .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.fac-tab:hover { color: var(--krown-text); }
+.fac-tab.active {
+    color: var(--krown-black);
+    border-bottom-color: var(--krown-gold);
+}
+.fac-tab-count {
+    display: inline-block;
+    background: var(--krown-black);
+    color: var(--krown-gold-light);
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.fac-tab-content { display: none; }
+.fac-tab-content.active { display: block; }
+
+/* Filtros de facturas emitidas */
+.fac-filters {
+    display: grid;
+    grid-template-columns: 130px 130px 160px 2fr 140px;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 12px;
+}
+@media (max-width: 1100px) { .fac-filters { grid-template-columns: 1fr 1fr 1fr; } }
+@media (max-width: 700px)  { .fac-filters { grid-template-columns: 1fr; } }
+
+/* Cabecera de la vista "ver" */
+.fac-header-card {
+    background: var(--krown-black);
+    color: var(--krown-paper);
+    border-radius: var(--radius-lg);
+    padding: 20px 26px;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 24px;
+    align-items: center;
+}
+@media (max-width: 900px) {
+    .fac-header-card { grid-template-columns: 1fr; }
+}
+.fac-header-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #7A7266;
+    display: block;
+    margin-bottom: 4px;
+}
+.fac-header-nombre {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--krown-gold-light);
+}
+.fac-header-sub {
+    font-size: 12px;
+    color: #B0A894;
+    margin-top: 2px;
+}
+.fac-header-right {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+.fac-header-stat {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+}
+.fac-header-valor {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--krown-paper);
+}
+.fac-header-total {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--krown-gold-light);
+}
+
+/* Estado ARCA */
+.fac-arca-status {
+    margin-top: 16px;
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 14px;
+}
+.fac-arca-pendiente { background: rgba(201, 151, 58, .12); color: #8a6a14; border: 1px solid rgba(201, 151, 58, .3); }
+.fac-arca-aprobado  { background: rgba(15, 92, 82, .10);   color: var(--krown-teal); border: 1px solid rgba(15, 92, 82, .25); }
+.fac-arca-error     { background: rgba(178, 58, 72, .10);  color: var(--krown-crimson); border: 1px solid rgba(178, 58, 72, .25); }
+.fac-arca-status span { opacity: .8; font-size: 13px; }
+.fac-arca-status strong { font-size: 15px; }
+
+/* Acciones */
+.fac-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+/* Totales */
+.fac-totales {
+    float: right;
+    width: 340px;
+    margin-top: 20px;
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    padding: 16px 22px;
+    box-shadow: var(--shadow-card);
+}
+.fac-totales table { width: 100%; }
+.fac-totales td { padding: 6px 0; font-size: 14px; }
+.fac-totales .text-right { text-align: right; }
+.fac-totales-total td {
+    border-top: 2px solid var(--krown-black);
+    padding-top: 12px;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+/* Form */
+.fac-readonly {
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 1.5px solid var(--krown-border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--krown-text);
+    font-weight: 500;
+}

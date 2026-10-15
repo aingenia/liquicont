@@ -1,0 +1,512 @@
+/* ============================================================
+   Módulo Contabilidad
+   ============================================================ */
+
+/* ---------- Flash messages ---------- */
+.flash-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+/* ---------- Tabs del módulo (reutiliza .fac-tabs de style.css) ---------- */
+/* Nada extra: usamos .fac-tabs / .fac-tab / .fac-tab-content tal cual */
+
+/* ---------- Cards / layout ---------- */
+.cont-card {
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+.cont-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px 14px;
+    border-bottom: 1px solid var(--krown-border);
+    flex-wrap: wrap;
+}
+.cont-card-header h3 { margin: 0 0 4px; font-size: 18px; color: var(--krown-black); }
+.cont-card-header p  { margin: 0; font-size: 13px; color: var(--krown-text-muted); }
+.cont-card-body { padding: 20px 24px 24px; }
+
+/* ---------- Toolbar / filtros ---------- */
+.cont-toolbar {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 20px;
+}
+.cont-toolbar .form-group { margin-bottom: 0; flex: 0 0 170px; }
+.cont-toolbar .form-group.grow { flex: 1 1 240px; }
+.cont-toolbar .acciones { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 700px) {
+    .cont-toolbar .form-group, .cont-toolbar .form-group.grow { flex: 1 1 100%; }
+    .cont-toolbar .acciones { margin-left: 0; width: 100%; }
+}
+
+/* ---------- Dashboard (index) ---------- */
+.cont-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.cont-stat {
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-left: 4px solid var(--krown-gold);
+}
+.cont-stat.cont-stat-teal    { border-left-color: var(--krown-teal); }
+.cont-stat.cont-stat-crimson { border-left-color: var(--krown-crimson); }
+.cont-stat.cont-stat-dark    { border-left-color: var(--krown-black); }
+.cont-stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--krown-text-muted);
+}
+.cont-stat-valor {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--krown-black);
+}
+.cont-stat-sub { font-size: 12px; color: var(--krown-text-muted); }
+
+/* ---------- Árbol de plan de cuentas ---------- */
+.cont-tree {
+    font-family: var(--font-body);
+}
+.cont-tree ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+.cont-tree ul.cont-tree-children {
+    padding-left: 26px;
+    margin-left: 10px;
+    border-left: 1.5px dashed var(--krown-border);
+}
+.cont-tree li {
+    margin: 3px 0;
+}
+.cont-tree-node {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background .15s;
+    font-size: 14px;
+}
+.cont-tree-node:hover { background: #FAFAFA; }
+.cont-tree-toggle {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--krown-text-muted);
+    font-size: 14px;
+    padding: 0;
+    flex-shrink: 0;
+}
+.cont-tree-toggle.oculto { visibility: hidden; }
+.cont-tree-codigo {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--krown-text-muted);
+    min-width: 90px;
+    font-weight: 600;
+}
+.cont-tree-nombre {
+    flex: 1;
+    color: var(--krown-text);
+    font-weight: 500;
+}
+.cont-tree-node.no-imputable .cont-tree-nombre {
+    font-weight: 700;
+    color: var(--krown-black);
+}
+.cont-tree-tipo {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(20,17,14,.06);
+    color: var(--krown-text-muted);
+}
+.cont-tree-tipo.t-ACTIVO     { background: rgba(15,92,82,.12); color: var(--krown-teal); }
+.cont-tree-tipo.t-PASIVO     { background: rgba(178,58,72,.12); color: var(--krown-crimson); }
+.cont-tree-tipo.t-PATRIMONIO { background: rgba(107,79,160,.12); color: #6B4FA0; }
+.cont-tree-tipo.t-RESULTADO_POSITIVO { background: rgba(201,151,58,.15); color: #8a6a14; }
+.cont-tree-tipo.t-RESULTADO_NEGATIVO { background: rgba(91,107,140,.15); color: #5B6B8C; }
+.cont-tree-acciones {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity .15s;
+}
+.cont-tree-node:hover .cont-tree-acciones { opacity: 1; }
+.cont-tree-acciones .btn-icon {
+    width: 30px;
+    height: 30px;
+}
+
+/* ---------- Formulario de asiento ---------- */
+.cont-asiento-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px 20px;
+    margin-bottom: 20px;
+}
+.cont-asiento-header .full { grid-column: 1 / -1; }
+@media (max-width: 800px) {
+    .cont-asiento-header { grid-template-columns: 1fr; }
+}
+
+.cont-asiento-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background: #FFF;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--krown-border);
+}
+.cont-asiento-tabla thead th {
+    background: var(--krown-paper);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--krown-text-muted);
+    padding: 10px 10px;
+    text-align: left;
+    border-bottom: 2px solid var(--krown-border);
+    white-space: nowrap;
+}
+.cont-asiento-tabla td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--krown-border);
+    vertical-align: middle;
+}
+.cont-asiento-tabla tbody tr:last-child td { border-bottom: none; }
+.cont-asiento-tabla input,
+.cont-asiento-tabla select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid var(--krown-border);
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-family: var(--font-body);
+    background: #FFF;
+    transition: border-color .15s, box-shadow .15s;
+}
+.cont-asiento-tabla input:focus,
+.cont-asiento-tabla select:focus {
+    outline: none;
+    border-color: var(--krown-gold);
+    box-shadow: 0 0 0 3px rgba(201,151,58,.15);
+}
+.cont-asiento-tabla input.num { text-align: right; font-family: var(--font-mono); }
+.cont-asiento-tabla .col-cuenta   { width: 34%; }
+.cont-asiento-tabla .col-detalle  { width: auto; }
+.cont-asiento-tabla .col-importe  { width: 130px; }
+.cont-asiento-tabla .col-accion   { width: 46px; text-align: center; }
+.cont-asiento-tabla tr.fila-invalida input { border-color: var(--krown-crimson); }
+
+.cont-asiento-tabla .btn-remove-line {
+    background: transparent;
+    border: none;
+    color: var(--krown-crimson);
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.cont-asiento-tabla .btn-remove-line:hover {
+    background: rgba(178,58,72,.1);
+}
+
+.cont-asiento-totales {
+    display: flex;
+    justify-content: flex-end;
+    gap: 32px;
+    padding: 14px 18px;
+    margin-top: -1px;
+    background: var(--krown-black);
+    color: var(--krown-paper);
+    border-radius: 0 0 10px 10px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+.cont-asiento-totales .label {
+    font-size: 10.5px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #A39B8E;
+    font-family: var(--font-body);
+    font-weight: 700;
+    margin-right: 8px;
+}
+.cont-asiento-totales .valor { font-weight: 700; }
+.cont-asiento-totales.desbalanceado { background: var(--krown-crimson); }
+.cont-asiento-totales .ok {
+    color: #7BE7B8;
+    font-weight: 700;
+}
+
+.cont-asiento-acciones {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* ---------- Ver asiento ---------- */
+.cont-asiento-ver-header {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--krown-border);
+    margin-bottom: 20px;
+}
+.cont-asiento-ver-header .item { display: flex; flex-direction: column; gap: 2px; }
+.cont-asiento-ver-header .item .lbl {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--krown-text-muted);
+}
+.cont-asiento-ver-header .item .val {
+    font-size: 14.5px;
+    color: var(--krown-text);
+    font-weight: 600;
+}
+@media (max-width: 700px) {
+    .cont-asiento-ver-header { grid-template-columns: 1fr 1fr; }
+}
+
+/* ---------- Badges de estado ---------- */
+.badge-borrador   { background: rgba(201,151,58,.15); color: #8a6a14; }
+.badge-confirmado { background: rgba(15,92,82,.15);   color: var(--krown-teal); }
+.badge-anulado    { background: rgba(178,58,72,.15);  color: var(--krown-crimson); }
+
+/* ---------- Reportes (diario, mayor, balance) ---------- */
+.cont-tabla-reporte {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+.cont-tabla-reporte thead th {
+    background: var(--krown-paper);
+    padding: 10px 10px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--krown-text-muted);
+    border-bottom: 2px solid var(--krown-border);
+    white-space: nowrap;
+}
+.cont-tabla-reporte td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--krown-border);
+    vertical-align: top;
+}
+.cont-tabla-reporte td.num,
+.cont-tabla-reporte th.num {
+    text-align: right;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+}
+.cont-tabla-reporte tr.fila-asiento {
+    background: #FAFAFA;
+    font-weight: 700;
+}
+.cont-tabla-reporte tr.fila-asiento td {
+    border-top: 1.5px solid var(--krown-border);
+}
+.cont-tabla-reporte tr.fila-totales {
+    background: var(--krown-black);
+    color: var(--krown-paper);
+    font-weight: 700;
+}
+.cont-tabla-reporte tr.fila-totales td {
+    border-bottom: none;
+    font-family: var(--font-mono);
+}
+.cont-tabla-reporte tr.fila-totales td:first-child {
+    font-family: var(--font-body);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 11px;
+}
+.cont-tabla-reporte .codigo {
+    font-family: var(--font-mono);
+    color: var(--krown-text-muted);
+    font-size: 12.5px;
+}
+
+/* ---------- Saldo inicial en mayor ---------- */
+.cont-mayor-saldo-inicial {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #F8FAFC;
+    border: 1px solid var(--krown-border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--krown-text-muted);
+}
+.cont-mayor-saldo-inicial strong { color: var(--krown-black); }
+
+/* ---------- Modal genérico (reutilizable) ---------- */
+.cont-modal {
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    padding: 0;
+    max-width: 460px;
+    width: 92vw;
+}
+.cont-modal::backdrop { background: rgba(20,17,14,.5); }
+.cont-modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--krown-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.cont-modal-header h3 { margin: 0; font-size: 17px; }
+.cont-modal-body { padding: 20px 22px; }
+.cont-modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--krown-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #FAFAFA;
+}
+
+/* ---------- Responsive: tabla de asiento se vuelve tarjeta ---------- */
+@media (max-width: 800px) {
+    .cont-asiento-tabla thead { display: none; }
+    .cont-asiento-tabla,
+    .cont-asiento-tabla tbody,
+    .cont-asiento-tabla tr,
+    .cont-asiento-tabla td { display: block; width: 100%; }
+    .cont-asiento-tabla tr {
+        padding: 10px;
+        border: 1px solid var(--krown-border);
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+    .cont-asiento-tabla td { border: none; padding: 4px 0; }
+    .cont-asiento-tabla td.col-accion { text-align: right; }
+    .cont-asiento-tabla .col-cuenta,
+    .cont-asiento-tabla .col-importe { width: 100%; }
+}
+
+/* ============================================================
+   Configuración contable
+   ============================================================ */
+.cont-config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px 24px;
+}
+.cont-config-grid .form-group {
+    margin-bottom: 0;
+}
+.cont-config-grid code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: #F1F1F1;
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--krown-text-muted);
+}
+
+/* ============================================================
+   Estados Contables
+   ============================================================ */
+.estado-tabla .estado-seccion td {
+    background: var(--krown-black);
+    color: var(--krown-gold-light);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+}
+.estado-tabla .estado-rubro {
+    background: #FAFAFA;
+}
+.estado-tabla .estado-rubro td {
+    border-top: 1.5px solid var(--krown-border);
+    font-size: 13.5px;
+}
+.estado-tabla .codigo {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--krown-text-muted);
+}
+.estado-tabla tbody tr:hover {
+    background: #F9F9F9;
+}
+.estado-tabla .estado-rubro:hover {
+    background: #F0F0F0;
+}
+
+/* Total grande en el header de la card */
+.estado-resultado-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+.estado-resultado-total-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: var(--krown-text-muted);
+    text-transform: uppercase;
+}
+.estado-resultado-total-valor {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--krown-black);
+}
+.estado-resultado-total-var {
+    font-size: 11px;
+    color: var(--krown-text-muted);
+}

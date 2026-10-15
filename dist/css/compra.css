@@ -1,0 +1,148 @@
+/* Módulo Compras */
+
+/* ============================================================
+   FORM — Grids proporcionales
+   ============================================================ */
+
+/* Grid de 6 columnas para el card "Datos del comprobante" */
+.comp-grid-6 {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px 16px;
+}
+.comp-grid-6 > .col-1 { grid-column: span 1; }
+.comp-grid-6 > .col-2 { grid-column: span 2; }
+.comp-grid-6 > .col-3 { grid-column: span 3; }
+.comp-grid-6 > .col-4 { grid-column: span 4; }
+.comp-grid-6 > .col-6 { grid-column: span 6; }
+
+/* Grid de 4 columnas para "Importes" */
+.comp-grid-4 {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    gap: 14px 16px;
+}
+
+/* Grid de 3 columnas para "Cuenta contable" */
+.comp-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 14px 16px;
+}
+
+/* Responsive: apilamos */
+@media (max-width: 1000px) {
+    .comp-grid-6 { grid-template-columns: repeat(4, 1fr); }
+    .comp-grid-6 > .col-4 { grid-column: span 4; }
+    .comp-grid-6 > .col-3 { grid-column: span 2; }
+
+    .comp-grid-4 { grid-template-columns: 1fr 1fr; }
+    .comp-grid-3 { grid-template-columns: 1fr 1fr; }
+    .comp-grid-3 > *:first-child { grid-column: span 2; }
+}
+@media (max-width: 700px) {
+    .comp-grid-6,
+    .comp-grid-4,
+    .comp-grid-3 {
+        grid-template-columns: 1fr;
+    }
+    .comp-grid-6 > *,
+    .comp-grid-4 > *,
+    .comp-grid-3 > * { grid-column: span 1 !important; }
+}
+
+/* Inputs compactos: que no se estiren más de la cuenta */
+.comp-grid-6 input[type="text"],
+.comp-grid-6 input[type="date"],
+.comp-grid-6 select { max-width: 100%; }
+
+/* Botón ARCA — tamaño contenido */
+.comp-arca-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: end;
+    padding-top: 4px;
+}
+.btn-arca-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 13.5px;
+    font-weight: 600;
+    background: var(--krown-teal);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .15s;
+    white-space: nowrap;
+}
+.btn-arca-inline:hover { background: var(--krown-teal-light); }
+.btn-arca-inline[disabled] { opacity: .6; cursor: not-allowed; }
+.btn-arca-inline svg { width: 15px; height: 15px; }
+
+/* Total compacto (integrado en el grid de importes) */
+.comp-total-compact {
+    background: var(--krown-gold);
+    color: var(--krown-black);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -.3px;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.comp-total-compact-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: .7;
+    margin-bottom: 2px;
+    text-align: right;
+}
+
+/* Filtros del listado */
+.comp-filters {
+    display: grid;
+    grid-template-columns: 130px 130px 2fr 1.5fr 140px;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 12px;
+}
+@media (max-width: 1000px) { .comp-filters { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px)  { .comp-filters { grid-template-columns: 1fr; } }
+
+.comp-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--krown-border);
+    flex-wrap: wrap;
+}
+.comp-actions-info { font-size: 13px; color: var(--krown-text-muted); }
+.comp-actions-info strong { color: var(--krown-text); }
+.comp-actions-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Adjunto */
+.comp-adjunto { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.comp-adjunto-info { font-size: 14px; }
+.comp-adjunto-info a { color: var(--krown-teal); font-weight: 600; }
+.comp-adjunto-botones { display: flex; gap: 8px; }
+
+/* Detalle del comprobante */
+.comp-add-row { border-top: 1px dashed var(--krown-border); padding-top: 16px; margin-top: 16px; }
+.comp-add-grid { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: end; }
+@media (max-width: 900px) { .comp-add-grid { grid-template-columns: 1fr; } }
+
+/* Fila anulada */
+.fila-anulada td { opacity: .55; text-decoration: line-through; }
+.fila-anulada td.col-acciones { text-decoration: none; }
+.fila-anulada .badge { text-decoration: none; }

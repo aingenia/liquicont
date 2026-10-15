@@ -1,0 +1,169 @@
+/* ============================================================
+   INSUMOS — layout del form
+   ============================================================ */
+
+.insumo-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 900px) {
+    .insumo-grid {
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    }
+    .insumo-col-right .card:first-child { margin-top: 0; }
+}
+
+.insumo-row-3col {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 700px) {
+    .insumo-row-3col { grid-template-columns: 1fr; }
+}
+
+.insumo-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 0;
+}
+
+.insumo-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--krown-teal);
+}
+
+.insumo-radios {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.insumo-radios label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.insumo-radios input[type="radio"] {
+    accent-color: var(--krown-gold);
+}
+
+.insumo-costo-box {
+    background: var(--krown-gold);
+    color: var(--krown-black);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-top: 10px;
+}
+
+.insumo-costo-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+.insumo-costo-valor {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-top: 4px;
+}
+
+.insumo-add-prov {
+    border-top: 1px dashed var(--krown-border);
+    padding-top: 16px;
+}
+
+.insumo-add-prov-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+@media (max-width: 900px) {
+    .insumo-add-prov-grid { grid-template-columns: 1fr; }
+}
+
+.insumo-placeholder {
+    padding: 24px;
+    text-align: center;
+    color: var(--krown-text-muted);
+    font-size: 14px;
+    background: #FAFAFA;
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--krown-border);
+}
+
+.variacion-up   { color: var(--krown-crimson); font-weight: 600; }
+.variacion-down { color: var(--krown-teal);    font-weight: 600; }
+
+.btn-anular-hist {
+    width: 30px;
+    height: 30px;
+    color: var(--krown-crimson);
+    border-color: rgba(178,58,72,.3);
+}
+.btn-anular-hist:hover {
+    background: rgba(178,58,72,.1);
+    border-color: var(--krown-crimson);
+}
+
+/* Fila de proveedor en modo edición */
+#tablaProveedoresInsumo tr.fila-editando {
+    background: #FFFDF5;
+}
+#tablaProveedoresInsumo tr.fila-editando td {
+    vertical-align: middle;
+}
+
+#tablaProveedoresInsumo .cell-costo .editor,
+#tablaProveedoresInsumo .cell-codigo .editor {
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 6px 10px;
+    border: 1.5px solid var(--krown-gold);
+    border-radius: 6px;
+    background: #fff;
+}
+
+#tablaProveedoresInsumo .btn-editar-prov {
+    color: var(--krown-teal);
+    border-color: rgba(15, 92, 82, .3);
+}
+#tablaProveedoresInsumo .btn-editar-prov:hover {
+    background: rgba(15, 92, 82, .08);
+    border-color: var(--krown-teal);
+}
+
+#tablaProveedoresInsumo .btn-guardar-prov {
+    color: var(--krown-teal);
+    border-color: rgba(15, 92, 82, .4);
+    background: rgba(15, 92, 82, .08);
+}
+#tablaProveedoresInsumo .btn-guardar-prov:hover {
+    background: rgba(15, 92, 82, .18);
+}
+
+#tablaProveedoresInsumo .btn-cancelar-prov {
+    color: var(--krown-text-muted);
+    border-color: var(--krown-border);
+}
+#tablaProveedoresInsumo .btn-cancelar-prov:hover {
+    color: var(--krown-crimson);
+    border-color: var(--krown-crimson);
+}

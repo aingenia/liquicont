@@ -1,0 +1,197 @@
+/* ============================================================
+   Módulo Pedidos
+   ============================================================ */
+
+/* Grids internos */
+.ped-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 14px 16px;
+}
+.ped-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+}
+.ped-grid-2 .field-full,
+.ped-grid-3 .field-full { grid-column: 1 / -1; }
+
+@media (max-width: 900px) {
+    .ped-grid-3 { grid-template-columns: 1fr 1fr; }
+    .ped-grid-3 > *:first-child { grid-column: 1 / -1; }
+    .ped-grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+    .ped-grid-3 { grid-template-columns: 1fr; }
+    .ped-grid-3 > *:first-child { grid-column: auto; }
+}
+
+/* Bloque de agregar artículo */
+.ped-add-grid {
+    display: grid;
+    grid-template-columns: 2fr 100px 150px 130px 90px auto;
+    gap: 12px;
+    align-items: end;
+}
+@media (max-width: 1200px) {
+    .ped-add-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .ped-add-grid > *:first-child { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+    .ped-add-grid { grid-template-columns: 1fr 1fr; }
+    .ped-add-grid > *:first-child { grid-column: 1 / -1; }
+}
+
+/* Aviso de precio */
+.ped-aviso {
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 13px;
+    background: rgba(178, 58, 72, .08);
+    color: var(--krown-crimson);
+    border: 1px solid rgba(178, 58, 72, .25);
+}
+
+/* Vista readonly del estado */
+.ped-estado-view {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+}
+
+/* Badges de estado */
+.ped-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.estado-recibido   { background: rgba(178, 58, 72, .12);  color: var(--krown-crimson); }
+.estado-procesando { background: rgba(201, 151, 58, .15); color: #8a6a14; }
+.estado-preparado  { background: rgba(15, 92, 82, .12);   color: var(--krown-teal); }
+.estado-facturado  { background: rgba(107, 79, 160, .12); color: #6B4FA0; }
+.estado-entregado  { background: rgba(91, 107, 140, .12); color: #5B6B8C; }
+.estado-anulado    { background: rgba(120, 120, 120, .12); color: #666; }
+
+/* Fila con descuento (verde en subtotal) */
+.ped-desc-aplicado {
+    color: var(--krown-teal);
+    font-weight: 600;
+}
+
+/* Punto indicador de modificación */
+.ped-dot-modificado {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--krown-gold);
+    margin-left: 6px;
+    vertical-align: middle;
+    box-shadow: 0 0 0 3px rgba(201, 151, 58, .2);
+    animation: pulseDot 2s ease-in-out infinite;
+}
+@keyframes pulseDot {
+    0%, 100% { transform: scale(1);   opacity: 1; }
+    50%      { transform: scale(1.15); opacity: .7; }
+}
+
+/* Filtros del listado */
+.ped-filters {
+    display: grid;
+    grid-template-columns: 2fr 160px 140px 140px;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 12px;
+}
+@media (max-width: 900px) { .ped-filters { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .ped-filters { grid-template-columns: 1fr; } }
+
+/* Fila anulada */
+.fila-anulada td { opacity: .55; text-decoration: line-through; }
+.fila-anulada td.col-acciones { text-decoration: none; }
+.fila-anulada .ped-badge { text-decoration: none; }
+
+/* Estilos reutilizados del módulo compras */
+.comp-actions { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-top:12px; border-top:1px dashed var(--krown-border); flex-wrap:wrap; }
+.comp-actions-info { font-size:13px; color:var(--krown-text-muted); }
+.comp-actions-info strong { color:var(--krown-text); }
+.comp-actions-buttons { display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ============================================================
+   SELECT DE ESTADO — coloreado por estado
+   Concepto: borde del color, fondo muy claro del mismo tono.
+   ============================================================ */
+
+#estado_display {
+    font-weight: 700;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px;
+    padding-right: 40px;
+    transition: background-color .2s, border-color .2s, color .2s;
+    /* Flecha que hereda el color del texto (currentColor) */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+}
+
+/* RECIBIDO — rojo */
+#estado_display.estado-recibido {
+    background-color: rgba(178, 58, 72, .10);
+    border-color: var(--color-estado-recibido);
+    color: var(--color-estado-recibido);
+}
+
+/* PROCESANDO — dorado */
+#estado_display.estado-procesando {
+    background-color: rgba(201, 151, 58, .12);
+    border-color: var(--color-estado-procesando);
+    color: #8a6a14;
+}
+
+/* PREPARADO — verde teal */
+#estado_display.estado-preparado {
+    background-color: rgba(15, 92, 82, .10);
+    border-color: var(--color-estado-preparado);
+    color: var(--color-estado-preparado);
+}
+
+/* FACTURADO — violeta */
+#estado_display.estado-facturado {
+    background-color: rgba(107, 79, 160, .10);
+    border-color: var(--color-estado-facturado);
+    color: var(--color-estado-facturado);
+}
+
+/* ENTREGADO — azul grisáceo */
+#estado_display.estado-entregado {
+    background-color: rgba(91, 107, 140, .10);
+    border-color: var(--color-estado-entregado);
+    color: var(--color-estado-entregado);
+}
+
+/* ANULADO — gris neutro */
+#estado_display.estado-anulado {
+    background-color: rgba(120, 120, 120, .10);
+    border-color: #7A7A7A;
+    color: #666;
+}
+
+/* Override del focus genérico para que no pierda el color de estado */
+#estado_display:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(20, 17, 14, .06);
+}

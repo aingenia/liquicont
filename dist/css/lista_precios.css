@@ -1,0 +1,439 @@
+/* ============================================================
+   Módulo Lista de Precios
+   ============================================================ */
+
+/* Header de acciones */
+.lp-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Controles (arriba de la previsualización) */
+.lp-controles {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+.lp-controles .form-group {
+    margin-bottom: 0;
+}
+
+/* ============================================================
+   PREVISUALIZACIÓN — Simula una hoja A4
+   ============================================================ */
+.lp-preview {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 50px 30px;
+    background: #FFFFFF;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 6px 30px rgba(20, 17, 14, .10);
+}
+
+/* Logo centrado */
+.lp-logo-wrap {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.lp-logo {
+    max-width: 220px;
+    height: auto;
+}
+
+/* Barra: N° | leyenda | vigencia */
+.lp-barra {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-top: 1px solid var(--krown-black);
+    border-bottom: 1px solid var(--krown-black);
+    font-size: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.lp-barra-item {
+    white-space: nowrap;
+}
+.lp-barra-numero strong {
+    font-size: 13px;
+    color: var(--krown-black);
+}
+.lp-barra-leyenda {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: .3px;
+    color: var(--krown-black);
+    text-align: center;
+    flex: 1;
+}
+.lp-barra-vigencia strong {
+    color: var(--krown-black);
+}
+
+/* Grupo */
+.lp-grupo {
+    margin-bottom: 26px;
+}
+.lp-grupo-titulo {
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--krown-black);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid var(--krown-black);
+    margin: 0 0 8px;
+}
+
+/* Tabla de precios */
+.lp-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.lp-tabla thead th {
+    text-align: right;
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--krown-black);
+    text-transform: none;
+    letter-spacing: 0;
+    border-bottom: 1px solid #DDD;
+}
+.lp-tabla tbody td {
+    padding: 7px 8px;
+    border-bottom: 1px dashed #EEE;
+    color: var(--krown-text);
+    vertical-align: middle;
+}
+.lp-tabla tbody tr:last-child td {
+    border-bottom: none;
+}
+.lp-tabla tbody tr:hover td {
+    background: #FAFAFA;
+}
+.lp-tabla .lp-col-cod {
+    width: 40px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--krown-black);
+    font-size: 12px;
+}
+.lp-tabla .lp-col-nombre {
+    text-align: left;
+}
+.lp-tabla .lp-col-caja {
+    width: 160px;
+    text-align: right;
+    font-weight: 600;
+}
+.lp-tabla .lp-col-unidad {
+    width: 100px;
+    text-align: right;
+    font-weight: 600;
+}
+.lp-tabla thead .lp-col-caja,
+.lp-tabla thead .lp-col-unidad {
+    font-size: 11.5px;
+}
+
+/* Leyenda al pie */
+.lp-leyenda-pie {
+    text-align: center;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--krown-text-muted);
+    margin: 30px 0 20px;
+}
+
+/* Pie del emisor */
+.lp-pie {
+    text-align: center;
+    font-size: 11px;
+    color: var(--krown-text-muted);
+    line-height: 1.7;
+    padding-top: 16px;
+    border-top: 1px solid #EEE;
+    margin-top: 12px;
+}
+
+/* Estado vacío */
+.lp-empty {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--krown-text-muted);
+}
+.lp-empty p {
+    margin: 0 0 8px;
+    font-size: 15px;
+}
+.lp-empty-hint {
+    font-size: 13px !important;
+    opacity: .8;
+}
+
+/* ============================================================
+   MODAL DE ENVÍO POR EMAIL
+   (mismas clases del modal de calendario, autocontenidas)
+   ============================================================ */
+.cal-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 17, 14, .65);
+    backdrop-filter: blur(2px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.cal-modal {
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+}
+.cal-modal-header {
+    background: var(--krown-black);
+    color: var(--krown-paper);
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.cal-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--krown-gold-light);
+    letter-spacing: .5px;
+}
+.cal-modal-fecha {
+    display: block;
+    font-size: 12px;
+    color: #B0A894;
+    margin-top: 3px;
+}
+.cal-modal-close {
+    background: transparent;
+    border: none;
+    color: var(--krown-gold-light);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 8px;
+    border-radius: 6px;
+    transition: background .15s;
+}
+.cal-modal-close:hover {
+    background: rgba(228, 192, 119, .15);
+}
+.cal-modal-body {
+    padding: 22px 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Subtítulos internos */
+.lp-modal-subtitulo {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--krown-black);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin: 18px 0 8px;
+}
+.lp-modal-subtitulo:first-child { margin-top: 0; }
+
+.lp-modal-clientes-hint {
+    font-size: 12px;
+    color: var(--krown-text-muted);
+    margin-bottom: 8px;
+}
+
+.lp-modal-clientes-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--krown-text-muted);
+}
+
+.lp-modal-clientes {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--krown-border);
+    border-radius: var(--radius-md);
+    padding: 8px;
+    background: #FAFAFA;
+}
+.lp-cliente-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .12s;
+}
+.lp-cliente-item:hover {
+    background: #F0F0F0;
+}
+.lp-cliente-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--krown-teal);
+    flex-shrink: 0;
+}
+.lp-cliente-nombre {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--krown-text);
+}
+.lp-cliente-email {
+    font-size: 12px;
+    color: var(--krown-text-muted);
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Inputs del modal */
+.lp-modal-input,
+.lp-modal-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--krown-border);
+    border-radius: 8px;
+    background: #F8FAFC;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--krown-text);
+    box-sizing: border-box;
+}
+.lp-modal-input:focus,
+.lp-modal-textarea:focus {
+    outline: none;
+    border-color: var(--krown-gold);
+    box-shadow: 0 0 0 3px rgba(201, 151, 58, .18);
+}
+.lp-modal-textarea {
+    resize: vertical;
+    min-height: 110px;
+    font-family: var(--font-body);
+    line-height: 1.5;
+}
+.lp-modal-hint {
+    font-size: 11.5px;
+    color: var(--krown-text-muted);
+    margin-top: 6px;
+    line-height: 1.5;
+}
+.lp-modal-hint code {
+    background: #F0EDE5;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--krown-teal);
+}
+
+/* Radios del formato */
+.lp-modal-formato {
+    display: flex;
+    gap: 20px;
+    padding: 6px 0;
+}
+.lp-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.lp-radio input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--krown-teal);
+}
+.lp-radio-disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+/* Botones del modal */
+.lp-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--krown-border);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 700px) {
+    .lp-preview {
+        padding: 24px 20px 20px;
+        border-radius: var(--radius-md);
+    }
+    .lp-barra {
+        flex-direction: column;
+        gap: 6px;
+        text-align: center;
+    }
+    .lp-barra-leyenda { flex: none; }
+
+    .lp-tabla { font-size: 12px; }
+    .lp-tabla tbody td { padding: 6px 4px; }
+    .lp-tabla .lp-col-caja { width: 100px; font-size: 12px; }
+    .lp-tabla .lp-col-unidad { width: 75px; font-size: 12px; }
+
+    .lp-controles {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .lp-controles .form-group {
+        flex: 1 1 auto !important;
+    }
+}
+
+/* Barra superior simplificada: 2 ítems (sin leyenda central) */
+.lp-barra {
+    justify-content: space-between;
+}
+.lp-barra-leyenda {
+    display: none;   /* ya no se usa en la barra superior */
+}
+
+/* Leyenda al pie resaltada */
+.lp-leyenda-pie {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--krown-black);
+    margin: 30px 0 20px;
+    letter-spacing: .3px;
+}

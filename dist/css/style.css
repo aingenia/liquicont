@@ -1,0 +1,1147 @@
+/* ============================================================
+   KROWN SPIRITS — Sistema de gestión
+   Paleta inspirada en el mundo de la destilería: negro obsidiana,
+   ámbar de barril, verde botella y un rojo bitter como acento de alerta.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+    --krown-black:        #14110E;
+    --krown-black-soft:   #1E1A16;
+    --krown-black-softer: #26211B;
+    --krown-gold:         #C9973A;
+    --krown-gold-light:   #E4C077;
+    --krown-teal:         #0F5C52;
+    --krown-teal-light:   #17836F;
+    --krown-crimson:      #B23A48;
+    --krown-paper:        #F1F1F1;
+    --krown-card:         #FFFFFF;
+    --krown-text:         #211B14;
+    --krown-text-muted:   #7A7266;
+    --krown-border:       #cbd5e1;
+
+
+    --font-heading: 'Manrope', sans-serif;
+    --font-body: 'Work Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --sidebar-collapsed: 68px;
+    --sidebar-expanded: 240px;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --shadow-card: 0 4px 20px rgba(20, 17, 14, 0.06);
+
+    --color-estado-recibido: #B23A48;
+    --color-estado-procesando: #C9973A;
+    --color-estado-preparado: #0F5C52;
+    --color-estado-facturado: #6B4FA0;
+    --color-estado-entregado: #5B6B8C;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    background: var(--krown-paper);
+    color: var(--krown-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--font-body); cursor: pointer; }
+
+.mono { font-family: var(--font-mono); }
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 18px;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    cursor: pointer;
+}
+
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+    background: var(--krown-black);
+    color: var(--krown-gold-light);
+    box-shadow: 0 6px 18px rgba(20,17,14,.25);
+}
+.btn-primary:hover { box-shadow: 0 8px 22px rgba(20,17,14,.32); }
+.btn-primary[disabled] { opacity: .6; pointer-events: none; }
+
+ .btn-outline {
+    border-radius: var(--radius-md);
+    padding: 13px 18px;
+    background: transparent;
+    color: var(--krown-black);
+    border: 1.5px solid var(--krown-border);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+
+.btn-outline:hover { border-color: var(--krown-gold); }  
+
+.btn-icon {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--krown-text);
+    padding: 0px;
+    border-radius: var(--radius-md);
+    background: var(--krown-card);
+    border: 1.5px solid var(--krown-border);
+    cursor: pointer;
+}
+
+
+.btn-icon:hover {
+    color: var(--krown-gold);
+    border-color: var(--krown-gold);
+}
+
+.btn-icon + .btn-icon {
+    margin-left: 5px;
+}
+
+/* Botón ARCA */
+/* Input group para el botón ARCA */
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-group input {
+    flex: 1;
+}
+
+.btn-arca {
+    background: var(--krown-teal);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-arca:hover {
+    background: var(--krown-teal-light);
+}
+
+/* Para formularios complejos, permitir que el card 1 ocupe todo el ancho si es necesario */
+@media (min-width: 768px) {
+   
+    .card:first-child, .card:last-child {
+        grid-column: 1 / -1; /* El primer card ocupa todo el ancho */
+    }
+    
+    .card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 20px;
+    }
+    
+    .card-body .field-full {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    /* En móvil se apila todo */
+    .card-body {
+        padding: 20px;
+    }
+}
+
+/* ============================================================
+   DASHBOARD & SIDEBAR
+   ============================================================ */
+
+body { overflow: hidden; }
+
+/* --- CONTENEDOR GLOBAL --- */
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* --- SIDEBAR --- */
+
+.sidebar {
+    background: var(--krown-black);
+    color: var(--krown-paper);
+    width: 68px; /* Ancho colapsado */
+    transition: width 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1000;
+    /* OCULTAR BARRA DE SCROLL */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+}
+.sidebar::-webkit-scrollbar { 
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* HEADER DEL SIDEBAR (Logo) */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 18px 16px;
+    border-bottom: 1px solid var(--krown-black-soft);
+    position: relative;
+    white-space: nowrap;
+}
+
+.sidebar-logo-small {
+    width: 30px;
+    height: auto;
+}
+
+.sidebar-logo-text {
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--krown-gold-light);
+    margin-left: 12px;
+    display: none; /* Oculto por defecto */
+}
+
+
+.sidebar.expanded .sidebar-logo-text {
+    display: inline; /* Visible en expandido */
+}
+
+/* BOTÓN PARA EXPANDIR/COLAPSAR */
+.sidebar-toggle {
+    background: transparent;
+    border: none;
+    color: var(--krown-gold); /* Color dorado para que se vea */
+    cursor: pointer;
+    display: none; /* Oculto en móvil */
+    padding: 5px;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+.sidebar-toggle:hover {
+    background: var(--krown-black-softer);
+}
+
+/* En Desktop, el botón SÍ se muestra */
+@media (min-width: 769px) {
+    .sidebar-toggle {
+        display: block;
+        position: absolute;
+        right: 15px;
+    }
+}
+
+.sidebar.expanded {
+    width: 240px; /* Ancho expandido */
+}
+
+/* NAVEGACIÓN */
+.sidebar-nav {
+    flex: 1;
+    overflow-y: visible; /* Permitir que el popover salga del ancho de la barra */
+    padding: 10px 8px;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-item { 
+    position: relative;
+    margin-bottom: 4px;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    color: #A39B8E;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+/* Hover e Ítem Seleccionado/Abierto */
+.menu-link:hover,
+.menu-item.open > .menu-link,
+.menu-item.active > .menu-link {
+    background-color: #262422;
+    color: #FFFFFF;
+}
+
+.menu-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.menu-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+}
+
+.menu-text {
+    margin-left: 12px;
+    white-space: nowrap;
+    display: none;
+}
+
+.sidebar.expanded .menu-text {
+    display: inline;
+}
+
+.menu-arrow {
+    margin-left: auto;
+    display: none;
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+.sidebar.expanded .menu-arrow {
+    display: inline;
+}
+
+.menu-item.open .menu-arrow {
+    transform: rotate(90deg);
+}
+
+/* --- POPOVER DE SUBMENÚ (Estilo tarjeta blanca flotante) --- */
+/* --- POPOVER DE SUBMENÚ (con auto-ajuste de altura) --- */
+.submenu {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: calc(100% + 10px);
+    width: 210px;
+    max-height: calc(100vh - 20px);      /* NUEVO: limita al alto de la ventana */
+    overflow-y: auto;                     /* NUEVO: scroll interno si hace falta */
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    padding: 16px 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+
+    /* NUEVO: para que scroll funcione suave */
+    scrollbar-width: thin;
+    scrollbar-color: #C9973A #F5F5F7;
+}
+
+/* NUEVO: scrollbar personalizada (Chrome/Safari) */
+.submenu::-webkit-scrollbar {
+    width: 6px;
+}
+.submenu::-webkit-scrollbar-track {
+    background: #F5F5F7;
+    border-radius: 3px;
+}
+.submenu::-webkit-scrollbar-thumb {
+    background: #C9973A;
+    border-radius: 3px;
+}
+
+/* El submenú solo se muestra cuando el li padre tiene la clase .open */
+.menu-item.open > .submenu {
+    display: block;
+}
+
+/* Mostrar cuando el padre tiene la clase active o open */
+/*
+.menu-item.open > .submenu,
+.menu-item:hover > .submenu {
+    display: block;
+}
+    /* El submenú solo se muestra cuando el li padre tiene la clase .open */
+.menu-item.open > .submenu {
+    display: block;
+}
+
+/* Cabecera interna del Submenú */
+.submenu .submenu-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #8C8275;
+    padding: 0 20px 12px 20px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #EAEAEA;
+    text-transform: uppercase;
+}
+.submenu-title {
+    font-family: var(--font-heading);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--krown-text-muted);
+    margin-bottom: 4px;
+    padding: 6px 10px 8px 20px;
+    border-bottom: 1px solid var(--krown-border);
+    white-space: nowrap;
+}
+
+/* Enlaces del Submenú */
+.submenu li a {
+    display: block;
+    padding: 8px 20px;
+    color: #2D2D2D;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.submenu li a:hover {
+    background-color: #F5F5F7;
+    color: #000000;
+}
+
+
+/* Si el menú está colapsado, no se muestran los submenús y se ocultan los textos */
+/*
+.sidebar:not(.expanded) .submenu {
+    display: none !important;
+}
+
+.sidebar:not(.expanded) .menu-arrow {
+    display: none;
+}
+
+*/
+
+/* FOOTER DEL SIDEBAR */
+.sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--krown-black-soft);
+    text-align: center;
+    flex-shrink: 0; /* Evita que se encoja */
+}
+
+/* Botón para expandir/colapsar en Desktop */
+.btn-sidebar-toggle {
+    background: var(--krown-black-softer);
+    border: none;
+    color: var(--krown-gold); /* Color dorado */
+    padding: 12px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.2s;
+}
+.btn-sidebar-toggle:hover {
+    background: var(--krown-black);
+}
+
+/* Ocultar el texto del botón cuando el sidebar está colapsado */
+.sidebar:not(.expanded) .btn-toggle-text {
+    display: none;
+}
+.sidebar:not(.expanded) .btn-sidebar-toggle {
+    width: 45px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.btn-close-menu {
+    background: var(--krown-black-softer);
+    border: none;
+    color: var(--krown-paper);
+    padding: 10px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    width: 100%;
+    display: none; /* Solo visible en móvil */
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    /* En móvil, el botón de expandir/colapsar se oculta y se muestra el de cerrar */
+    .btn-sidebar-toggle { display: none; }
+    .btn-close-menu { display: block; }
+    
+    /* En móvil, siempre expandido (texto visible) */
+    .sidebar:not(.expanded) .sidebar-logo-text { display: inline; }
+    .sidebar:not(.expanded) .menu-text { display: inline; opacity: 1; }
+    .sidebar:not(.expanded) .menu-arrow { display: inline; }
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
+.main-content {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--krown-paper);
+}
+
+/* HEADER SUPERIOR */
+.top-header {
+    background: var(--krown-card);
+    border-bottom: 1px solid var(--krown-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    height: 70px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.mobile-menu-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--krown-text);
+    display: none; /* Solo en móvil */
+    margin-right: 15px;
+}
+
+.header-greeting {
+    display: block;
+    font-size: 11px;
+    color: var(--krown-text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.page-title {
+    font-size: 22px;
+    margin: 0;
+    color: var(--krown-text);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    background: var(--krown-gold);
+    color: var(--krown-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    border-radius: 50%;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.user-links {
+    font-size: 12px;
+    color: var(--krown-text-muted);
+    margin-top: 2px;
+}
+.user-links a { color: var(--krown-text-muted); text-decoration: none; }
+.user-links a:hover { color: var(--krown-teal); }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -250px; /* Fuera de pantalla */
+        top: 0;
+        height: 100%;
+        width: 250px;
+        transition: left 0.3s ease;
+    }
+    
+    .sidebar.mobile-open {
+        left: 0;
+    }
+    
+    .sidebar.expanded {
+        width: 250px; /* En móvil siempre ancho completo */
+    }
+    
+    /* En móvil todo el texto es visible */
+    .sidebar .menu-text {
+        display: inline;
+        opacity: 1;
+    }
+    .sidebar .menu-arrow { display: inline; }
+
+    /* Botones móviles */
+    .sidebar-toggle { display: none; }
+    .btn-close-menu { display: block; }
+    .mobile-menu-btn { display: block; }
+    
+    .top-header {
+        padding: 0 15px;
+    }
+    
+    .header-right {
+        gap: 8px;
+    }
+    
+    .user-info { display: none; }
+}
+
+/* ÁREA DE CONTENIDO */
+.content-area {
+    padding: 20px;
+    width: 100%;
+}
+
+/* ============================================================
+   CONTENIDOS
+   ============================================================ */
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.page-header h2 { margin: 0 0 4px; }
+.breadcrumb { font-size: 13px; color: var(--krown-text-muted); }
+.breadcrumb a { color: var(--krown-teal); font-weight: 600; }   
+/* Estructura general */
+.page-content {
+    width: 100%;
+    padding: 20px;
+}
+
+/* Contenedor blanco (card) */
+.content-card {
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    padding: 25px;
+    min-height: 400px;
+    box-shadow: var(--shadow-card);
+}
+/* ============================
+   MAIN DASHBOARD - RESPONSIVE
+   ============================ */
+@media (max-width: 1200px) {
+    
+    
+    .content-card {
+        padding: 15px;
+        border-radius: var(--radius-md);
+    }
+}
+
+/* ============================
+   FILTROS
+   ============================ */
+.filter-section {
+    margin-bottom: 25px;
+}
+
+/* Base: comportamiento flexible con envolvente */
+.filters-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap; /* Permite que pasen a la siguiente fila si no caben */
+    width: 100%;
+}
+
+/* Ajustes para pantallas chicas (móviles y tablets) */
+@media (max-width: 768px) {
+    .filters-wrapper {
+        gap: 10px;
+    }
+
+    /* El buscador y los select toman todo el ancho o mitad según espacio */
+    .filters-wrapper .form-group,
+    .filters-wrapper .search-input,
+    .filters-wrapper select {
+        flex: 1 1 100%; /* Cada control toma su propia línea en móvil */
+    }
+
+    /* Contenedor de botones (Exportar / Imprimir) para alinearlos abajo */
+    .filters-wrapper .btn-actions-group,
+    .filters-wrapper .btn {
+        flex: 1; /* Ocupan espacio equitativo en la nueva fila */
+        justify-content: center;
+    }
+}
+
+.form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--krown-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.form-group input, .form-group input[type="text"], .form-group input[type="email"], .form-group select, .form-group .form-control {
+    width: 100%;
+    background-color: #f8fafc;
+    border: 1.5px solid var(--krown-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+    color: #0f172a;
+    font-weight: 500;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+/* ============================================================
+   TEXTAREAS — estilos base
+   ============================================================ */
+
+.form-group textarea,
+.form-group textarea.form-control {
+    width: 100%;
+    background-color: #f8fafc;
+    border: 1.5px solid var(--krown-border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #0f172a;
+    font-weight: 500;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    resize: vertical;
+    min-height: 88px;
+    max-height: 400px;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--krown-gold);
+    box-shadow: 0 0 0 3px rgba(201, 151, 58, 0.18);
+    background: #fff;
+}
+
+.form-group textarea::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+/* Contador de caracteres */
+.textarea-counter {
+    text-align: right;
+    font-size: 11px;
+    color: var(--krown-text-muted);
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    transition: color 0.2s;
+}
+.textarea-counter.cerca  { color: var(--krown-gold); }
+.textarea-counter.exceso { color: var(--krown-crimson); font-weight: 700; }
+
+/* ============================
+   FORMULARIO DE EDICIÓN
+   ============================ */
+
+.card {
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    padding: 20px 25px;
+    border-bottom: solid 1px var(--krown-border);
+}
+
+.card-header h3 {
+    font-size: 18px;
+    margin: 0 0 5px;
+    color: var(--krown-text);
+}
+
+.card-header p {
+    font-size: 13px;
+    color: var(--krown-text-muted);
+    margin: 0;
+}
+
+.card-body {
+    padding: 20px 25px 25px;
+}
+
+.form-msg {
+    display: none;
+    position: sticky;
+    top: 15px;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-msg.show {
+    display: block;
+}
+
+.msg-box { padding: 10px 14px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; }
+.msg-ok    { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.msg-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.msg-info  { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+.form-hint {
+    font-size: 12px;
+    color: var(--krown-text-muted);
+    margin-top: -10px;
+    margin-bottom: 16px;
+}
+
+/* ============================
+   RESPONSIVE: DOS COLUMNAS EN DESKTOP
+   ============================ */
+@media (min-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr 1fr; /* Dos columnas */
+    }
+    
+    /* La columna derecha solo ocupa una columna */
+    .form-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    /* Evitar que los cards de la derecha se estiren demasiado */
+    .form-column .card {
+        margin-bottom: 0;
+    }
+    
+    /* Ajustar el gap entre cards */
+    .form-column .card + .card {
+        margin-top: 20px;
+    }
+    .form-column .card-body, .form-grid .card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Dos columnas */
+        gap: 16px 20px;
+        margin-bottom: 8px;
+    }
+
+    .card-body .field-full { grid-column: 1 / -1; };
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+.form-actions .btn { width: auto; }
+
+/* Badges */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+}
+.badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge-active { background: rgba(15,92,82,.12); color: var(--krown-teal); }
+.badge-inactive { background: rgba(178,58,72,.12); color: var(--krown-crimson); }
+
+/* ============================
+   TABLA DESKTOP
+   ============================ */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table thead th {
+    text-align: left;
+    padding: 12px;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--krown-text-muted);
+    background: var(--krown-paper);
+    border-bottom: 2px solid var(--krown-border);
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 16px 10px;
+    border-bottom: 1px solid var(--krown-border);
+    font-size: 14px;
+}
+
+@media (max-width: 1200px) {
+/* ============================
+   RESPONSIVE: TABLA A TARJETAS
+   ============================ */
+
+    .table-wrap { overflow-x: visible; }
+
+    table.data-table thead { display: none; }
+    table.data-table, table.data-table tbody, table.data-table tr, table.data-table td {
+        display: block;
+        width: 100%;
+    }
+    table.data-table tr {
+        background: var(--krown-card);
+        border: 1px solid var(--krown-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card);
+        margin-bottom: 12px;
+        padding: 4px 14px;
+    }
+    table.data-table tbody tr:hover { background: var(--krown-card); }
+
+    table.data-table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--krown-border);
+        text-align: right;
+    }
+    table.data-table td:last-child { border-bottom: none; }
+
+    table.data-table td::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        color: var(--krown-text-muted);
+    }
+
+    /* Celda "título" de la tarjeta */
+    table.data-table td.cell-title {
+        display: block;
+        text-align: left;
+        padding: 14px 0 10px;
+        border-bottom: 1px solid var(--krown-border);
+        margin-bottom: 4px;
+    }
+    table.data-table td.cell-title::before { content: none; }
+    
+    /* Celda de acciones */
+    table.data-table td.col-acciones {
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 12px 0;
+    }
+    table.data-table td.col-acciones::before { content: none; }
+}
+
+table.data-table .razon-social {
+    font-weight: 600;
+    color: var(--krown-black);
+}
+
+@media (max-width: 1200px) {    
+    table.data-table .razon-social {
+        font-size: 14.5px;
+    }
+}
+
+/* ============================================================
+   UTILIDADES DE LAYOUT PARA CARDS
+   ============================================================ */
+
+/**
+ * .card-body-stack
+ * Fuerza un card-body a layout vertical (1 columna).
+ * Útil cuando el contenido es una tabla, un formulario en línea,
+ * o cualquier cosa que no deba partirse en 2 columnas.
+ *
+ * Uso:  <div class="card-body card-body-stack"> ... </div>
+ */
+@media (min-width: 768px) {
+    .card-body.card-body-stack {
+        display: block !important;
+    }
+}
+
+.card-body.card-body-stack {
+    padding: 20px 25px 25px;
+}
+
+
+/* Barra superior negra */
+.ped-topbar {
+    background: var(--krown-black);
+    color: var(--krown-paper);
+    border-radius: var(--radius-lg);
+    padding: 16px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+.ped-topbar-left {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+.ped-topbar-cliente {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--krown-gold-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+.ped-topbar-right {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+}
+.ped-topbar-stat {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+}
+.ped-topbar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: #7A7266;
+    text-transform: uppercase;
+}
+.ped-topbar-valor {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--krown-paper);
+    margin-top: 2px;
+}
+.ped-topbar-total {
+    color: var(--krown-gold-light);
+    font-weight: 800;
+    font-size: 22px;
+}
+
+@media (max-width: 700px) {
+    .ped-topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .ped-topbar-right {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+    }
+}
+
+/* ============================================================
+   TABS (copiadas de factura.css)
+   ============================================================ */
+.fac-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--krown-border);
+}
+.fac-tab {
+    background: transparent;
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--krown-text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color .15s, border-color .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.fac-tab:hover { color: var(--krown-text); }
+.fac-tab.active {
+    color: var(--krown-black);
+    border-bottom-color: var(--krown-gold);
+}
+.fac-tab-count {
+    display: inline-block;
+    background: var(--krown-black);
+    color: var(--krown-gold-light);
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.fac-tab-content { display: none; }
+.fac-tab-content.active { display: block; }

@@ -1,0 +1,201 @@
+/* ============================================================
+   Módulo Estadísticas
+   ============================================================ */
+
+/* Filtros globales */
+.est-filtros {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 20px;
+}
+.est-filtros .form-group {
+    margin-bottom: 0;
+    flex: 0 0 160px;
+}
+.est-filtros-acciones {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+@media (max-width: 700px) {
+    .est-filtros .form-group { flex: 1 1 100%; }
+    .est-filtros-acciones { margin-left: 0; width: 100%; }
+}
+
+/* Card del gráfico */
+.est-card {
+    background: var(--krown-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+.est-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px 14px;
+    border-bottom: 1px solid var(--krown-border);
+    flex-wrap: wrap;
+}
+.est-card-header h3 {
+    font-size: 18px;
+    margin: 0 0 4px;
+    color: var(--krown-black);
+}
+.est-card-header p {
+    font-size: 13px;
+    color: var(--krown-text-muted);
+    margin: 0;
+}
+.est-card-body {
+    padding: 20px 24px 24px;
+}
+
+/* Total grande en el header */
+.est-card-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.est-card-total-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: var(--krown-text-muted);
+}
+.est-card-total-valor {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--krown-black);
+}
+
+/* Selector de años (chips) */
+.est-anios {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.est-anio-chip {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--krown-border);
+    background: #FFF;
+    color: var(--krown-text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+}
+.est-anio-chip:hover {
+    border-color: var(--krown-gold);
+}
+.est-anio-chip.active {
+    background: var(--krown-black);
+    color: var(--krown-gold-light);
+    border-color: var(--krown-black);
+}
+
+/* Grid 2 columnas internas */
+.est-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+@media (max-width: 900px) {
+    .est-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* Tabla de sabores (al lado del gráfico) */
+.est-tabla-sabores {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+.est-sabor-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #FAFAFA;
+    font-size: 13px;
+}
+.est-sabor-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+.est-sabor-nombre {
+    flex: 1;
+    font-weight: 600;
+    color: var(--krown-text);
+}
+.est-sabor-valor {
+    color: var(--krown-text-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+.est-sabor-pct {
+    font-weight: 700;
+    color: var(--krown-black);
+    min-width: 55px;
+    text-align: right;
+}
+
+/* Selects chicos del header */
+.est-select-sm {
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+    border: 1.5px solid var(--krown-border);
+    background: #FFF;
+}
+.est-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Tabs (copiadas de factura.css por si no están globales) */
+.fac-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--krown-border);
+    flex-wrap: wrap;
+}
+.fac-tab {
+    background: transparent;
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--krown-text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color .15s, border-color .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.fac-tab:hover { color: var(--krown-text); }
+.fac-tab.active {
+    color: var(--krown-black);
+    border-bottom-color: var(--krown-gold);
+}
+.fac-tab-content { display: none; }
+.fac-tab-content.active { display: block; }

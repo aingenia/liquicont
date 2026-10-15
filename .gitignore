@@ -1,0 +1,49 @@
+# Entorno y credenciales
+.env
+*.env
+config.local.php
+config.local.json
+
+# Dependencias
+/vendor/
+/node_modules/
+
+# Logs
+*.log
+/logs/
+/log/
+
+# Backups y dumps
+/backups/
+*.sql
+*.sql.gz
+*.zip
+
+# Archivos subidos
+/uploads/
+/public/uploads/
+/archivos/
+/facturas/
+/certificados/
+
+# Caché y temporales
+/cache/
+/tmp/
+*.cache
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+/.idea/
+/.vscode/
+*.swp
+*.swo
+
+# Certificados y secretos
+*.pem
+*.key
+*.crt
+*.p12
