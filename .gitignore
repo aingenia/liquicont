@@ -47,3 +47,6 @@ desktop.ini
 *.key
 *.crt
 *.p12
+
+# Configuración local (credenciales)
+/config/local.php

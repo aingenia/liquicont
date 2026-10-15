@@ -1,6 +1,6 @@
 <?php
 /* ============================================================
-   KROWN SPIRITS — Front Controller / Enrutador principal
+   LIQUICONT — Front Controller / Enrutador principal
    ============================================================ */
 
 session_start();

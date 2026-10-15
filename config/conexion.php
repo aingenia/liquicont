@@ -10,6 +10,17 @@ if (!defined('ROOT_PATH')) {
 }
 
 // ----------------------------------------------------------------------
+// 0. CONFIGURACIÓN LOCAL (no versionada)
+// ----------------------------------------------------------------------
+// Si existe config/local.php, se carga primero.
+// Ahí van credenciales de DB, mail, y valores específicos del entorno.
+$localFile = __DIR__ . DS . 'local.php';
+if (file_exists($localFile)) {
+    require_once $localFile;
+}
+
+
+// ----------------------------------------------------------------------
 // 1. ENTORNOS Y CONFIGURACIÓN REGIONAL
 // ----------------------------------------------------------------------
 define('ENVIRONMENT', 'development'); // 'development' o 'production'
@@ -28,11 +39,14 @@ date_default_timezone_set('America/Argentina/Buenos_Aires');
 // ----------------------------------------------------------
 // 2. CONSTANTES DE BASE DE DATOS
 // ----------------------------------------------------------------------
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'a0170304_kr0o20'); // Reemplazar con el nombre de tu BD
-define('DB_USER', 'a0170304_kr0o20');       // Reemplazar con tu usuario de MySQL
-define('DB_PASS', 'pufaRAme96');    // Reemplazar con tu contraseña de MySQL
-define('DB_CHARSET', 'utf8mb4');
+
+
+// Valores por defecto (fallback para desarrollo)
+if (!defined('DB_HOST'))    define('DB_HOST', 'localhost');
+if (!defined('DB_NAME'))    define('DB_NAME', 'liquicont_dev');
+if (!defined('DB_USER'))    define('DB_USER', 'root');
+if (!defined('DB_PASS'))    define('DB_PASS', '');
+if (!defined('DB_CHARSET')) define('DB_CHARSET', 'utf8mb4');
 
 // ----------------------------------------------------------------------
 // 3. RUTAS Y DOMINIO DE LA APLICACIÓN
@@ -48,7 +62,7 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', $baseUrl);
 }
 
-define('APP_NAME', 'KROWN SPIRITS');
+define('APP_NAME', 'LIQUICONT');
 
 // --- Configuración de conexión con ARCA (ex-AFIP) ---
 // Se usa desde includes/arca.php para autocompletar datos de proveedores
@@ -62,7 +76,7 @@ define('APP_NAME', 'KROWN SPIRITS');
 // Mientras ARCA_CERT_PATH/ARCA_KEY_PATH no existan, el botón "ARCA" del
 // formulario de proveedores va a mostrar un mensaje claro en vez de fallar.
 define('ARCA_ENTORNO', 'homologacion'); // 'homologacion' o 'produccion'
-define('ARCA_CUIT_REPRESENTADA', '20162490339');   // CUIT (sin guiones) de la empresa que consulta
+define('ARCA_CUIT_REPRESENTADA', '');   // CUIT (sin guiones) de la empresa que consulta
 define('ARCA_CERT_PATH', ROOT_PATH . 'config/arca/cert.crt');
 define('ARCA_KEY_PATH', ROOT_PATH . 'config/arca/private.key');
 define('ARCA_KEY_PASSPHRASE', '');      // si el .key tiene contraseña
@@ -70,9 +84,9 @@ define('ARCA_TA_CACHE_PATH', ROOT_PATH . 'config/arca/ta_padron_cache.json');
 
 // ... definiciones de MAIL_HOST, MAIL_USER, etc. ...
 // Configuración de PHPMailer (SMTP)
-define('MAIL_HOST', 'a0170304.ferozo.com');
-define('MAIL_USER', 'contacto@roky.ar');
-define('MAIL_PASS', 'Soul2019*');
+define('MAIL_HOST', '');
+define('MAIL_USER', '');
+define('MAIL_PASS', '');
 define('MAIL_PORT', 465);
 
 // Nombre y remitente visible del email
