@@ -11,7 +11,7 @@
             <td data-label="Cliente" class="cell-title">
                 <div class="razon-social"><?= htmlspecialchars($c['cliente_razon_social']) ?></div>
                 <?php if (!empty($c['cliente_cuit'])): ?>
-                    <div style="font-size:12px;color:var(--krown-text-muted);">
+                    <div style="font-size:12px;color:var(--liqui-text-muted);">
                         CUIT <?= htmlspecialchars($c['cliente_cuit']) ?>
                     </div>
                 <?php endif; ?>

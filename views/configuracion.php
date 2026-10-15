@@ -116,7 +116,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
         <div class="cfg-emisores-header">
             <div>
                 <h3 style="margin:0 0 4px;">Emisores de comprobantes</h3>
-                <p style="margin:0;font-size:13px;color:var(--krown-text-muted);">
+                <p style="margin:0;font-size:13px;color:var(--liqui-text-muted);">
                     Cada emisor tiene su propio CUIT, certificado ARCA, punto de venta y contador de remitos.
                 </p>
             </div>
@@ -156,7 +156,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                                 <td>
                                     <div style="font-weight:600;"><?= htmlspecialchars($e['nombre']) ?></div>
                                     <?php if (!empty($e['nombre_fantasia'])): ?>
-                                        <div style="font-size:12px;color:var(--krown-text-muted);">
+                                        <div style="font-size:12px;color:var(--liqui-text-muted);">
                                             <?= htmlspecialchars($e['nombre_fantasia']) ?>
                                         </div>
                                     <?php endif; ?>
@@ -167,7 +167,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                                     <div>
                                         <strong><?= strtoupper($e['arca_entorno']) ?></strong>
                                     </div>
-                                    <div style="color:var(--krown-text-muted);">
+                                    <div style="color:var(--liqui-text-muted);">
                                         PV <?= (int)$e['arca_punto_venta'] ?>
                                         · Letra <?= htmlspecialchars($e['arca_tipo_comprobante_letra'] ?? '—') ?>
                                     </div>
@@ -176,7 +176,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                                     <?= htmlspecialchars($e['remito_prefijo'] ?? '') ?>
                                     <?= str_pad((string)$e['remito_punto_venta'], 4, '0', STR_PAD_LEFT) ?>
                                     <br>
-                                    <span style="color:var(--krown-text-muted);">
+                                    <span style="color:var(--liqui-text-muted);">
                                         Último: <?= (int)$e['remito_ultimo_nro'] ?>
                                     </span>
                                 </td>

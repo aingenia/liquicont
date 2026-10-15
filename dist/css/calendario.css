@@ -16,12 +16,12 @@
     font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 700;
-    color: var(--krown-black);
+    color: var(--liqui-black);
 }
 .fc .fc-button {
-    background: var(--krown-black);
-    border-color: var(--krown-black);
-    color: var(--krown-gold-light);
+    background: var(--liqui-black);
+    border-color: var(--liqui-black);
+    color: var(--liqui-gold-light);
     font-weight: 600;
     font-size: 13px;
     text-transform: capitalize;
@@ -31,44 +31,44 @@
 }
 .fc .fc-button:hover,
 .fc .fc-button:focus {
-    background: var(--krown-black-soft);
-    border-color: var(--krown-black-soft);
-    color: var(--krown-gold-light);
+    background: var(--liqui-black-soft);
+    border-color: var(--liqui-black-soft);
+    color: var(--liqui-gold-light);
     box-shadow: none;
 }
 .fc .fc-button-primary:not(:disabled):active,
 .fc .fc-button-primary:not(:disabled).fc-button-active {
-    background: var(--krown-gold);
-    border-color: var(--krown-gold);
-    color: var(--krown-black);
+    background: var(--liqui-gold);
+    border-color: var(--liqui-gold);
+    color: var(--liqui-black);
 }
 .fc-theme-standard td,
 .fc-theme-standard th {
-    border-color: var(--krown-border);
+    border-color: var(--liqui-border);
 }
 .fc-theme-standard .fc-scrollgrid {
-    border-color: var(--krown-border);
+    border-color: var(--liqui-border);
 }
 .fc .fc-col-header-cell {
-    background: var(--krown-paper);
+    background: var(--liqui-paper);
     padding: 10px 0;
     font-weight: 700;
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: .5px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
 .fc .fc-daygrid-day-number {
     font-weight: 600;
-    color: var(--krown-text);
+    color: var(--liqui-text);
     padding: 6px 8px;
 }
 .fc .fc-day-today {
     background: rgba(201, 151, 58, .08) !important;
 }
 .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
-    background: var(--krown-gold);
-    color: var(--krown-black);
+    background: var(--liqui-gold);
+    color: var(--liqui-black);
     border-radius: 50%;
     width: 28px;
     height: 28px;
@@ -105,7 +105,7 @@
 }
 
 .cal-modal {
-    background: var(--krown-card);
+    background: var(--liqui-card);
     border-radius: var(--radius-lg);
     width: 100%;
     max-width: 620px;
@@ -117,8 +117,8 @@
 }
 
 .cal-modal-header {
-    background: var(--krown-black);
-    color: var(--krown-paper);
+    background: var(--liqui-black);
+    color: var(--liqui-paper);
     padding: 18px 24px;
     display: flex;
     justify-content: space-between;
@@ -127,7 +127,7 @@
 .cal-modal-header h3 {
     margin: 0;
     font-size: 18px;
-    color: var(--krown-gold-light);
+    color: var(--liqui-gold-light);
     letter-spacing: .5px;
 }
 .cal-modal-fecha {
@@ -140,7 +140,7 @@
 .cal-modal-close {
     background: transparent;
     border: none;
-    color: var(--krown-gold-light);
+    color: var(--liqui-gold-light);
     font-size: 26px;
     line-height: 1;
     cursor: pointer;
@@ -167,26 +167,26 @@
     gap: 12px;
     align-items: center;
     padding: 12px 14px;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     border-radius: var(--radius-md);
     margin-bottom: 8px;
     background: #FCFCFC;
     transition: border-color .15s, background .15s;
 }
 .cal-cheque-item:hover {
-    border-color: var(--krown-gold);
+    border-color: var(--liqui-gold);
     background: #FFFDF5;
 }
 .cal-cheque-info { flex: 1; min-width: 0; }
 .cal-cheque-importe {
     font-size: 18px;
     font-weight: 800;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     margin-bottom: 2px;
 }
 .cal-cheque-desc {
     font-size: 13px;
-    color: var(--krown-text);
+    color: var(--liqui-text);
     margin-bottom: 4px;
     word-break: break-word;
 }
@@ -194,7 +194,7 @@
     display: flex;
     gap: 10px;
     font-size: 11.5px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     flex-wrap: wrap;
     align-items: center;
 }
@@ -215,8 +215,8 @@
     letter-spacing: .5px;
     text-transform: uppercase;
 }
-.cal-tipo-propio  { background: rgba(15, 92, 82, .12);  color: var(--krown-teal); }
-.cal-tipo-tercero { background: rgba(178, 58, 72, .10); color: var(--krown-crimson); }
+.cal-tipo-propio  { background: rgba(15, 92, 82, .12);  color: var(--liqui-teal); }
+.cal-tipo-tercero { background: rgba(178, 58, 72, .10); color: var(--liqui-crimson); }
 
 .cal-cheque-acciones {
     display: flex;
@@ -227,13 +227,13 @@
 .cal-empty {
     text-align: center;
     padding: 24px 12px;
-    color: var(--krown-text-muted);
-    border: 2px dashed var(--krown-border);
+    color: var(--liqui-text-muted);
+    border: 2px dashed var(--liqui-border);
     border-radius: var(--radius-md);
     background: #FAFAFA;
 }
 .cal-empty svg {
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     margin-bottom: 8px;
 }
 .cal-empty p { margin: 0; font-size: 14px; }
@@ -241,18 +241,18 @@
 .cal-total-dia {
     text-align: right;
     font-size: 13px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     margin-bottom: 8px;
 }
 .cal-total-dia strong {
     font-size: 17px;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     margin-left: 6px;
 }
 
 .cal-separador {
     border: none;
-    border-top: 1px dashed var(--krown-border);
+    border-top: 1px dashed var(--liqui-border);
     margin: 18px 0 16px;
 }
 
@@ -260,7 +260,7 @@
 .cal-form-titulo {
     font-size: 15px;
     font-weight: 700;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     margin: 0 0 14px;
 }
 .cal-form-row {
@@ -331,7 +331,7 @@
 
     /* Los botones de vista (Mes/Semana/Agenda) quedan en una fila aparte */
     .fc .fc-toolbar-chunk:last-child {
-        border-top: 1px solid var(--krown-border);
+        border-top: 1px solid var(--liqui-border);
         padding-top: 8px;
         margin-top: 2px;
     }

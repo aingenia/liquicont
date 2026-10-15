@@ -106,11 +106,11 @@ $ejAnt     = $data['ejercicio_ant'] ?? null;
                 $ <?= number_format($data['totales']['activo'], 2, ',', '.') ?>
             </span>
             <?php if (!$data['cuadra']): ?>
-                <span class="estado-resultado-total-var" style="color:var(--krown-crimson);font-weight:700;">
+                <span class="estado-resultado-total-var" style="color:var(--liqui-crimson);font-weight:700;">
                     ⚠ El balance no cuadra
                 </span>
             <?php else: ?>
-                <span class="estado-resultado-total-var" style="color:var(--krown-teal);">
+                <span class="estado-resultado-total-var" style="color:var(--liqui-teal);">
                     ✓ Activo = Pasivo + Patrimonio
                 </span>
             <?php endif; ?>
@@ -144,7 +144,7 @@ $ejAnt     = $data['ejercicio_ant'] ?? null;
                             <td colspan="<?= $tieneComp ? 5 : 3 ?>"><?= $sec['titulo'] ?></td>
                         </tr>
                         <?php if (empty($sec['grupos'])): ?>
-                            <tr><td colspan="<?= $tieneComp ? 5 : 3 ?>" style="text-align:center;color:var(--krown-text-muted);padding:20px;">
+                            <tr><td colspan="<?= $tieneComp ? 5 : 3 ?>" style="text-align:center;color:var(--liqui-text-muted);padding:20px;">
                                 Sin movimientos en el período.
                             </td></tr>
                         <?php else: ?>
@@ -164,12 +164,12 @@ $ejAnt     = $data['ejercicio_ant'] ?? null;
                                         <td style="padding-left:30px;"><?= htmlspecialchars($c['nombre']) ?></td>
                                         <td class="num">$ <?= number_format($c['saldo'], 2, ',', '.') ?></td>
                                         <?php if ($tieneComp): ?>
-                                            <td class="num" style="color:var(--krown-text-muted);">
+                                            <td class="num" style="color:var(--liqui-text-muted);">
                                                 $ <?= number_format($c['saldo_anterior'] ?? 0, 2, ',', '.') ?>
                                             </td>
                                             <td class="num">
                                                 <?php if (($c['variacion_pct'] ?? null) !== null): ?>
-                                                    <span style="color:<?= $c['variacion_pct'] >= 0 ? 'var(--krown-teal)' : 'var(--krown-crimson)' ?>">
+                                                    <span style="color:<?= $c['variacion_pct'] >= 0 ? 'var(--liqui-teal)' : 'var(--liqui-crimson)' ?>">
                                                         <?= $c['variacion_pct'] >= 0 ? '+' : '' ?><?= number_format($c['variacion_pct'], 2, ',', '.') ?>%
                                                     </span>
                                                 <?php else: ?>
@@ -208,16 +208,16 @@ $ejAnt     = $data['ejercicio_ant'] ?? null;
                             <td class="num">—</td>
                         <?php endif; ?>
                     </tr>
-                    <tr class="fila-totales" style="background:var(--krown-gold);color:var(--krown-black);">
+                    <tr class="fila-totales" style="background:var(--liqui-gold);color:var(--liqui-black);">
                         <td colspan="2" style="text-align:right;">PASIVO + PATRIMONIO</td>
-                        <td class="num" style="color:var(--krown-black);">
+                        <td class="num" style="color:var(--liqui-black);">
                             $ <?= number_format($data['totales']['pasivo'] + $data['totales']['patrimonio'], 2, ',', '.') ?>
                         </td>
                         <?php if ($tieneComp): ?>
-                            <td class="num" style="color:var(--krown-black);">
+                            <td class="num" style="color:var(--liqui-black);">
                                 $ <?= number_format(($data['totales_ant']['pasivo'] ?? 0) + ($data['totales_ant']['patrimonio'] ?? 0), 2, ',', '.') ?>
                             </td>
-                            <td class="num" style="color:var(--krown-black);">—</td>
+                            <td class="num" style="color:var(--liqui-black);">—</td>
                         <?php endif; ?>
                     </tr>
                 </tfoot>

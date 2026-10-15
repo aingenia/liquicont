@@ -10,7 +10,7 @@
             <td class="cell-title razon-social" data-label="Razón Social">
                 <div><?= htmlspecialchars($p['razon_social']) ?></div>
                 <?php if (!empty($p['nombre_fantasia']) && $p['nombre_fantasia'] !== $p['razon_social']): ?>
-                    <div style="font-size:12px;color:var(--krown-text-muted);font-weight:400;">
+                    <div style="font-size:12px;color:var(--liqui-text-muted);font-weight:400;">
                         <?= htmlspecialchars($p['nombre_fantasia']) ?>
                     </div>
                 <?php endif; ?>

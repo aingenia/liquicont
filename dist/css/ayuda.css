@@ -10,7 +10,7 @@
     width: 92vw;
     max-height: 85vh;
     box-shadow: 0 20px 60px rgba(20, 17, 14, 0.35);
-    color: var(--krown-text);
+    color: var(--liqui-text);
 }
 
 .ayuda-modal::backdrop {
@@ -19,13 +19,13 @@
 }
 
 .ayuda-modal-header {
-    background: var(--krown-black);
-    color: var(--krown-gold-light);
+    background: var(--liqui-black);
+    color: var(--liqui-gold-light);
     padding: 22px 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--krown-black-softer);
+    border-bottom: 1px solid var(--liqui-black-softer);
 }
 
 .ayuda-modal-header h2 {
@@ -37,7 +37,7 @@
 .ayuda-modal-close {
     background: transparent;
     border: none;
-    color: var(--krown-gold-light);
+    color: var(--liqui-gold-light);
     font-size: 24px;
     line-height: 1;
     cursor: pointer;
@@ -56,16 +56,16 @@
     max-height: calc(85vh - 80px);
     font-size: 14.5px;
     line-height: 1.7;
-    color: var(--krown-text);
+    color: var(--liqui-text);
 }
 
 .ayuda-modal-body h3 {
     font-family: var(--font-heading);
     font-size: 16px;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     margin: 24px 0 10px;
     padding-bottom: 6px;
-    border-bottom: 1px solid var(--krown-border);
+    border-bottom: 1px solid var(--liqui-border);
 }
 
 .ayuda-modal-body h3:first-child {
@@ -92,12 +92,12 @@
     border-radius: 4px;
     font-family: var(--font-mono);
     font-size: 13px;
-    color: var(--krown-teal);
+    color: var(--liqui-teal);
 }
 
 .ayuda-modal-body .ayuda-tip {
     background: rgba(201, 151, 58, 0.10);
-    border-left: 3px solid var(--krown-gold);
+    border-left: 3px solid var(--liqui-gold);
     padding: 12px 16px;
     margin: 16px 0;
     border-radius: 6px;
@@ -106,7 +106,7 @@
 
 .ayuda-modal-body .ayuda-warning {
     background: rgba(178, 58, 72, 0.08);
-    border-left: 3px solid var(--krown-crimson);
+    border-left: 3px solid var(--liqui-crimson);
     padding: 12px 16px;
     margin: 16px 0;
     border-radius: 6px;
@@ -121,9 +121,9 @@
     padding: 8px 14px;
     font-size: 13px;
     font-weight: 600;
-    color: var(--krown-teal);
+    color: var(--liqui-teal);
     background: transparent;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all 0.15s;
@@ -131,7 +131,7 @@
 }
 
 .btn-ayuda:hover {
-    border-color: var(--krown-teal);
+    border-color: var(--liqui-teal);
     background: rgba(15, 92, 82, 0.05);
 }
 

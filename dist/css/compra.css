@@ -70,7 +70,7 @@
     padding: 10px 18px;
     font-size: 13.5px;
     font-weight: 600;
-    background: var(--krown-teal);
+    background: var(--liqui-teal);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -78,14 +78,14 @@
     transition: background .15s;
     white-space: nowrap;
 }
-.btn-arca-inline:hover { background: var(--krown-teal-light); }
+.btn-arca-inline:hover { background: var(--liqui-teal-light); }
 .btn-arca-inline[disabled] { opacity: .6; cursor: not-allowed; }
 .btn-arca-inline svg { width: 15px; height: 15px; }
 
 /* Total compacto (integrado en el grid de importes) */
 .comp-total-compact {
-    background: var(--krown-gold);
-    color: var(--krown-black);
+    background: var(--liqui-gold);
+    color: var(--liqui-black);
     border-radius: 8px;
     padding: 11px 14px;
     font-size: 18px;
@@ -124,21 +124,21 @@
     align-items: center;
     gap: 12px;
     padding-top: 12px;
-    border-top: 1px dashed var(--krown-border);
+    border-top: 1px dashed var(--liqui-border);
     flex-wrap: wrap;
 }
-.comp-actions-info { font-size: 13px; color: var(--krown-text-muted); }
-.comp-actions-info strong { color: var(--krown-text); }
+.comp-actions-info { font-size: 13px; color: var(--liqui-text-muted); }
+.comp-actions-info strong { color: var(--liqui-text); }
 .comp-actions-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* Adjunto */
 .comp-adjunto { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
 .comp-adjunto-info { font-size: 14px; }
-.comp-adjunto-info a { color: var(--krown-teal); font-weight: 600; }
+.comp-adjunto-info a { color: var(--liqui-teal); font-weight: 600; }
 .comp-adjunto-botones { display: flex; gap: 8px; }
 
 /* Detalle del comprobante */
-.comp-add-row { border-top: 1px dashed var(--krown-border); padding-top: 16px; margin-top: 16px; }
+.comp-add-row { border-top: 1px dashed var(--liqui-border); padding-top: 16px; margin-top: 16px; }
 .comp-add-grid { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: end; }
 @media (max-width: 900px) { .comp-add-grid { grid-template-columns: 1fr; } }
 

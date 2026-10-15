@@ -17,7 +17,7 @@
             </td>
             <td data-label="Cliente" class="cell-title">
                 <div class="razon-social"><?= htmlspecialchars($p['cliente_razon_social']) ?></div>
-                <div style="font-size:12px;color:var(--krown-text-muted);">
+                <div style="font-size:12px;color:var(--liqui-text-muted);">
                     <?= htmlspecialchars($p['cliente_categoria'] ?? '—') ?>
                     · Creado por <?= htmlspecialchars($p['creado_por_nombre'] ?? '—') ?>
                 </div>

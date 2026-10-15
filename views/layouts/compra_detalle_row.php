@@ -8,7 +8,7 @@
     <td data-label="Insumo">
         <strong><?= htmlspecialchars($row['insumo_nombre']) ?></strong>
         <?php if (!empty($row['insumo_codigo'])): ?>
-            <br><span style="font-size:12px;color:var(--krown-text-muted);">Cód: <?= htmlspecialchars($row['insumo_codigo']) ?></span>
+            <br><span style="font-size:12px;color:var(--liqui-text-muted);">Cód: <?= htmlspecialchars($row['insumo_codigo']) ?></span>
         <?php endif; ?>
     </td>
     <td data-label="Cantidad" style="text-align:right;">

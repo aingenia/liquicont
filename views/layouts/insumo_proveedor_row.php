@@ -8,9 +8,9 @@
     <td data-label="Proveedor" class="cell-prov">
         <div style="font-weight:600;"><?= htmlspecialchars($row['razon_social']) ?></div>
         <?php if (!empty($row['nombre_fantasia']) && $row['nombre_fantasia'] !== $row['razon_social']): ?>
-            <div style="font-size:12px;color:var(--krown-text-muted);"><?= htmlspecialchars($row['nombre_fantasia']) ?></div>
+            <div style="font-size:12px;color:var(--liqui-text-muted);"><?= htmlspecialchars($row['nombre_fantasia']) ?></div>
         <?php endif; ?>
-        <div style="font-size:11px;color:var(--krown-text-muted);">CUIT <?= htmlspecialchars($row['cuit']) ?></div>
+        <div style="font-size:11px;color:var(--liqui-text-muted);">CUIT <?= htmlspecialchars($row['cuit']) ?></div>
     </td>
 
     <td data-label="Costo" class="cell-costo">

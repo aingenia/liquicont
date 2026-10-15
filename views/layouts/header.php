@@ -184,18 +184,18 @@ $headerGreeting = $headerGreeting ?? ('HOLA. ' . strtoupper($userName));
                             <li><a href="<?= BASE_URL ?>contabilidad/asientos">Asientos</a></li>
                             <li><a href="<?= BASE_URL ?>contabilidad/plan-cuentas">Plan de cuentas</a></li>
                             <li><a href="<?= BASE_URL ?>contabilidad/ejercicios">Ejercicios</a></li>
-                            <li class="submenu-title" style="border-top:1px solid var(--krown-border);margin-top:6px;">REPORTES</li>
+                            <li class="submenu-title" style="border-top:1px solid var(--liqui-border);margin-top:6px;">REPORTES</li>
                             <li><a href="<?= BASE_URL ?>contabilidad/libro-diario">Libro Diario</a></li>
                             <li><a href="<?= BASE_URL ?>contabilidad/libro-mayor">Libro Mayor</a></li>
                             <li><a href="<?= BASE_URL ?>contabilidad/balance">Sumas y Saldos</a></li>
-                            <li class="submenu-title" style="border-top:1px solid var(--krown-border);margin-top:6px;">ESTADOS CONTABLES</li>
+                            <li class="submenu-title" style="border-top:1px solid var(--liqui-border);margin-top:6px;">ESTADOS CONTABLES</li>
                             <li><a href="<?= BASE_URL ?>contabilidad/estado-resultados">Estado de Resultados</a></li>
                             <li><a href="<?= BASE_URL ?>contabilidad/balance-general">Balance General</a></li>
-                            <li class="submenu-title" style="border-top:1px solid var(--krown-border);margin-top:6px;">IVA</li>
+                            <li class="submenu-title" style="border-top:1px solid var(--liqui-border);margin-top:6px;">IVA</li>
                             <li><a href="<?= BASE_URL ?>contabilidad/libro-iva-compras">Libro IVA Compras</a></li>
                             <li><a href="<?= BASE_URL ?>contabilidad/libro-iva-ventas">Libro IVA Ventas</a></li>
                             <li><a href="<?= BASE_URL ?>contabilidad/comparativa">Comparativa Vtas vs Compras</a></li>
-                            <li class="submenu-title" style="border-top:1px solid var(--krown-border);margin-top:6px;">CONFIGURACIÓN</li>
+                            <li class="submenu-title" style="border-top:1px solid var(--liqui-border);margin-top:6px;">CONFIGURACIÓN</li>
                             <li><a href="<?= BASE_URL ?>contabilidad/configuracion">Config. contable</a></li>
                         </ul>
                     </li>

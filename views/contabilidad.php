@@ -42,7 +42,7 @@ foreach (($ultimos ?? []) as $a) {
     <div class="cont-card">
         <div class="cont-card-body" style="text-align:center;padding:60px 24px;">
             <h3 style="margin:0 0 8px;">Aún no hay un ejercicio contable abierto</h3>
-            <p style="color:var(--krown-text-muted);margin:0 0 20px;">
+            <p style="color:var(--liqui-text-muted);margin:0 0 20px;">
                 Para empezar a registrar asientos, creá un ejercicio contable.
             </p>
             <a href="<?= BASE_URL ?>contabilidad/ejercicio-form" class="btn btn-primary">
@@ -102,7 +102,7 @@ foreach (($ultimos ?? []) as $a) {
             </div>
             <div class="cont-card-body">
                 <?php if (empty($ultimos)): ?>
-                    <p style="color:var(--krown-text-muted);text-align:center;padding:20px;">
+                    <p style="color:var(--liqui-text-muted);text-align:center;padding:20px;">
                         Todavía no hay asientos cargados.
                     </p>
                 <?php else: ?>

@@ -49,11 +49,11 @@ function margenTexto(float $costo, float $precio): string
         align-items: flex-start;
         justify-content: space-between;
         margin-bottom: 20px;
-        border-bottom: 2px solid var(--krown-gold);
+        border-bottom: 2px solid var(--liqui-gold);
         padding-bottom: 16px;
     }
     .reporte-header h1 { font-family: var(--font-heading); font-size: 22px; margin: 0 0 4px; }
-    .reporte-header p { color: var(--krown-text-muted); font-size: 13px; margin: 0; }
+    .reporte-header p { color: var(--liqui-text-muted); font-size: 13px; margin: 0; }
     .reporte-acciones { display: flex; gap: 10px; }
     @media print {
         .reporte-acciones { display: none; }

@@ -108,7 +108,7 @@ $t = $data['totales'];
     </div>
     <div class="cont-card-body">
         <?php if (empty($data['filas'])): ?>
-            <p style="text-align:center;color:var(--krown-text-muted);padding:30px 0;">
+            <p style="text-align:center;color:var(--liqui-text-muted);padding:30px 0;">
                 No hay datos en el período.
             </p>
         <?php else: ?>
@@ -132,7 +132,7 @@ $t = $data['totales'];
                                 <td rowspan="3" style="vertical-align:middle;font-weight:600;font-size:14px;">
                                     <?= htmlspecialchars($f['mes_label']) ?>
                                 </td>
-                                <td style="font-weight:700;color:var(--krown-teal);">VENTAS</td>
+                                <td style="font-weight:700;color:var(--liqui-teal);">VENTAS</td>
                                 <td class="num">$ <?= number_format($f['ventas']['neto'], 2, ',', '.') ?></td>
                                 <td class="num">$ <?= number_format($f['ventas']['iva'], 2, ',', '.') ?></td>
                                 <td class="num">$ <?= number_format($f['ventas']['perc_iibb'], 2, ',', '.') ?></td>
@@ -141,7 +141,7 @@ $t = $data['totales'];
                             </tr>
                             <!-- Fila COMPRAS -->
                             <tr style="background:#FDF2F4;">
-                                <td style="font-weight:700;color:var(--krown-crimson);">COMPRAS</td>
+                                <td style="font-weight:700;color:var(--liqui-crimson);">COMPRAS</td>
                                 <td class="num">$ <?= number_format($f['compras']['neto'], 2, ',', '.') ?></td>
                                 <td class="num">$ <?= number_format($f['compras']['iva'], 2, ',', '.') ?></td>
                                 <td class="num">$ <?= number_format($f['compras']['perc_iibb'], 2, ',', '.') ?></td>
@@ -158,19 +158,19 @@ $t = $data['totales'];
                                 $posInt  = $f['posicion']['imp_int'];
                                 $posTot  = $f['posicion']['total'];
                                 ?>
-                                <td class="num" style="color:<?= $posNeto < 0 ? 'var(--krown-crimson)' : 'var(--krown-teal)' ?>;font-weight:700;">
+                                <td class="num" style="color:<?= $posNeto < 0 ? 'var(--liqui-crimson)' : 'var(--liqui-teal)' ?>;font-weight:700;">
                                     $ <?= number_format($posNeto, 2, ',', '.') ?>
                                 </td>
-                                <td class="num" style="color:<?= $posIva < 0 ? 'var(--krown-crimson)' : 'var(--krown-teal)' ?>;font-weight:700;">
+                                <td class="num" style="color:<?= $posIva < 0 ? 'var(--liqui-crimson)' : 'var(--liqui-teal)' ?>;font-weight:700;">
                                     $ <?= number_format($posIva, 2, ',', '.') ?>
                                 </td>
-                                <td class="num" style="color:<?= $posIibb < 0 ? 'var(--krown-crimson)' : 'var(--krown-teal)' ?>;font-weight:700;">
+                                <td class="num" style="color:<?= $posIibb < 0 ? 'var(--liqui-crimson)' : 'var(--liqui-teal)' ?>;font-weight:700;">
                                     $ <?= number_format($posIibb, 2, ',', '.') ?>
                                 </td>
-                                <td class="num" style="color:<?= $posInt < 0 ? 'var(--krown-crimson)' : 'var(--krown-teal)' ?>;font-weight:700;">
+                                <td class="num" style="color:<?= $posInt < 0 ? 'var(--liqui-crimson)' : 'var(--liqui-teal)' ?>;font-weight:700;">
                                     $ <?= number_format($posInt, 2, ',', '.') ?>
                                 </td>
-                                <td class="num" style="color:<?= $posTot < 0 ? 'var(--krown-crimson)' : 'var(--krown-teal)' ?>;font-weight:700;">
+                                <td class="num" style="color:<?= $posTot < 0 ? 'var(--liqui-crimson)' : 'var(--liqui-teal)' ?>;font-weight:700;">
                                     $ <?= number_format($posTot, 2, ',', '.') ?>
                                 </td>
                             </tr>
@@ -193,13 +193,13 @@ $t = $data['totales'];
                             <td class="num">$ <?= number_format($t['compras']['imp_int'], 2, ',', '.') ?></td>
                             <td class="num">$ <?= number_format($t['compras']['total'], 2, ',', '.') ?></td>
                         </tr>
-                        <tr class="fila-totales" style="background:var(--krown-gold);color:var(--krown-black);">
+                        <tr class="fila-totales" style="background:var(--liqui-gold);color:var(--liqui-black);">
                             <td colspan="2" style="text-align:right;">POSICIÓN FINAL</td>
-                            <td class="num" style="color:var(--krown-black);">$ <?= number_format($t['posicion']['neto'], 2, ',', '.') ?></td>
-                            <td class="num" style="color:var(--krown-black);">$ <?= number_format($t['posicion']['iva'], 2, ',', '.') ?></td>
-                            <td class="num" style="color:var(--krown-black);">$ <?= number_format($t['posicion']['perc_iibb'], 2, ',', '.') ?></td>
-                            <td class="num" style="color:var(--krown-black);">$ <?= number_format($t['posicion']['imp_int'], 2, ',', '.') ?></td>
-                            <td class="num" style="color:var(--krown-black);">$ <?= number_format($t['posicion']['total'], 2, ',', '.') ?></td>
+                            <td class="num" style="color:var(--liqui-black);">$ <?= number_format($t['posicion']['neto'], 2, ',', '.') ?></td>
+                            <td class="num" style="color:var(--liqui-black);">$ <?= number_format($t['posicion']['iva'], 2, ',', '.') ?></td>
+                            <td class="num" style="color:var(--liqui-black);">$ <?= number_format($t['posicion']['perc_iibb'], 2, ',', '.') ?></td>
+                            <td class="num" style="color:var(--liqui-black);">$ <?= number_format($t['posicion']['imp_int'], 2, ',', '.') ?></td>
+                            <td class="num" style="color:var(--liqui-black);">$ <?= number_format($t['posicion']['total'], 2, ',', '.') ?></td>
                         </tr>
                     </tfoot>
                 </table>

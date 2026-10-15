@@ -49,7 +49,7 @@
     margin-top: 10px;
     font-size: 13px;
     background: rgba(178, 58, 72, .08);
-    color: var(--krown-crimson);
+    color: var(--liqui-crimson);
     border: 1px solid rgba(178, 58, 72, .25);
 }
 
@@ -76,16 +76,16 @@
     text-transform: uppercase;
     white-space: nowrap;
 }
-.estado-recibido   { background: rgba(178, 58, 72, .12);  color: var(--krown-crimson); }
+.estado-recibido   { background: rgba(178, 58, 72, .12);  color: var(--liqui-crimson); }
 .estado-procesando { background: rgba(201, 151, 58, .15); color: #8a6a14; }
-.estado-preparado  { background: rgba(15, 92, 82, .12);   color: var(--krown-teal); }
+.estado-preparado  { background: rgba(15, 92, 82, .12);   color: var(--liqui-teal); }
 .estado-facturado  { background: rgba(107, 79, 160, .12); color: #6B4FA0; }
 .estado-entregado  { background: rgba(91, 107, 140, .12); color: #5B6B8C; }
 .estado-anulado    { background: rgba(120, 120, 120, .12); color: #666; }
 
 /* Fila con descuento (verde en subtotal) */
 .ped-desc-aplicado {
-    color: var(--krown-teal);
+    color: var(--liqui-teal);
     font-weight: 600;
 }
 
@@ -95,7 +95,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--krown-gold);
+    background: var(--liqui-gold);
     margin-left: 6px;
     vertical-align: middle;
     box-shadow: 0 0 0 3px rgba(201, 151, 58, .2);
@@ -123,9 +123,9 @@
 .fila-anulada .ped-badge { text-decoration: none; }
 
 /* Estilos reutilizados del módulo compras */
-.comp-actions { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-top:12px; border-top:1px dashed var(--krown-border); flex-wrap:wrap; }
-.comp-actions-info { font-size:13px; color:var(--krown-text-muted); }
-.comp-actions-info strong { color:var(--krown-text); }
+.comp-actions { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-top:12px; border-top:1px dashed var(--liqui-border); flex-wrap:wrap; }
+.comp-actions-info { font-size:13px; color:var(--liqui-text-muted); }
+.comp-actions-info strong { color:var(--liqui-text); }
 .comp-actions-buttons { display:flex; gap:8px; flex-wrap:wrap; }
 
 /* ============================================================

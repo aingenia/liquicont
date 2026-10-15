@@ -35,7 +35,7 @@
             <td data-label="Proveedor" class="cell-title">
                 <div class="razon-social"><?= htmlspecialchars($c['proveedor_razon_social']) ?></div>
                 <?php if (!empty($c['proveedor_cuit'])): ?>
-                    <div style="font-size:12px;color:var(--krown-text-muted);">
+                    <div style="font-size:12px;color:var(--liqui-text-muted);">
                         CUIT <?= htmlspecialchars($c['proveedor_cuit']) ?>
                     </div>
                 <?php endif; ?>
@@ -44,10 +44,10 @@
             <td data-label="Total" style="text-align:right;">
                 $ <?= number_format((float)$c['total'], 2, ',', '.') ?>
             </td>
-            <td data-label="Pagado" style="text-align:right;color:var(--krown-teal);">
+            <td data-label="Pagado" style="text-align:right;color:var(--liqui-teal);">
                 $ <?= number_format($pagado, 2, ',', '.') ?>
             </td>
-            <td data-label="Pendiente" style="text-align:right;font-weight:600;color:<?= $pendiente > 0.004 ? 'var(--krown-crimson)' : 'var(--krown-text-muted)' ?>;">
+            <td data-label="Pendiente" style="text-align:right;font-weight:600;color:<?= $pendiente > 0.004 ? 'var(--liqui-crimson)' : 'var(--liqui-text-muted)' ?>;">
                 $ <?= number_format($pendiente, 2, ',', '.') ?>
             </td>
             <td data-label="Estado pago">

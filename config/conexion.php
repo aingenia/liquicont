@@ -23,7 +23,6 @@ if (file_exists($localFile)) {
 // ----------------------------------------------------------------------
 // 1. ENTORNOS Y CONFIGURACIÓN REGIONAL
 // ----------------------------------------------------------------------
-define('ENVIRONMENT', 'development'); // 'development' o 'production'
 
 if (ENVIRONMENT === 'development') {
     error_reporting(E_ALL);

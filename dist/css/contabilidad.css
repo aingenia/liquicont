@@ -15,7 +15,7 @@
 
 /* ---------- Cards / layout ---------- */
 .cont-card {
-    background: var(--krown-card);
+    background: var(--liqui-card);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
     margin-bottom: 20px;
@@ -27,11 +27,11 @@
     align-items: flex-start;
     gap: 16px;
     padding: 20px 24px 14px;
-    border-bottom: 1px solid var(--krown-border);
+    border-bottom: 1px solid var(--liqui-border);
     flex-wrap: wrap;
 }
-.cont-card-header h3 { margin: 0 0 4px; font-size: 18px; color: var(--krown-black); }
-.cont-card-header p  { margin: 0; font-size: 13px; color: var(--krown-text-muted); }
+.cont-card-header h3 { margin: 0 0 4px; font-size: 18px; color: var(--liqui-black); }
+.cont-card-header p  { margin: 0; font-size: 13px; color: var(--liqui-text-muted); }
 .cont-card-body { padding: 20px 24px 24px; }
 
 /* ---------- Toolbar / filtros ---------- */
@@ -41,7 +41,7 @@
     align-items: flex-end;
     flex-wrap: wrap;
     padding: 16px 20px;
-    background: var(--krown-card);
+    background: var(--liqui-card);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
     margin-bottom: 20px;
@@ -62,32 +62,32 @@
     margin-bottom: 24px;
 }
 .cont-stat {
-    background: var(--krown-card);
+    background: var(--liqui-card);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
     padding: 20px 22px;
     display: flex;
     flex-direction: column;
     gap: 4px;
-    border-left: 4px solid var(--krown-gold);
+    border-left: 4px solid var(--liqui-gold);
 }
-.cont-stat.cont-stat-teal    { border-left-color: var(--krown-teal); }
-.cont-stat.cont-stat-crimson { border-left-color: var(--krown-crimson); }
-.cont-stat.cont-stat-dark    { border-left-color: var(--krown-black); }
+.cont-stat.cont-stat-teal    { border-left-color: var(--liqui-teal); }
+.cont-stat.cont-stat-crimson { border-left-color: var(--liqui-crimson); }
+.cont-stat.cont-stat-dark    { border-left-color: var(--liqui-black); }
 .cont-stat-label {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
 .cont-stat-valor {
     font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 800;
-    color: var(--krown-black);
+    color: var(--liqui-black);
 }
-.cont-stat-sub { font-size: 12px; color: var(--krown-text-muted); }
+.cont-stat-sub { font-size: 12px; color: var(--liqui-text-muted); }
 
 /* ---------- Árbol de plan de cuentas ---------- */
 .cont-tree {
@@ -101,7 +101,7 @@
 .cont-tree ul.cont-tree-children {
     padding-left: 26px;
     margin-left: 10px;
-    border-left: 1.5px dashed var(--krown-border);
+    border-left: 1.5px dashed var(--liqui-border);
 }
 .cont-tree li {
     margin: 3px 0;
@@ -125,7 +125,7 @@
     border: none;
     background: transparent;
     cursor: pointer;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     font-size: 14px;
     padding: 0;
     flex-shrink: 0;
@@ -134,18 +134,18 @@
 .cont-tree-codigo {
     font-family: var(--font-mono);
     font-size: 12.5px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     min-width: 90px;
     font-weight: 600;
 }
 .cont-tree-nombre {
     flex: 1;
-    color: var(--krown-text);
+    color: var(--liqui-text);
     font-weight: 500;
 }
 .cont-tree-node.no-imputable .cont-tree-nombre {
     font-weight: 700;
-    color: var(--krown-black);
+    color: var(--liqui-black);
 }
 .cont-tree-tipo {
     font-size: 10.5px;
@@ -155,10 +155,10 @@
     padding: 2px 8px;
     border-radius: 999px;
     background: rgba(20,17,14,.06);
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
-.cont-tree-tipo.t-ACTIVO     { background: rgba(15,92,82,.12); color: var(--krown-teal); }
-.cont-tree-tipo.t-PASIVO     { background: rgba(178,58,72,.12); color: var(--krown-crimson); }
+.cont-tree-tipo.t-ACTIVO     { background: rgba(15,92,82,.12); color: var(--liqui-teal); }
+.cont-tree-tipo.t-PASIVO     { background: rgba(178,58,72,.12); color: var(--liqui-crimson); }
 .cont-tree-tipo.t-PATRIMONIO { background: rgba(107,79,160,.12); color: #6B4FA0; }
 .cont-tree-tipo.t-RESULTADO_POSITIVO { background: rgba(201,151,58,.15); color: #8a6a14; }
 .cont-tree-tipo.t-RESULTADO_NEGATIVO { background: rgba(91,107,140,.15); color: #5B6B8C; }
@@ -192,23 +192,23 @@
     background: #FFF;
     border-radius: 10px;
     overflow: hidden;
-    border: 1px solid var(--krown-border);
+    border: 1px solid var(--liqui-border);
 }
 .cont-asiento-tabla thead th {
-    background: var(--krown-paper);
+    background: var(--liqui-paper);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: .5px;
     text-transform: uppercase;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     padding: 10px 10px;
     text-align: left;
-    border-bottom: 2px solid var(--krown-border);
+    border-bottom: 2px solid var(--liqui-border);
     white-space: nowrap;
 }
 .cont-asiento-tabla td {
     padding: 6px 8px;
-    border-bottom: 1px solid var(--krown-border);
+    border-bottom: 1px solid var(--liqui-border);
     vertical-align: middle;
 }
 .cont-asiento-tabla tbody tr:last-child td { border-bottom: none; }
@@ -216,7 +216,7 @@
 .cont-asiento-tabla select {
     width: 100%;
     padding: 8px 10px;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     border-radius: 6px;
     font-size: 13.5px;
     font-family: var(--font-body);
@@ -226,7 +226,7 @@
 .cont-asiento-tabla input:focus,
 .cont-asiento-tabla select:focus {
     outline: none;
-    border-color: var(--krown-gold);
+    border-color: var(--liqui-gold);
     box-shadow: 0 0 0 3px rgba(201,151,58,.15);
 }
 .cont-asiento-tabla input.num { text-align: right; font-family: var(--font-mono); }
@@ -234,12 +234,12 @@
 .cont-asiento-tabla .col-detalle  { width: auto; }
 .cont-asiento-tabla .col-importe  { width: 130px; }
 .cont-asiento-tabla .col-accion   { width: 46px; text-align: center; }
-.cont-asiento-tabla tr.fila-invalida input { border-color: var(--krown-crimson); }
+.cont-asiento-tabla tr.fila-invalida input { border-color: var(--liqui-crimson); }
 
 .cont-asiento-tabla .btn-remove-line {
     background: transparent;
     border: none;
-    color: var(--krown-crimson);
+    color: var(--liqui-crimson);
     cursor: pointer;
     font-size: 20px;
     line-height: 1;
@@ -256,8 +256,8 @@
     gap: 32px;
     padding: 14px 18px;
     margin-top: -1px;
-    background: var(--krown-black);
-    color: var(--krown-paper);
+    background: var(--liqui-black);
+    color: var(--liqui-paper);
     border-radius: 0 0 10px 10px;
     font-family: var(--font-mono);
     font-size: 14px;
@@ -272,7 +272,7 @@
     margin-right: 8px;
 }
 .cont-asiento-totales .valor { font-weight: 700; }
-.cont-asiento-totales.desbalanceado { background: var(--krown-crimson); }
+.cont-asiento-totales.desbalanceado { background: var(--liqui-crimson); }
 .cont-asiento-totales .ok {
     color: #7BE7B8;
     font-weight: 700;
@@ -292,7 +292,7 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 12px 20px;
     padding: 20px 0;
-    border-bottom: 1px solid var(--krown-border);
+    border-bottom: 1px solid var(--liqui-border);
     margin-bottom: 20px;
 }
 .cont-asiento-ver-header .item { display: flex; flex-direction: column; gap: 2px; }
@@ -301,11 +301,11 @@
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
 .cont-asiento-ver-header .item .val {
     font-size: 14.5px;
-    color: var(--krown-text);
+    color: var(--liqui-text);
     font-weight: 600;
 }
 @media (max-width: 700px) {
@@ -314,8 +314,8 @@
 
 /* ---------- Badges de estado ---------- */
 .badge-borrador   { background: rgba(201,151,58,.15); color: #8a6a14; }
-.badge-confirmado { background: rgba(15,92,82,.15);   color: var(--krown-teal); }
-.badge-anulado    { background: rgba(178,58,72,.15);  color: var(--krown-crimson); }
+.badge-confirmado { background: rgba(15,92,82,.15);   color: var(--liqui-teal); }
+.badge-anulado    { background: rgba(178,58,72,.15);  color: var(--liqui-crimson); }
 
 /* ---------- Reportes (diario, mayor, balance) ---------- */
 .cont-tabla-reporte {
@@ -324,20 +324,20 @@
     font-size: 13.5px;
 }
 .cont-tabla-reporte thead th {
-    background: var(--krown-paper);
+    background: var(--liqui-paper);
     padding: 10px 10px;
     text-align: left;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: .5px;
     text-transform: uppercase;
-    color: var(--krown-text-muted);
-    border-bottom: 2px solid var(--krown-border);
+    color: var(--liqui-text-muted);
+    border-bottom: 2px solid var(--liqui-border);
     white-space: nowrap;
 }
 .cont-tabla-reporte td {
     padding: 8px 10px;
-    border-bottom: 1px solid var(--krown-border);
+    border-bottom: 1px solid var(--liqui-border);
     vertical-align: top;
 }
 .cont-tabla-reporte td.num,
@@ -351,11 +351,11 @@
     font-weight: 700;
 }
 .cont-tabla-reporte tr.fila-asiento td {
-    border-top: 1.5px solid var(--krown-border);
+    border-top: 1.5px solid var(--liqui-border);
 }
 .cont-tabla-reporte tr.fila-totales {
-    background: var(--krown-black);
-    color: var(--krown-paper);
+    background: var(--liqui-black);
+    color: var(--liqui-paper);
     font-weight: 700;
 }
 .cont-tabla-reporte tr.fila-totales td {
@@ -370,7 +370,7 @@
 }
 .cont-tabla-reporte .codigo {
     font-family: var(--font-mono);
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     font-size: 12.5px;
 }
 
@@ -380,13 +380,13 @@
     justify-content: space-between;
     padding: 10px 14px;
     background: #F8FAFC;
-    border: 1px solid var(--krown-border);
+    border: 1px solid var(--liqui-border);
     border-radius: 8px;
     margin-bottom: 12px;
     font-size: 13px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
-.cont-mayor-saldo-inicial strong { color: var(--krown-black); }
+.cont-mayor-saldo-inicial strong { color: var(--liqui-black); }
 
 /* ---------- Modal genérico (reutilizable) ---------- */
 .cont-modal {
@@ -400,7 +400,7 @@
 .cont-modal::backdrop { background: rgba(20,17,14,.5); }
 .cont-modal-header {
     padding: 18px 22px;
-    border-bottom: 1px solid var(--krown-border);
+    border-bottom: 1px solid var(--liqui-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -409,7 +409,7 @@
 .cont-modal-body { padding: 20px 22px; }
 .cont-modal-footer {
     padding: 14px 22px;
-    border-top: 1px solid var(--krown-border);
+    border-top: 1px solid var(--liqui-border);
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -425,7 +425,7 @@
     .cont-asiento-tabla td { display: block; width: 100%; }
     .cont-asiento-tabla tr {
         padding: 10px;
-        border: 1px solid var(--krown-border);
+        border: 1px solid var(--liqui-border);
         border-radius: 10px;
         margin-bottom: 10px;
     }
@@ -452,15 +452,15 @@
     background: #F1F1F1;
     padding: 1px 5px;
     border-radius: 4px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
 
 /* ============================================================
    Estados Contables
    ============================================================ */
 .estado-tabla .estado-seccion td {
-    background: var(--krown-black);
-    color: var(--krown-gold-light);
+    background: var(--liqui-black);
+    color: var(--liqui-gold-light);
     font-weight: 700;
     font-size: 13px;
     letter-spacing: 1.5px;
@@ -471,13 +471,13 @@
     background: #FAFAFA;
 }
 .estado-tabla .estado-rubro td {
-    border-top: 1.5px solid var(--krown-border);
+    border-top: 1.5px solid var(--liqui-border);
     font-size: 13.5px;
 }
 .estado-tabla .codigo {
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
 .estado-tabla tbody tr:hover {
     background: #F9F9F9;
@@ -497,16 +497,16 @@
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.2px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     text-transform: uppercase;
 }
 .estado-resultado-total-valor {
     font-family: var(--font-heading);
     font-size: 24px;
     font-weight: 800;
-    color: var(--krown-black);
+    color: var(--liqui-black);
 }
 .estado-resultado-total-var {
     font-size: 11px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }

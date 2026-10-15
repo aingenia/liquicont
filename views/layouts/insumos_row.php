@@ -8,7 +8,7 @@
             <td class="cell-title razon-social" data-label="Nombre">
                 <div><?= htmlspecialchars($i['nombre']) ?></div>
                 <?php if (!empty($i['codigo'])): ?>
-                    <div style="font-size:12px;color:var(--krown-text-muted);font-weight:400;">
+                    <div style="font-size:12px;color:var(--liqui-text-muted);font-weight:400;">
                         Código: <?= htmlspecialchars($i['codigo']) ?>
                     </div>
                 <?php endif; ?>

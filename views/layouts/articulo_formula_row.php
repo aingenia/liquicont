@@ -8,11 +8,11 @@
     <td data-label="Insumo" class="cell-insumo">
         <div style="font-weight:600;"><?= htmlspecialchars($row['insumo_nombre']) ?></div>
         <?php if (!empty($row['insumo_codigo'])): ?>
-            <div style="font-size:12px;color:var(--krown-text-muted);">
+            <div style="font-size:12px;color:var(--liqui-text-muted);">
                 Código: <?= htmlspecialchars($row['insumo_codigo']) ?>
             </div>
         <?php endif; ?>
-        <div style="font-size:12px;color:var(--krown-text-muted);">
+        <div style="font-size:12px;color:var(--liqui-text-muted);">
             Costo unitario: $ <?= number_format((float)$row['insumo_costo'], 2, ',', '.') ?> / <?= htmlspecialchars($row['unidad_abrev']) ?>
         </div>
     </td>

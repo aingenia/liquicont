@@ -38,7 +38,7 @@
 .insumo-check input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: var(--krown-teal);
+    accent-color: var(--liqui-teal);
 }
 
 .insumo-radios {
@@ -57,12 +57,12 @@
 }
 
 .insumo-radios input[type="radio"] {
-    accent-color: var(--krown-gold);
+    accent-color: var(--liqui-gold);
 }
 
 .insumo-costo-box {
-    background: var(--krown-gold);
-    color: var(--krown-black);
+    background: var(--liqui-gold);
+    color: var(--liqui-black);
     border-radius: var(--radius-md);
     padding: 16px 20px;
     margin-top: 10px;
@@ -84,7 +84,7 @@
 }
 
 .insumo-add-prov {
-    border-top: 1px dashed var(--krown-border);
+    border-top: 1px dashed var(--liqui-border);
     padding-top: 16px;
 }
 
@@ -102,25 +102,25 @@
 .insumo-placeholder {
     padding: 24px;
     text-align: center;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     font-size: 14px;
     background: #FAFAFA;
     border-radius: var(--radius-md);
-    border: 1px dashed var(--krown-border);
+    border: 1px dashed var(--liqui-border);
 }
 
-.variacion-up   { color: var(--krown-crimson); font-weight: 600; }
-.variacion-down { color: var(--krown-teal);    font-weight: 600; }
+.variacion-up   { color: var(--liqui-crimson); font-weight: 600; }
+.variacion-down { color: var(--liqui-teal);    font-weight: 600; }
 
 .btn-anular-hist {
     width: 30px;
     height: 30px;
-    color: var(--krown-crimson);
+    color: var(--liqui-crimson);
     border-color: rgba(178,58,72,.3);
 }
 .btn-anular-hist:hover {
     background: rgba(178,58,72,.1);
-    border-color: var(--krown-crimson);
+    border-color: var(--liqui-crimson);
 }
 
 /* Fila de proveedor en modo edición */
@@ -136,22 +136,22 @@
     font-family: var(--font-body);
     font-size: 14px;
     padding: 6px 10px;
-    border: 1.5px solid var(--krown-gold);
+    border: 1.5px solid var(--liqui-gold);
     border-radius: 6px;
     background: #fff;
 }
 
 #tablaProveedoresInsumo .btn-editar-prov {
-    color: var(--krown-teal);
+    color: var(--liqui-teal);
     border-color: rgba(15, 92, 82, .3);
 }
 #tablaProveedoresInsumo .btn-editar-prov:hover {
     background: rgba(15, 92, 82, .08);
-    border-color: var(--krown-teal);
+    border-color: var(--liqui-teal);
 }
 
 #tablaProveedoresInsumo .btn-guardar-prov {
-    color: var(--krown-teal);
+    color: var(--liqui-teal);
     border-color: rgba(15, 92, 82, .4);
     background: rgba(15, 92, 82, .08);
 }
@@ -160,10 +160,10 @@
 }
 
 #tablaProveedoresInsumo .btn-cancelar-prov {
-    color: var(--krown-text-muted);
-    border-color: var(--krown-border);
+    color: var(--liqui-text-muted);
+    border-color: var(--liqui-border);
 }
 #tablaProveedoresInsumo .btn-cancelar-prov:hover {
-    color: var(--krown-crimson);
-    border-color: var(--krown-crimson);
+    color: var(--liqui-crimson);
+    border-color: var(--liqui-crimson);
 }

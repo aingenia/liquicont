@@ -68,7 +68,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
     </div>
     <div class="cont-card-body">
         <?php if (empty($filas)): ?>
-            <p style="text-align:center;color:var(--krown-text-muted);padding:30px 0;">
+            <p style="text-align:center;color:var(--liqui-text-muted);padding:30px 0;">
                 No hay comprobantes en el período.
             </p>
         <?php else: ?>
@@ -98,7 +98,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                                 <td><?= date('d/m/Y', strtotime($f['fecha'])) ?></td>
                                 <td>
                                     <?= htmlspecialchars($f['tipo_comprobante'] ?? '—') ?>
-                                    <br><small class="mono" style="color:var(--krown-text-muted);">
+                                    <br><small class="mono" style="color:var(--liqui-text-muted);">
                                         <?= htmlspecialchars($f['numero'] ?? '') ?>
                                     </small>
                                 </td>

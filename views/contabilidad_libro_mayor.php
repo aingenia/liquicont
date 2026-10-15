@@ -56,7 +56,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
 
 <?php if (!$cuenta): ?>
     <div class="cont-card">
-        <div class="cont-card-body" style="text-align:center;padding:50px 24px;color:var(--krown-text-muted);">
+        <div class="cont-card-body" style="text-align:center;padding:50px 24px;color:var(--liqui-text-muted);">
             Seleccioná una cuenta para ver su movimiento.
         </div>
     </div>
@@ -78,7 +78,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
             </div>
 
             <?php if (empty($data['movimientos'])): ?>
-                <p style="text-align:center;color:var(--krown-text-muted);padding:30px 0;">
+                <p style="text-align:center;color:var(--liqui-text-muted);padding:30px 0;">
                     Sin movimientos en el período.
                 </p>
             <?php else: ?>
@@ -102,11 +102,11 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                                     <td>
                                         <?= htmlspecialchars($m['asiento_desc']) ?>
                                         <?php if (!empty($m['linea_detalle'])): ?>
-                                            <span style="color:var(--krown-text-muted);">
+                                            <span style="color:var(--liqui-text-muted);">
                                                 — <?= htmlspecialchars($m['linea_detalle']) ?>
                                             </span>
                                         <?php endif; ?>
-                                        <span style="color:var(--krown-text-muted);font-size:12px;display:block;">
+                                        <span style="color:var(--liqui-text-muted);font-size:12px;display:block;">
                                             <?= htmlspecialchars($m['emisor_nombre']) ?> · <?= htmlspecialchars($m['tipo']) ?>
                                         </span>
                                     </td>

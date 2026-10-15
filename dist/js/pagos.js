@@ -171,8 +171,8 @@
 
             // Mostrar saldo
             var saldo = parseFloat(res.saldo || 0);
-            var color = saldo > 0 ? 'var(--krown-crimson)' :
-                        (saldo < 0 ? 'var(--krown-teal)' : 'var(--krown-text-muted)');
+            var color = saldo > 0 ? 'var(--liqui-crimson)' :
+                        (saldo < 0 ? 'var(--liqui-teal)' : 'var(--liqui-text-muted)');
             var texto = saldo > 0 ? 'LE DEBEMOS este monto al proveedor' :
                         (saldo < 0 ? 'Tenemos SALDO A FAVOR con el proveedor' :
                                     'Cuenta al día');
@@ -344,7 +344,7 @@
         var $lista = $('#pagMediosLista');
 
         if (medios.length === 0) {
-            $lista.html('<div class="cob-empty" style="text-align:center;padding:20px;color:var(--krown-text-muted);">Todavía no cargaste ningún medio de pago.</div>');
+            $lista.html('<div class="cob-empty" style="text-align:center;padding:20px;color:var(--liqui-text-muted);">Todavía no cargaste ningún medio de pago.</div>');
             actualizarTotales();
             return;
         }

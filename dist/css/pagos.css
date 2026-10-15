@@ -31,11 +31,11 @@
     letter-spacing: .3px;
     text-transform: uppercase;
 }
-.cob-medio-efectivo      { background: rgba(15, 92, 82, .12);  color: var(--krown-teal); }
+.cob-medio-efectivo      { background: rgba(15, 92, 82, .12);  color: var(--liqui-teal); }
 .cob-medio-transferencia { background: rgba(107, 79, 160, .12); color: #6B4FA0; }
 .cob-medio-cheque        { background: rgba(201, 151, 58, .15); color: #8a6a14; }
 .cob-medio-tarjeta       { background: rgba(91, 107, 140, .12); color: #5B6B8C; }
-.cob-medio-retencion     { background: rgba(178, 58, 72, .12); color: var(--krown-crimson); }
+.cob-medio-retencion     { background: rgba(178, 58, 72, .12); color: var(--liqui-crimson); }
 .cob-medio-otro          { background: rgba(120, 120, 120, .12); color: #666; }
 
 /* ============================================================
@@ -53,14 +53,14 @@
     gap: 14px;
     align-items: center;
     padding: 12px 14px;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     border-radius: var(--radius-md);
     background: #FCFCFC;
     transition: border-color .15s, background .15s;
 }
 .cob-factura-item.selected {
     background: #FFFDF5;
-    border-color: var(--krown-gold);
+    border-color: var(--liqui-gold);
 }
 .cob-factura-check {
     flex-shrink: 0;
@@ -68,7 +68,7 @@
 .cob-factura-check input {
     width: 18px;
     height: 18px;
-    accent-color: var(--krown-teal);
+    accent-color: var(--liqui-teal);
     cursor: pointer;
 }
 .cob-factura-info {
@@ -78,11 +78,11 @@
 .cob-factura-titulo {
     font-weight: 600;
     font-size: 14px;
-    color: var(--krown-black);
+    color: var(--liqui-black);
 }
 .cob-factura-meta {
     font-size: 12px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     margin-top: 2px;
 }
 .cob-factura-importes {
@@ -94,11 +94,11 @@
     flex-shrink: 0;
 }
 .cob-factura-importes .total {
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
 .cob-factura-importes .saldo {
     font-weight: 700;
-    color: var(--krown-crimson);
+    color: var(--liqui-crimson);
     font-size: 15px;
 }
 .cob-factura-input {
@@ -107,7 +107,7 @@
 .cob-factura-input input {
     width: 100%;
     padding: 8px 10px;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     border-radius: 6px;
     font-size: 14px;
     text-align: right;
@@ -115,7 +115,7 @@
 }
 .cob-factura-input input:focus {
     outline: none;
-    border-color: var(--krown-gold);
+    border-color: var(--liqui-gold);
     box-shadow: 0 0 0 3px rgba(201, 151, 58, .18);
 }
 
@@ -128,7 +128,7 @@
 }
 .cob-medio-item {
     padding: 14px;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     border-radius: var(--radius-md);
     background: #FCFCFC;
     position: relative;
@@ -142,12 +142,12 @@
 .cob-medio-item-num {
     font-size: 12px;
     font-weight: 700;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     letter-spacing: 1px;
     text-transform: uppercase;
 }
 .cob-medio-remove {
-    color: var(--krown-crimson);
+    color: var(--liqui-crimson);
     background: transparent;
     border: none;
     cursor: pointer;
@@ -169,7 +169,7 @@
 .cob-medio-fields-extra {
     grid-column: 1 / -1;
     padding-top: 12px;
-    border-top: 1px dashed var(--krown-border);
+    border-top: 1px dashed var(--liqui-border);
     margin-top: 6px;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -183,8 +183,8 @@
 
 /* Totales del cobro */
 .cob-totales {
-    background: var(--krown-black);
-    color: var(--krown-paper);
+    background: var(--liqui-black);
+    color: var(--liqui-paper);
     border-radius: var(--radius-lg);
     padding: 18px 24px;
     display: flex;
@@ -209,12 +209,12 @@
 .cob-totales-valor {
     font-size: 18px;
     font-weight: 700;
-    color: var(--krown-paper);
+    color: var(--liqui-paper);
 }
 .cob-totales-total {
     font-size: 24px;
     font-weight: 800;
-    color: var(--krown-gold-light);
+    color: var(--liqui-gold-light);
 }
 .cob-totales-ok    { color: #8FD9A8; }
 .cob-totales-error { color: #E8A0A0; }
@@ -231,12 +231,12 @@
 }
 .cob-alerta-ok {
     background: rgba(15, 92, 82, .1);
-    color: var(--krown-teal);
+    color: var(--liqui-teal);
     border: 1px solid rgba(15, 92, 82, .25);
 }
 .cob-alerta-error {
     background: rgba(178, 58, 72, .1);
-    color: var(--krown-crimson);
+    color: var(--liqui-crimson);
     border: 1px solid rgba(178, 58, 72, .25);
 }
 
@@ -247,7 +247,7 @@
 }
 .badge-pending {
     background: rgba(178, 58, 72, .12);
-    color: var(--krown-crimson);
+    color: var(--liqui-crimson);
 }
 
 /* Botón chico */

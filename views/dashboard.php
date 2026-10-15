@@ -13,7 +13,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
 ?>
 
 <h2 style="margin-top:0;">¡Bienvenido, <?= htmlspecialchars($_SESSION['user_nombre']) ?>!</h2>
-<p style="color:var(--krown-text-muted);">
+<p style="color:var(--liqui-text-muted);">
     Rol: <strong><?= htmlspecialchars($_SESSION['user_rol_nombre'] ?? '—') ?></strong>
 </p>
 

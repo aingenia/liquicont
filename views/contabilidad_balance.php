@@ -64,7 +64,7 @@ $balancea = abs($t['sumas_debe'] - $t['sumas_haber']) < 0.01;
     </div>
     <div class="cont-card-body">
         <?php if (empty($data['filas'])): ?>
-            <p style="text-align:center;color:var(--krown-text-muted);padding:30px 0;">
+            <p style="text-align:center;color:var(--liqui-text-muted);padding:30px 0;">
                 No hay movimientos en el período.
             </p>
         <?php else: ?>

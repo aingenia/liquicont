@@ -22,7 +22,7 @@
             <td data-label="Cliente">
                 <div class="razon-social"><?= htmlspecialchars($f['cliente_razon_social']) ?></div>
                 <?php if (!empty($f['cliente_cuit'])): ?>
-                    <div style="font-size:12px;color:var(--krown-text-muted);">
+                    <div style="font-size:12px;color:var(--liqui-text-muted);">
                         CUIT <?= htmlspecialchars($f['cliente_cuit']) ?>
                     </div>
                 <?php endif; ?>

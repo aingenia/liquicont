@@ -135,7 +135,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                 <p>Top clientes por cajas equivalentes en el período.</p>
             </div>
             <div class="est-card-actions">
-                <label for="est_clientes_limite" style="font-size:12px;color:var(--krown-text-muted);margin-right:6px;">Top</label>
+                <label for="est_clientes_limite" style="font-size:12px;color:var(--liqui-text-muted);margin-right:6px;">Top</label>
                 <select id="est_clientes_limite" class="est-select-sm">
                     <option value="10">10</option>
                     <option value="20" selected>20</option>
@@ -161,7 +161,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                 <p>Distribución de unidades por sabor. Podés filtrar por formato o ver el total.</p>
             </div>
             <div class="est-card-actions">
-                <label for="est_sabores_formato" style="font-size:12px;color:var(--krown-text-muted);margin-right:6px;">Formato</label>
+                <label for="est_sabores_formato" style="font-size:12px;color:var(--liqui-text-muted);margin-right:6px;">Formato</label>
                 <select id="est_sabores_formato" class="est-select-sm">
                     <option value="">Todos</option>
                     <option value="200">200 cc</option>

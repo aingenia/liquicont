@@ -37,7 +37,7 @@
                     <div>
                         <div class="razon-social"><?= htmlspecialchars($a['nombre']) ?></div>
                         <?php if (!empty($a['codigo'])): ?>
-                            <div style="font-size:12px;color:var(--krown-text-muted);">
+                            <div style="font-size:12px;color:var(--liqui-text-muted);">
                                 Código: <?= htmlspecialchars($a['codigo']) ?>
                             </div>
                         <?php endif; ?>

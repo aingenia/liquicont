@@ -105,7 +105,7 @@ $tipos   = ['APERTURA','DIARIO','VENTA','COMPRA','COBRO','PAGO','AJUSTE','CIERRE
 <div class="cont-card">
     <div class="cont-card-body" style="padding-top:0;">
         <?php if (empty($lista)): ?>
-            <p style="text-align:center;color:var(--krown-text-muted);padding:40px 0;">
+            <p style="text-align:center;color:var(--liqui-text-muted);padding:40px 0;">
                 No se encontraron asientos con esos filtros.
             </p>
         <?php else: ?>

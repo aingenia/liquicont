@@ -385,7 +385,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                 </div>
 
                 <!-- Alta de CONCEPTO / SERVICIO -->
-                <div class="comp-add-row" style="border-top:1px dashed var(--krown-border);padding-top:16px;margin-top:12px;">
+                <div class="comp-add-row" style="border-top:1px dashed var(--liqui-border);padding-top:16px;margin-top:12px;">
                     <div class="comp-add-grid" style="grid-template-columns: 2fr 1fr 1fr 1fr auto;">
                         <div class="form-group">
                             <label for="add_concepto">Concepto / Servicio</label>

@@ -18,7 +18,7 @@
     flex-wrap: wrap;
     margin-bottom: 20px;
     padding: 16px 20px;
-    background: var(--krown-card);
+    background: var(--liqui-card);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
 }
@@ -55,8 +55,8 @@
     align-items: center;
     gap: 14px;
     padding: 10px 0;
-    border-top: 1px solid var(--krown-black);
-    border-bottom: 1px solid var(--krown-black);
+    border-top: 1px solid var(--liqui-black);
+    border-bottom: 1px solid var(--liqui-black);
     font-size: 12px;
     margin-bottom: 24px;
     flex-wrap: wrap;
@@ -66,19 +66,19 @@
 }
 .lp-barra-numero strong {
     font-size: 13px;
-    color: var(--krown-black);
+    color: var(--liqui-black);
 }
 .lp-barra-leyenda {
     font-weight: 700;
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: .3px;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     text-align: center;
     flex: 1;
 }
 .lp-barra-vigencia strong {
-    color: var(--krown-black);
+    color: var(--liqui-black);
 }
 
 /* Grupo */
@@ -89,11 +89,11 @@
     font-family: var(--font-heading);
     font-size: 15px;
     font-weight: 700;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     text-transform: uppercase;
     letter-spacing: 1px;
     padding-bottom: 6px;
-    border-bottom: 1.5px solid var(--krown-black);
+    border-bottom: 1.5px solid var(--liqui-black);
     margin: 0 0 8px;
 }
 
@@ -108,7 +108,7 @@
     padding: 6px 8px;
     font-size: 11px;
     font-weight: 700;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     text-transform: none;
     letter-spacing: 0;
     border-bottom: 1px solid #DDD;
@@ -116,7 +116,7 @@
 .lp-tabla tbody td {
     padding: 7px 8px;
     border-bottom: 1px dashed #EEE;
-    color: var(--krown-text);
+    color: var(--liqui-text);
     vertical-align: middle;
 }
 .lp-tabla tbody tr:last-child td {
@@ -129,7 +129,7 @@
     width: 40px;
     text-align: left;
     font-weight: 700;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     font-size: 12px;
 }
 .lp-tabla .lp-col-nombre {
@@ -155,7 +155,7 @@
     text-align: center;
     font-size: 12px;
     font-style: italic;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     margin: 30px 0 20px;
 }
 
@@ -163,7 +163,7 @@
 .lp-pie {
     text-align: center;
     font-size: 11px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     line-height: 1.7;
     padding-top: 16px;
     border-top: 1px solid #EEE;
@@ -174,7 +174,7 @@
 .lp-empty {
     text-align: center;
     padding: 50px 20px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
 .lp-empty p {
     margin: 0 0 8px;
@@ -201,7 +201,7 @@
     padding: 20px;
 }
 .cal-modal {
-    background: var(--krown-card);
+    background: var(--liqui-card);
     border-radius: var(--radius-lg);
     width: 100%;
     max-height: 90vh;
@@ -211,8 +211,8 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
 }
 .cal-modal-header {
-    background: var(--krown-black);
-    color: var(--krown-paper);
+    background: var(--liqui-black);
+    color: var(--liqui-paper);
     padding: 18px 24px;
     display: flex;
     justify-content: space-between;
@@ -221,7 +221,7 @@
 .cal-modal-header h3 {
     margin: 0;
     font-size: 18px;
-    color: var(--krown-gold-light);
+    color: var(--liqui-gold-light);
     letter-spacing: .5px;
 }
 .cal-modal-fecha {
@@ -233,7 +233,7 @@
 .cal-modal-close {
     background: transparent;
     border: none;
-    color: var(--krown-gold-light);
+    color: var(--liqui-gold-light);
     font-size: 26px;
     line-height: 1;
     cursor: pointer;
@@ -254,7 +254,7 @@
 .lp-modal-subtitulo {
     font-size: 12px;
     font-weight: 700;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     text-transform: uppercase;
     letter-spacing: .5px;
     margin: 18px 0 8px;
@@ -263,7 +263,7 @@
 
 .lp-modal-clientes-hint {
     font-size: 12px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     margin-bottom: 8px;
 }
 
@@ -273,13 +273,13 @@
     align-items: center;
     margin-bottom: 8px;
     font-size: 12px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
 
 .lp-modal-clientes {
     max-height: 220px;
     overflow-y: auto;
-    border: 1px solid var(--krown-border);
+    border: 1px solid var(--liqui-border);
     border-radius: var(--radius-md);
     padding: 8px;
     background: #FAFAFA;
@@ -299,18 +299,18 @@
 .lp-cliente-item input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: var(--krown-teal);
+    accent-color: var(--liqui-teal);
     flex-shrink: 0;
 }
 .lp-cliente-nombre {
     flex: 1;
     font-size: 13px;
     font-weight: 600;
-    color: var(--krown-text);
+    color: var(--liqui-text);
 }
 .lp-cliente-email {
     font-size: 12px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     max-width: 240px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -322,18 +322,18 @@
 .lp-modal-textarea {
     width: 100%;
     padding: 10px 12px;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     border-radius: 8px;
     background: #F8FAFC;
     font-family: var(--font-body);
     font-size: 14px;
-    color: var(--krown-text);
+    color: var(--liqui-text);
     box-sizing: border-box;
 }
 .lp-modal-input:focus,
 .lp-modal-textarea:focus {
     outline: none;
-    border-color: var(--krown-gold);
+    border-color: var(--liqui-gold);
     box-shadow: 0 0 0 3px rgba(201, 151, 58, .18);
 }
 .lp-modal-textarea {
@@ -344,7 +344,7 @@
 }
 .lp-modal-hint {
     font-size: 11.5px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     margin-top: 6px;
     line-height: 1.5;
 }
@@ -354,7 +354,7 @@
     border-radius: 4px;
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--krown-teal);
+    color: var(--liqui-teal);
 }
 
 /* Radios del formato */
@@ -374,7 +374,7 @@
 .lp-radio input[type="radio"] {
     width: 16px;
     height: 16px;
-    accent-color: var(--krown-teal);
+    accent-color: var(--liqui-teal);
 }
 .lp-radio-disabled {
     opacity: .45;
@@ -388,7 +388,7 @@
     gap: 8px;
     margin-top: 24px;
     padding-top: 16px;
-    border-top: 1px solid var(--krown-border);
+    border-top: 1px solid var(--liqui-border);
 }
 
 /* ============================================================
@@ -433,7 +433,7 @@
     text-align: center;
     font-size: 13px;
     font-weight: 700;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     margin: 30px 0 20px;
     letter-spacing: .3px;
 }

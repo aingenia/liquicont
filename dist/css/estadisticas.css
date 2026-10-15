@@ -9,7 +9,7 @@
     align-items: flex-end;
     flex-wrap: wrap;
     padding: 16px 20px;
-    background: var(--krown-card);
+    background: var(--liqui-card);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
     margin-bottom: 20px;
@@ -31,7 +31,7 @@
 
 /* Card del gráfico */
 .est-card {
-    background: var(--krown-card);
+    background: var(--liqui-card);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
     margin-bottom: 20px;
@@ -43,17 +43,17 @@
     align-items: flex-start;
     gap: 16px;
     padding: 20px 24px 14px;
-    border-bottom: 1px solid var(--krown-border);
+    border-bottom: 1px solid var(--liqui-border);
     flex-wrap: wrap;
 }
 .est-card-header h3 {
     font-size: 18px;
     margin: 0 0 4px;
-    color: var(--krown-black);
+    color: var(--liqui-black);
 }
 .est-card-header p {
     font-size: 13px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     margin: 0;
 }
 .est-card-body {
@@ -70,12 +70,12 @@
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.2px;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
 }
 .est-card-total-valor {
     font-size: 24px;
     font-weight: 800;
-    color: var(--krown-black);
+    color: var(--liqui-black);
 }
 
 /* Selector de años (chips) */
@@ -87,21 +87,21 @@
 .est-anio-chip {
     padding: 6px 14px;
     border-radius: 999px;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     background: #FFF;
-    color: var(--krown-text);
+    color: var(--liqui-text);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all .15s;
 }
 .est-anio-chip:hover {
-    border-color: var(--krown-gold);
+    border-color: var(--liqui-gold);
 }
 .est-anio-chip.active {
-    background: var(--krown-black);
-    color: var(--krown-gold-light);
-    border-color: var(--krown-black);
+    background: var(--liqui-black);
+    color: var(--liqui-gold-light);
+    border-color: var(--liqui-black);
 }
 
 /* Grid 2 columnas internas */
@@ -141,16 +141,16 @@
 .est-sabor-nombre {
     flex: 1;
     font-weight: 600;
-    color: var(--krown-text);
+    color: var(--liqui-text);
 }
 .est-sabor-valor {
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     font-family: var(--font-mono);
     font-size: 12px;
 }
 .est-sabor-pct {
     font-weight: 700;
-    color: var(--krown-black);
+    color: var(--liqui-black);
     min-width: 55px;
     text-align: right;
 }
@@ -160,7 +160,7 @@
     padding: 6px 10px;
     font-size: 13px;
     border-radius: 6px;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     background: #FFF;
 }
 .est-card-actions {
@@ -174,7 +174,7 @@
     display: flex;
     gap: 4px;
     margin-bottom: 16px;
-    border-bottom: 2px solid var(--krown-border);
+    border-bottom: 2px solid var(--liqui-border);
     flex-wrap: wrap;
 }
 .fac-tab {
@@ -183,7 +183,7 @@
     padding: 12px 20px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     cursor: pointer;
     border-bottom: 3px solid transparent;
     margin-bottom: -2px;
@@ -192,10 +192,10 @@
     align-items: center;
     gap: 8px;
 }
-.fac-tab:hover { color: var(--krown-text); }
+.fac-tab:hover { color: var(--liqui-text); }
 .fac-tab.active {
-    color: var(--krown-black);
-    border-bottom-color: var(--krown-gold);
+    color: var(--liqui-black);
+    border-bottom-color: var(--liqui-gold);
 }
 .fac-tab-content { display: none; }
 .fac-tab-content.active { display: block; }

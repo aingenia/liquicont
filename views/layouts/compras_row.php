@@ -10,7 +10,7 @@
             <td data-label="Proveedor" class="cell-title">
                 <div class="razon-social"><?= htmlspecialchars($c['proveedor_razon_social']) ?></div>
                 <?php if (!empty($c['proveedor_cuit'])): ?>
-                    <div style="font-size:12px;color:var(--krown-text-muted);">CUIT <?= htmlspecialchars($c['proveedor_cuit']) ?></div>
+                    <div style="font-size:12px;color:var(--liqui-text-muted);">CUIT <?= htmlspecialchars($c['proveedor_cuit']) ?></div>
                 <?php endif; ?>
             </td>
             <td data-label="Comprobante">

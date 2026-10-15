@@ -39,7 +39,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
     </div>
     <div class="cont-card-body">
         <?php if (empty($lista)): ?>
-            <p style="text-align:center;color:var(--krown-text-muted);padding:30px 0;">
+            <p style="text-align:center;color:var(--liqui-text-muted);padding:30px 0;">
                 No hay ejercicios creados.
             </p>
         <?php else: ?>

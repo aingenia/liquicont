@@ -15,7 +15,7 @@
     border-radius: var(--radius-md);
     margin-bottom: 16px;
     display: block;
-   background: rgba(178, 58, 72, .1); color: var(--krown-crimson); border: 1px solid rgba(178,58,72,.25); }
+   background: rgba(178, 58, 72, .1); color: var(--liqui-crimson); border: 1px solid rgba(178,58,72,.25); }
   
 </style>
 </head>

@@ -110,7 +110,7 @@ $puedeAnular    = $as['estado'] === 'CONFIRMADO';
                         <tr>
                             <td class="codigo"><?= htmlspecialchars($ln['cuenta_codigo']) ?></td>
                             <td><?= htmlspecialchars($ln['cuenta_nombre']) ?></td>
-                            <td style="color:var(--krown-text-muted);">
+                            <td style="color:var(--liqui-text-muted);">
                                 <?= htmlspecialchars($ln['detalle'] ?? '') ?>
                             </td>
                             <td class="num">

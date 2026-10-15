@@ -99,7 +99,7 @@ $ejAnt     = $data['ejercicio_ant'] ?? null;
             <span class="estado-resultado-total-label">
                 <?= $data['total'] >= 0 ? 'GANANCIA' : 'PÉRDIDA' ?>
             </span>
-            <span class="estado-resultado-total-valor" style="color:<?= $data['total'] >= 0 ? 'var(--krown-teal)' : 'var(--krown-crimson)' ?>">
+            <span class="estado-resultado-total-valor" style="color:<?= $data['total'] >= 0 ? 'var(--liqui-teal)' : 'var(--liqui-crimson)' ?>">
                 $ <?= number_format(abs($data['total']), 2, ',', '.') ?>
             </span>
             <?php if ($tieneComp && $data['variacion_pct'] !== null): ?>
@@ -147,12 +147,12 @@ $ejAnt     = $data['ejercicio_ant'] ?? null;
                                 <td style="padding-left:30px;"><?= htmlspecialchars($c['nombre']) ?></td>
                                 <td class="num">$ <?= number_format($c['saldo'], 2, ',', '.') ?></td>
                                 <?php if ($tieneComp): ?>
-                                    <td class="num" style="color:var(--krown-text-muted);">
+                                    <td class="num" style="color:var(--liqui-text-muted);">
                                         $ <?= number_format($c['saldo_anterior'] ?? 0, 2, ',', '.') ?>
                                     </td>
                                     <td class="num">
                                         <?php if (($c['variacion_pct'] ?? null) !== null): ?>
-                                            <span style="color:<?= $c['variacion_pct'] >= 0 ? 'var(--krown-teal)' : 'var(--krown-crimson)' ?>">
+                                            <span style="color:<?= $c['variacion_pct'] >= 0 ? 'var(--liqui-teal)' : 'var(--liqui-crimson)' ?>">
                                                 <?= $c['variacion_pct'] >= 0 ? '+' : '' ?><?= number_format($c['variacion_pct'], 2, ',', '.') ?>%
                                             </span>
                                         <?php else: ?>
@@ -184,12 +184,12 @@ $ejAnt     = $data['ejercicio_ant'] ?? null;
                                 <td style="padding-left:30px;"><?= htmlspecialchars($c['nombre']) ?></td>
                                 <td class="num">$ <?= number_format($c['saldo'], 2, ',', '.') ?></td>
                                 <?php if ($tieneComp): ?>
-                                    <td class="num" style="color:var(--krown-text-muted);">
+                                    <td class="num" style="color:var(--liqui-text-muted);">
                                         $ <?= number_format($c['saldo_anterior'] ?? 0, 2, ',', '.') ?>
                                     </td>
                                     <td class="num">
                                         <?php if (($c['variacion_pct'] ?? null) !== null): ?>
-                                            <span style="color:<?= $c['variacion_pct'] >= 0 ? 'var(--krown-teal)' : 'var(--krown-crimson)' ?>">
+                                            <span style="color:<?= $c['variacion_pct'] >= 0 ? 'var(--liqui-teal)' : 'var(--liqui-crimson)' ?>">
                                                 <?= $c['variacion_pct'] >= 0 ? '+' : '' ?><?= number_format($c['variacion_pct'], 2, ',', '.') ?>%
                                             </span>
                                         <?php else: ?>

@@ -90,7 +90,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                                         <strong>Banco:</strong> <?= htmlspecialchars($m['cheque_banco'] ?? '—') ?>
                                         · <strong>N°:</strong> <?= htmlspecialchars($m['cheque_numero'] ?? '—') ?>
                                     </div>
-                                    <div style="font-size:12px;color:var(--krown-text-muted);">
+                                    <div style="font-size:12px;color:var(--liqui-text-muted);">
                                         Fecha de cobro: <?= $m['cheque_fecha_cobro'] ? date('d/m/Y', strtotime($m['cheque_fecha_cobro'])) : '—' ?>
                                         <?php if ($m['cheque_titular']): ?>
                                             · Titular: <?= htmlspecialchars($m['cheque_titular']) ?>
@@ -172,7 +172,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
         </div>
         <div class="form-group">
             <label>Saldo actual del proveedor</label>
-            <div class="fac-readonly" style="font-size:22px;font-weight:800;color:<?= $saldo > 0 ? 'var(--krown-crimson)' : 'var(--krown-teal)' ?>;">
+            <div class="fac-readonly" style="font-size:22px;font-weight:800;color:<?= $saldo > 0 ? 'var(--liqui-crimson)' : 'var(--liqui-teal)' ?>;">
                 $ <?= number_format((float)$saldo, 2, ',', '.') ?>
             </div>
             <div class="form-hint">

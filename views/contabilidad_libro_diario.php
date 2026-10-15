@@ -62,7 +62,7 @@ $totD = 0; $totH = 0;
     </div>
     <div class="cont-card-body">
         <?php if (empty($grupos)): ?>
-            <p style="text-align:center;color:var(--krown-text-muted);padding:30px 0;">
+            <p style="text-align:center;color:var(--liqui-text-muted);padding:30px 0;">
                 No hay movimientos en el período.
             </p>
         <?php else: ?>
@@ -90,7 +90,7 @@ $totD = 0; $totH = 0;
                                 <td><?= date('d/m/Y', strtotime($cab['fecha'])) ?></td>
                                 <td colspan="4">
                                     <strong><?= htmlspecialchars($cab['asiento_desc']) ?></strong>
-                                    <span style="color:var(--krown-text-muted);font-weight:400;margin-left:8px;">
+                                    <span style="color:var(--liqui-text-muted);font-weight:400;margin-left:8px;">
                                         · <?= htmlspecialchars($cab['emisor_nombre']) ?>
                                         · <?= htmlspecialchars($cab['tipo']) ?>
                                     </span>
@@ -104,7 +104,7 @@ $totD = 0; $totH = 0;
                                     <td>
                                         <?= htmlspecialchars($l['cuenta_nombre']) ?>
                                         <?php if (!empty($l['linea_detalle'])): ?>
-                                            <span style="color:var(--krown-text-muted);">
+                                            <span style="color:var(--liqui-text-muted);">
                                                 — <?= htmlspecialchars($l['linea_detalle']) ?>
                                             </span>
                                         <?php endif; ?>

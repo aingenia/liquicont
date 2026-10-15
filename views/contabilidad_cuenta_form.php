@@ -103,7 +103,7 @@ $padresDisponibles = array_filter($padres ?? [], function ($p) use ($cta) {
             </div>
 
             <div class="form-group field-full">
-                <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:14px;color:var(--krown-text);font-weight:500;letter-spacing:0;">
+                <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:14px;color:var(--liqui-text);font-weight:500;letter-spacing:0;">
                     <input type="checkbox" name="imputable" value="1"
                         <?= (!$editando || (int)$cta['imputable'] === 1) ? 'checked' : '' ?>>
                     Es imputable (puede recibir asientos)

@@ -6,7 +6,7 @@
     display: flex;
     gap: 4px;
     margin-bottom: 16px;
-    border-bottom: 2px solid var(--krown-border);
+    border-bottom: 2px solid var(--liqui-border);
 }
 .fac-tab {
     background: transparent;
@@ -14,7 +14,7 @@
     padding: 12px 20px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--krown-text-muted);
+    color: var(--liqui-text-muted);
     cursor: pointer;
     border-bottom: 3px solid transparent;
     margin-bottom: -2px;
@@ -23,15 +23,15 @@
     align-items: center;
     gap: 8px;
 }
-.fac-tab:hover { color: var(--krown-text); }
+.fac-tab:hover { color: var(--liqui-text); }
 .fac-tab.active {
-    color: var(--krown-black);
-    border-bottom-color: var(--krown-gold);
+    color: var(--liqui-black);
+    border-bottom-color: var(--liqui-gold);
 }
 .fac-tab-count {
     display: inline-block;
-    background: var(--krown-black);
-    color: var(--krown-gold-light);
+    background: var(--liqui-black);
+    color: var(--liqui-gold-light);
     padding: 1px 8px;
     border-radius: 999px;
     font-size: 11px;
@@ -53,8 +53,8 @@
 
 /* Cabecera de la vista "ver" */
 .fac-header-card {
-    background: var(--krown-black);
-    color: var(--krown-paper);
+    background: var(--liqui-black);
+    color: var(--liqui-paper);
     border-radius: var(--radius-lg);
     padding: 20px 26px;
     display: grid;
@@ -77,7 +77,7 @@
 .fac-header-nombre {
     font-size: 17px;
     font-weight: 700;
-    color: var(--krown-gold-light);
+    color: var(--liqui-gold-light);
 }
 .fac-header-sub {
     font-size: 12px;
@@ -97,12 +97,12 @@
 .fac-header-valor {
     font-size: 15px;
     font-weight: 600;
-    color: var(--krown-paper);
+    color: var(--liqui-paper);
 }
 .fac-header-total {
     font-size: 22px;
     font-weight: 800;
-    color: var(--krown-gold-light);
+    color: var(--liqui-gold-light);
 }
 
 /* Estado ARCA */
@@ -117,8 +117,8 @@
     font-size: 14px;
 }
 .fac-arca-pendiente { background: rgba(201, 151, 58, .12); color: #8a6a14; border: 1px solid rgba(201, 151, 58, .3); }
-.fac-arca-aprobado  { background: rgba(15, 92, 82, .10);   color: var(--krown-teal); border: 1px solid rgba(15, 92, 82, .25); }
-.fac-arca-error     { background: rgba(178, 58, 72, .10);  color: var(--krown-crimson); border: 1px solid rgba(178, 58, 72, .25); }
+.fac-arca-aprobado  { background: rgba(15, 92, 82, .10);   color: var(--liqui-teal); border: 1px solid rgba(15, 92, 82, .25); }
+.fac-arca-error     { background: rgba(178, 58, 72, .10);  color: var(--liqui-crimson); border: 1px solid rgba(178, 58, 72, .25); }
 .fac-arca-status span { opacity: .8; font-size: 13px; }
 .fac-arca-status strong { font-size: 15px; }
 
@@ -135,7 +135,7 @@
     float: right;
     width: 340px;
     margin-top: 20px;
-    background: var(--krown-card);
+    background: var(--liqui-card);
     border-radius: var(--radius-lg);
     padding: 16px 22px;
     box-shadow: var(--shadow-card);
@@ -144,7 +144,7 @@
 .fac-totales td { padding: 6px 0; font-size: 14px; }
 .fac-totales .text-right { text-align: right; }
 .fac-totales-total td {
-    border-top: 2px solid var(--krown-black);
+    border-top: 2px solid var(--liqui-black);
     padding-top: 12px;
     font-size: 18px;
     font-weight: 800;
@@ -154,9 +154,9 @@
 .fac-readonly {
     padding: 10px 14px;
     background: #f8fafc;
-    border: 1.5px solid var(--krown-border);
+    border: 1.5px solid var(--liqui-border);
     border-radius: 8px;
     font-size: 14px;
-    color: var(--krown-text);
+    color: var(--liqui-text);
     font-weight: 500;
 }
