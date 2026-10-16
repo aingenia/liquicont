@@ -113,6 +113,22 @@ if (!function_exists('esSuperAdmin')) {
     }
 }
 
+if (!function_exists('tenantId')) {
+    /**
+     * Devuelve el ID del tenant actual.
+     * Falla ruidosamente si no hay tenant cargado — mejor fallar que
+     * devolver datos sin filtrar y exponer información entre empresas.
+     */
+    function tenantId(): int {
+        $id = Tenant::id();
+        if ($id === null) {
+            error_log('[tenantId] Tenant no cargado. Abortando para evitar fuga de datos.');
+            http_response_code(500);
+            die('Error interno: tenant no inicializado.');
+        }
+        return $id;
+    }
+}
 
 if (!function_exists('esAdmin')) {
     function esAdmin(): bool {

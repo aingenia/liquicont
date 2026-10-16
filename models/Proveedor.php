@@ -24,8 +24,8 @@ class Proveedor
                 LEFT JOIN condiciones_iva  ci ON ci.id = p.id_condicion_iva
                 LEFT JOIN condiciones_iibb cb ON cb.id = p.id_condicion_iibb
                 LEFT JOIN provincias       pr ON pr.codigo = p.provincia_id
-                WHERE 1=1";
-        $params = [];
+                WHERE p.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
 
         if ($search !== '') {
             $sql .= " AND (p.razon_social LIKE :s1
@@ -65,9 +65,10 @@ class Proveedor
                 LEFT JOIN condiciones_iibb cb ON cb.id = p.id_condicion_iibb
                 LEFT JOIN provincias       pr ON pr.codigo = p.provincia_id
                 WHERE p.id = :id
+                  AND p.tenant_id = :tenant
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
@@ -76,8 +77,13 @@ class Proveedor
     {
         if ($cuit === '') return false;
 
-        $sql = "SELECT id FROM proveedor WHERE cuit = :cuit";
-        $params = [':cuit' => $cuit];
+        $sql = "SELECT id FROM proveedor
+                WHERE cuit = :cuit
+                  AND tenant_id = :tenant";
+        $params = [
+            ':cuit'   => $cuit,
+            ':tenant' => tenantId(),
+        ];
         if ($exceptId !== null) {
             $sql .= " AND id <> :id";
             $params[':id'] = $exceptId;
@@ -91,6 +97,7 @@ class Proveedor
 
     public function combos(): array
     {
+        // Catálogos globales: NO se filtran por tenant
         return [
             'tipos_documento'  => $this->db->query("SELECT id, descripcion FROM tipos_documento ORDER BY id")->fetchAll(),
             'condiciones_iva'  => $this->db->query("SELECT id, descripcion FROM condiciones_iva ORDER BY id")->fetchAll(),
@@ -106,18 +113,20 @@ class Proveedor
         }
 
         $sql = "INSERT INTO proveedor
-                (tipo_documento_id, cuit, razon_social, nombre_fantasia, codigo,
+                (tenant_id, tipo_documento_id, cuit, razon_social, nombre_fantasia, codigo,
                  personeria, id_condicion_iva, id_condicion_iibb, nro_inscripcion_iibb,
                  email, email_facturacion, telefono,
                  domicilio_fiscal, localidad, provincia_id, estado)
                 VALUES
-                (:tipo_documento_id, :cuit, :razon_social, :nombre_fantasia, :codigo,
+                (:tenant, :tipo_documento_id, :cuit, :razon_social, :nombre_fantasia, :codigo,
                  :personeria, :id_condicion_iva, :id_condicion_iibb, :nro_inscripcion_iibb,
                  :email, :email_facturacion, :telefono,
                  :domicilio_fiscal, :localidad, :provincia_id, :estado)";
 
         $stmt = $this->db->prepare($sql);
-        $ok = $stmt->execute($this->mapearParams($d));
+        $params = $this->mapearParams($d);
+        $params[':tenant'] = tenantId();
+        $ok = $stmt->execute($params);
         return $ok ? (int)$this->db->lastInsertId() : false;
     }
 
@@ -145,10 +154,12 @@ class Proveedor
                     provincia_id = :provincia_id,
                     estado = :estado,
                     actualizado_el = NOW()
-                WHERE id = :id";
+                WHERE id = :id
+                  AND tenant_id = :tenant";
 
         $params = $this->mapearParams($d);
         $params[':id'] = $id;
+        $params[':tenant'] = tenantId();
 
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($params);
@@ -156,9 +167,16 @@ class Proveedor
 
     public function cambiarEstado(int $id, string $estado): bool
     {
-        $sql = "UPDATE proveedor SET estado = :estado, actualizado_el = NOW() WHERE id = :id";
+        $sql = "UPDATE proveedor
+                SET estado = :estado, actualizado_el = NOW()
+                WHERE id = :id
+                  AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':estado' => $estado, ':id' => $id]);
+        return $stmt->execute([
+            ':estado' => $estado,
+            ':id'     => $id,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     private function mapearParams(array $d): array
