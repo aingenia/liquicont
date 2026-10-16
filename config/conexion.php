@@ -103,9 +103,16 @@ define('MAIL_DEBUG', ENVIRONMENT === 'development' ? 2 : 0);
 // ----------------------------------------------------------------------
 if (!function_exists('esDeveloper')) {
     function esDeveloper(): bool {
-        return (int)($_SESSION['user_rol'] ?? 0) === 1;
+        return esSuperAdmin() || (int)($_SESSION['user_rol'] ?? 0) === 1;
     }
 }
+
+if (!function_exists('esSuperAdmin')) {
+    function esSuperAdmin(): bool {
+        return (int)($_SESSION['is_super_admin'] ?? 0) === 1;
+    }
+}
+
 
 if (!function_exists('esAdmin')) {
     function esAdmin(): bool {

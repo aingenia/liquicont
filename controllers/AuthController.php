@@ -39,17 +39,48 @@ class AuthController
     private function handleLogin(): void
     {
         $this->jsonHeader();
-        
+
         $email    = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? ''; // No trim en password
+        $password = $_POST['password'] ?? '';
 
         if ($email === '' || $password === '') {
             $this->json(['ok' => false, 'msg' => 'Por favor, complete todos los campos.']);
         }
 
-        $user = $this->usuario->obtenerPorEmail($email);
+        // ---- Detectar tenant actual ----
+        $tenantId = Tenant::id();
 
+        if ($tenantId === null) {
+            // En producción significa que no hay subdominio válido.
+            // En desarrollo, con el fallback, esto no debería pasar.
+            $this->json([
+                'ok'  => false,
+                'msg' => 'No se pudo identificar la empresa. Verifique el dominio de acceso.',
+            ]);
+        }
+
+        // ---- Buscar usuario en el tenant ----
+        $user = $this->usuario->obtenerPorEmailYTenant($email, $tenantId);
+        $esSuperAdmin = false;
+
+        if (!$user) {
+            // No pertenece a este tenant. Puede ser super admin.
+            $candidatoSuper = $this->usuario->obtenerSuperAdminPorEmail($email);
+
+            if ($candidatoSuper && password_verify($password, $candidatoSuper['password'])) {
+                // Es super admin: dejarlo pasar como si fuera admin del tenant
+                $user = $candidatoSuper;
+                $user['nombre_rol']     = 'Developer';
+                $user['rol_slug']       = 'developer';
+                $user['tenant_role_id'] = 1; // developer
+                $user['tenant_id']      = $tenantId;
+                $esSuperAdmin           = true;
+            }
+        }
+
+        // ---- Validar credenciales ----
         if (!$user || !password_verify($password, $user['password'])) {
+            // Mensaje genérico: no revela si existe, si está en otro tenant, etc.
             $this->json(['ok' => false, 'msg' => 'El correo electrónico o la contraseña son incorrectos.']);
         }
 
@@ -57,15 +88,22 @@ class AuthController
             $this->json(['ok' => false, 'msg' => 'Su cuenta está inactiva. Contacte al administrador.']);
         }
 
-        // Regenerar id de sesión por seguridad
+        // ---- Regenerar sesión ----
         session_regenerate_id(true);
 
+        // ---- Guardar sesión ----
         $_SESSION['user_id']          = (int)$user['id'];
         $_SESSION['user_nombre']      = $user['nombre'];
         $_SESSION['user_email']       = $user['email'];
-        $_SESSION['user_rol']         = (int)$user['rol'];
+        $_SESSION['user_rol']         = (int)$user['tenant_role_id'];
         $_SESSION['user_rol_nombre']  = $user['nombre_rol'] ?? '';
+        $_SESSION['user_rol_slug']    = $user['rol_slug'] ?? '';
         $_SESSION['user_avatar']      = $user['avatar'] ?? null;
+
+        $_SESSION['tenant_id']        = (int)$user['tenant_id'];
+        $_SESSION['tenant_name']      = Tenant::name();
+
+        $_SESSION['is_super_admin']   = $esSuperAdmin ? 1 : 0;
 
         $this->json([
             'ok'       => true,

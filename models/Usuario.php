@@ -338,4 +338,80 @@ class Usuario
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($params);
     }
+
+    /* ==========================================================
+   MULTI-TENANT
+   ========================================================== */
+    /**
+     * Busca un usuario por email que PERTENEZCA al tenant dado.
+     * Devuelve los datos del usuario + el rol que tiene EN ESE tenant.
+     *
+     * Si el usuario existe pero no pertenece a ese tenant, devuelve null.
+     *
+     * @return array|null
+     */
+    public function obtenerPorEmailYTenant(string $email, int $tenantId): ?array
+    {
+        $sql = "SELECT u.*,
+                    r.nombre  AS nombre_rol,
+                    r.slug    AS rol_slug,
+                    tu.role_id AS tenant_role_id,
+                    tu.tenant_id
+                FROM usuario u
+                INNER JOIN tenant_user tu ON tu.user_id = u.id
+                INNER JOIN roles r        ON r.id = tu.role_id
+                WHERE u.email = :email
+                AND tu.tenant_id = :tenant_id
+                AND tu.estado = 'ACTIVO'
+                LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':email'     => $email,
+            ':tenant_id' => $tenantId,
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    /**
+     * Busca un usuario por email que sea super admin.
+     * Los super admin pueden loguearse en cualquier tenant.
+     *
+     * @return array|null
+     */
+    public function obtenerSuperAdminPorEmail(string $email): ?array
+    {
+        $sql = "SELECT * FROM usuario
+                WHERE email = :email
+                AND is_super_admin = 1
+                LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':email' => $email]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    /**
+     * Devuelve todos los tenants a los que pertenece un usuario.
+     * Útil para el selector de empresa (Fase 2).
+     */
+    public function obtenerTenantsDeUsuario(int $userId): array
+    {
+        $sql = "SELECT t.id, t.name, t.subdomain, r.nombre AS rol_nombre, r.slug AS rol_slug
+                FROM tenant_user tu
+                INNER JOIN tenants t ON t.id = tu.tenant_id
+                INNER JOIN roles r   ON r.id = tu.role_id
+                WHERE tu.user_id = :user_id
+                AND tu.estado = 'ACTIVO'
+                AND t.estado = 'ACTIVO'
+                ORDER BY t.name ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':user_id' => $userId]);
+        return $stmt->fetchAll();
+    }
 }
