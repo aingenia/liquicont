@@ -20,11 +20,13 @@ class Articulo
         $sql = "SELECT a.*,
                pk.descripcion AS pakaging_desc,
                pk.cantidad AS pakaging_factor,
-               (SELECT COUNT(*) FROM formula WHERE idarticulo = a.id) AS insumos_count
+               (SELECT COUNT(*) FROM formula f
+                WHERE f.idarticulo = a.id
+                  AND f.tenant_id = a.tenant_id) AS insumos_count
                 FROM articulo a
                 LEFT JOIN pakaging pk ON pk.id = a.pakaging_id
-                WHERE 1=1";
-        $params = [];
+                WHERE a.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
 
         if ($search !== '') {
             $sql .= " AND (a.nombre LIKE :s1
@@ -51,8 +53,10 @@ class Articulo
 
     public function obtenerPorId(int $id): ?array
     {
-        $stmt = $this->db->prepare("SELECT * FROM articulo WHERE id = :id LIMIT 1");
-        $stmt->execute([':id' => $id]);
+        $stmt = $this->db->prepare(
+            "SELECT * FROM articulo WHERE id = :id AND tenant_id = :tenant LIMIT 1"
+        );
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
@@ -60,8 +64,13 @@ class Articulo
     public function codigoExiste(string $codigo, ?int $exceptId = null): bool
     {
         if ($codigo === '') return false;
-        $sql = "SELECT id FROM articulo WHERE codigo = :c";
-        $params = [':c' => $codigo];
+        $sql = "SELECT id FROM articulo
+                WHERE codigo = :c
+                  AND tenant_id = :tenant";
+        $params = [
+            ':c'      => $codigo,
+            ':tenant' => tenantId(),
+        ];
         if ($exceptId !== null) {
             $sql .= " AND id <> :id";
             $params[':id'] = $exceptId;
@@ -75,22 +84,23 @@ class Articulo
     /* ==========================================================
        CRUD
        ========================================================== */
-        public function crear(array $d): int|false
-        {
+    public function crear(array $d): int|false
+    {
         if (!empty($d['codigo']) && $this->codigoExiste($d['codigo'])) {
             return false;
         }
 
         $sql = "INSERT INTO articulo
-                (codigo, nombre, descripcion, formato, sabor, costo, costo_automatico, precio,
+                (tenant_id, codigo, nombre, descripcion, formato, sabor, costo, costo_automatico, precio,
                  stock, ppedido, pakaging_id, estado)
                 VALUES
-                (:codigo, :nombre, :descripcion, :formato, :sabor, 0, :costo_automatico, 0,
+                (:tenant, :codigo, :nombre, :descripcion, :formato, :sabor, 0, :costo_automatico, 0,
                  0, :ppedido, :pakaging_id, :estado)";
 
-        $stmt = $this->db->prepare($sql);      // ← ESTA LÍNEA FALTABA
-        
+        $stmt = $this->db->prepare($sql);
+
         $ok = $stmt->execute([
+            ':tenant'           => tenantId(),
             ':codigo'           => $d['codigo'],
             ':nombre'           => $d['nombre'],
             ':descripcion'      => $d['descripcion'],
@@ -122,7 +132,8 @@ class Articulo
             pakaging_id = :pakaging_id,
             estado = :estado,
             actualizado_el = NOW()
-            WHERE id = :id";
+            WHERE id = :id
+              AND tenant_id = :tenant";
 
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
@@ -136,34 +147,48 @@ class Articulo
             ':pakaging_id'      => $d['pakaging_id'],
             ':estado'           => $d['estado'],
             ':id'               => $id,
+            ':tenant'           => tenantId(),
         ]);
     }
 
-    /**
-     * Actualiza SOLO el costo manual (cuando costo_automatico = 0).
-     */
     public function actualizarCostoManual(int $id, float $costo): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE articulo SET costo = :c, actualizado_el = NOW() WHERE id = :id"
+            "UPDATE articulo SET costo = :c, actualizado_el = NOW()
+             WHERE id = :id AND tenant_id = :tenant"
         );
-        return $stmt->execute([':c' => $costo, ':id' => $id]);
+        return $stmt->execute([
+            ':c'      => $costo,
+            ':id'     => $id,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     public function cambiarEstado(int $id, string $estado): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE articulo SET estado = :e, actualizado_el = NOW() WHERE id = :id"
+            "UPDATE articulo SET estado = :e, actualizado_el = NOW()
+             WHERE id = :id AND tenant_id = :tenant"
         );
-        return $stmt->execute([':e' => $estado, ':id' => $id]);
+        return $stmt->execute([
+            ':e'      => $estado,
+            ':id'     => $id,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     public function actualizarImagen(int $id, ?string $path, ?string $nombreOriginal): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE articulo SET imagen_path = :p, imagen_nombre_original = :n WHERE id = :id"
+            "UPDATE articulo SET imagen_path = :p, imagen_nombre_original = :n
+             WHERE id = :id AND tenant_id = :tenant"
         );
-        return $stmt->execute([':p' => $path, ':n' => $nombreOriginal, ':id' => $id]);
+        return $stmt->execute([
+            ':p'      => $path,
+            ':n'      => $nombreOriginal,
+            ':id'     => $id,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     /* ==========================================================
@@ -181,9 +206,10 @@ class Articulo
                 INNER JOIN insumo i ON i.id = f.idinsumo
                 INNER JOIN unidades_medida um ON um.id = i.unidad_medida_id
                 WHERE f.idarticulo = :id
+                  AND f.tenant_id = :tenant
                 ORDER BY i.nombre";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $articuloId]);
+        $stmt->execute([':id' => $articuloId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
@@ -192,23 +218,39 @@ class Articulo
         try {
             // Si ya existe, actualizamos la cantidad
             $stmt = $this->db->prepare(
-                "SELECT id FROM formula WHERE idarticulo = :a AND idinsumo = :i LIMIT 1"
+                "SELECT id FROM formula
+                 WHERE idarticulo = :a AND idinsumo = :i AND tenant_id = :tenant
+                 LIMIT 1"
             );
-            $stmt->execute([':a' => $articuloId, ':i' => $insumoId]);
+            $stmt->execute([
+                ':a'      => $articuloId,
+                ':i'      => $insumoId,
+                ':tenant' => tenantId(),
+            ]);
             $existente = $stmt->fetchColumn();
 
             if ($existente) {
                 $stmt = $this->db->prepare(
-                    "UPDATE formula SET cantidad = :c WHERE id = :id"
+                    "UPDATE formula SET cantidad = :c
+                     WHERE id = :id AND tenant_id = :tenant"
                 );
-                $stmt->execute([':c' => $cantidad, ':id' => $existente]);
+                $stmt->execute([
+                    ':c'      => $cantidad,
+                    ':id'     => $existente,
+                    ':tenant' => tenantId(),
+                ]);
                 return (int)$existente;
             }
 
-            $sql = "INSERT INTO formula (idarticulo, idinsumo, unidad, medida, cantidad)
-                    VALUES (:a, :i, '', 1, :c)";
+            $sql = "INSERT INTO formula (tenant_id, idarticulo, idinsumo, unidad, medida, cantidad)
+                    VALUES (:tenant, :a, :i, '', 1, :c)";
             $stmt = $this->db->prepare($sql);
-            $stmt->execute([':a' => $articuloId, ':i' => $insumoId, ':c' => $cantidad]);
+            $stmt->execute([
+                ':tenant' => tenantId(),
+                ':a'      => $articuloId,
+                ':i'      => $insumoId,
+                ':c'      => $cantidad,
+            ]);
 
             return (int)$this->db->lastInsertId();
         } catch (PDOException $e) {
@@ -219,16 +261,27 @@ class Articulo
 
     public function actualizarCantidadInsumo(int $formulaId, int $articuloId, float $cantidad): bool
     {
-        $sql = "UPDATE formula SET cantidad = :c WHERE id = :id AND idarticulo = :a";
+        $sql = "UPDATE formula SET cantidad = :c
+                WHERE id = :id AND idarticulo = :a AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':c' => $cantidad, ':id' => $formulaId, ':a' => $articuloId]);
+        return $stmt->execute([
+            ':c'      => $cantidad,
+            ':id'     => $formulaId,
+            ':a'      => $articuloId,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     public function eliminarInsumo(int $formulaId, int $articuloId): bool
     {
-        $sql = "DELETE FROM formula WHERE id = :id AND idarticulo = :a";
+        $sql = "DELETE FROM formula
+                WHERE id = :id AND idarticulo = :a AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':id' => $formulaId, ':a' => $articuloId]);
+        return $stmt->execute([
+            ':id'     => $formulaId,
+            ':a'      => $articuloId,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     /* ==========================================================
@@ -240,12 +293,12 @@ class Articulo
                 FROM articulo_precio_categoria apc
                 INNER JOIN cliente_categoria cc ON cc.id = apc.categoria_id
                 WHERE apc.articulo_id = :id
+                  AND apc.tenant_id = :tenant
                 ORDER BY cc.id ASC";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $articuloId]);
+        $stmt->execute([':id' => $articuloId, ':tenant' => tenantId()]);
         $rows = $stmt->fetchAll();
 
-        // Indexar por categoria_id para fácil acceso en el form
         $out = [];
         foreach ($rows as $r) {
             $out[(int)$r['categoria_id']] = $r;
@@ -253,35 +306,35 @@ class Articulo
         return $out;
     }
 
-    /**
-     * Guarda (upsert) el precio y visibilidad de una categoría.
-     * Registra el cambio en historial_valores si el precio varió.
-     */
     public function guardarPrecio(int $articuloId, int $categoriaId, float $precio, int $visible): bool
     {
-        // Ver si ya existe para detectar cambio de precio
         $stmt = $this->db->prepare(
             "SELECT id, precio FROM articulo_precio_categoria
-             WHERE articulo_id = :a AND categoria_id = :c LIMIT 1"
+             WHERE articulo_id = :a AND categoria_id = :c AND tenant_id = :tenant
+             LIMIT 1"
         );
-        $stmt->execute([':a' => $articuloId, ':c' => $categoriaId]);
+        $stmt->execute([
+            ':a'      => $articuloId,
+            ':c'      => $categoriaId,
+            ':tenant' => tenantId(),
+        ]);
         $previo = $stmt->fetch();
 
-        $sql = "INSERT INTO articulo_precio_categoria (articulo_id, categoria_id, precio, visible)
-                VALUES (:a, :c, :p, :v)
+        $sql = "INSERT INTO articulo_precio_categoria (tenant_id, articulo_id, categoria_id, precio, visible)
+                VALUES (:tenant, :a, :c, :p, :v)
                 ON DUPLICATE KEY UPDATE
                     precio = VALUES(precio),
                     visible = VALUES(visible),
                     actualizado_el = NOW()";
         $stmt = $this->db->prepare($sql);
         $ok = $stmt->execute([
-            ':a' => $articuloId,
-            ':c' => $categoriaId,
-            ':p' => $precio,
-            ':v' => $visible,
+            ':tenant' => tenantId(),
+            ':a'      => $articuloId,
+            ':c'      => $categoriaId,
+            ':p'      => $precio,
+            ':v'      => $visible,
         ]);
 
-        // Registrar en historial solo si el precio cambió (evita ruido)
         if ($ok && $previo && abs((float)$previo['precio'] - $precio) > 0.0001) {
             $this->registrarCambioPrecioCategoria(
                 $articuloId, $categoriaId,
@@ -300,7 +353,6 @@ class Articulo
         $art = $this->obtenerPorId($articuloId);
         if (!$art) return 0.0;
 
-        // Si no es automático, no hacemos nada
         if ((int)$art['costo_automatico'] !== 1) {
             return (float)$art['costo'];
         }
@@ -315,9 +367,14 @@ class Articulo
 
         if (abs($nuevo - $anterior) > 0.0001) {
             $stmt = $this->db->prepare(
-                "UPDATE articulo SET costo = :c, actualizado_el = NOW() WHERE id = :id"
+                "UPDATE articulo SET costo = :c, actualizado_el = NOW()
+                 WHERE id = :id AND tenant_id = :tenant"
             );
-            $stmt->execute([':c' => $nuevo, ':id' => $articuloId]);
+            $stmt->execute([
+                ':c'      => $nuevo,
+                ':id'     => $articuloId,
+                ':tenant' => tenantId(),
+            ]);
             $this->registrarCambioCosto($articuloId, $anterior, $nuevo);
         }
 
@@ -335,10 +392,12 @@ class Articulo
                 WHERE hv.tipo = 'ARTICULO_COSTO'
                   AND hv.referencia_id = :ref
                   AND hv.anulado = 0
+                  AND hv.tenant_id = :tenant
                 ORDER BY hv.fecha DESC
                 LIMIT :lim";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':ref', $articuloId, PDO::PARAM_INT);
+        $stmt->bindValue(':tenant', tenantId(), PDO::PARAM_INT);
         $stmt->bindValue(':lim', $limite, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
@@ -352,15 +411,16 @@ class Articulo
 
         $stmt = $this->db->prepare(
             "INSERT INTO historial_valores
-             (tipo, referencia_id, valor_anterior, valor_nuevo, variacion_pct, usuario_id)
-             VALUES ('ARTICULO_COSTO', :ref, :va, :vn, :vp, :u)"
+             (tenant_id, tipo, referencia_id, valor_anterior, valor_nuevo, variacion_pct, usuario_id)
+             VALUES (:tenant, 'ARTICULO_COSTO', :ref, :va, :vn, :vp, :u)"
         );
         $stmt->execute([
-            ':ref' => $articuloId,
-            ':va'  => $anterior,
-            ':vn'  => $nuevo,
-            ':vp'  => $variacion,
-            ':u'   => $_SESSION['user_id'] ?? null,
+            ':tenant' => tenantId(),
+            ':ref'    => $articuloId,
+            ':va'     => $anterior,
+            ':vn'     => $nuevo,
+            ':vp'     => $variacion,
+            ':u'      => $_SESSION['user_id'] ?? null,
         ]);
     }
 
@@ -373,16 +433,17 @@ class Articulo
 
         $stmt = $this->db->prepare(
             "INSERT INTO historial_precios_categoria
-             (articulo_id, categoria_id, precio_anterior, precio_nuevo, variacion_pct, usuario_id)
-             VALUES (:a, :c, :pa, :pn, :vp, :u)"
+             (tenant_id, articulo_id, categoria_id, precio_anterior, precio_nuevo, variacion_pct, usuario_id)
+             VALUES (:tenant, :a, :c, :pa, :pn, :vp, :u)"
         );
         $stmt->execute([
-            ':a'  => $articuloId,
-            ':c'  => $categoriaId,
-            ':pa' => $anterior,
-            ':pn' => $nuevo,
-            ':vp' => $variacion,
-            ':u'  => $_SESSION['user_id'] ?? null,
+            ':tenant' => tenantId(),
+            ':a'      => $articuloId,
+            ':c'      => $categoriaId,
+            ':pa'     => $anterior,
+            ':pn'     => $nuevo,
+            ':vp'     => $variacion,
+            ':u'      => $_SESSION['user_id'] ?? null,
         ]);
     }
 
@@ -391,21 +452,33 @@ class Articulo
        ========================================================== */
     public function combos(): array
     {
+        $stmtIns = $this->db->prepare(
+            "SELECT i.id, i.nombre, i.codigo, i.costo,
+                    um.abreviatura AS unidad_abrev
+            FROM insumo i
+            INNER JOIN unidades_medida um ON um.id = i.unidad_medida_id
+            WHERE i.estado = 'ACTIVO'
+              AND i.tenant_id = :tenant
+            ORDER BY i.nombre"
+        );
+        $stmtIns->execute([':tenant' => tenantId()]);
+
+        $stmtCat = $this->db->prepare(
+            "SELECT id, descripcion FROM cliente_categoria
+             WHERE tenant_id = :tenant ORDER BY id"
+        );
+        $stmtCat->execute([':tenant' => tenantId()]);
+
+        $stmtPk = $this->db->prepare(
+            "SELECT id, descripcion, cantidad FROM pakaging
+             WHERE tenant_id = :tenant ORDER BY cantidad"
+        );
+        $stmtPk->execute([':tenant' => tenantId()]);
+
         return [
-            'insumos' => $this->db->query(
-                "SELECT i.id, i.nombre, i.codigo, i.costo,
-                        um.abreviatura AS unidad_abrev
-                FROM insumo i
-                INNER JOIN unidades_medida um ON um.id = i.unidad_medida_id
-                WHERE i.estado = 'ACTIVO'
-                ORDER BY i.nombre"
-            )->fetchAll(),
-            'categorias' => $this->db->query(
-                "SELECT id, descripcion FROM cliente_categoria ORDER BY id"
-            )->fetchAll(),
-            'packagings' => $this->db->query(
-                "SELECT id, descripcion, cantidad FROM pakaging ORDER BY cantidad"
-            )->fetchAll(),
+            'insumos'     => $stmtIns->fetchAll(),
+            'categorias'  => $stmtCat->fetchAll(),
+            'packagings'  => $stmtPk->fetchAll(),
         ];
     }
 }
