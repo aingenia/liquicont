@@ -16,11 +16,6 @@ class Cliente
        LISTADO CON FILTROS
        ========================================================== */
 
-    /**
-     * @param string   $search     Búsqueda libre (razón social, código, CUIT, nombre fantasía)
-     * @param string   $status     'ACTIVO' | 'INACTIVO' | '' (todos)
-     * @param int|null $vendedorId Si no es null, restringe a ese vendedor
-     */
     public function listar(string $search = '', string $status = '', ?int $vendedorId = null): array
     {
         $sql = "SELECT c.*,
@@ -37,8 +32,8 @@ class Cliente
                 LEFT JOIN cliente_categoria cat ON cat.id = c.categoria
                 LEFT JOIN provincias       p   ON p.codigo = c.provincia_id
                 LEFT JOIN usuario          u   ON u.id   = c.vendedor_id
-                WHERE 1=1";
-        $params = [];
+                WHERE c.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
 
         if ($search !== '') {
             $sql .= " AND (c.razon_social LIKE :s1
@@ -87,22 +82,25 @@ class Cliente
                 LEFT JOIN provincias       p   ON p.codigo = c.provincia_id
                 LEFT JOIN usuario          u   ON u.id   = c.vendedor_id
                 WHERE c.id = :id
+                  AND c.tenant_id = :tenant
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
 
-    /**
-     * Verifica si un CUIT ya existe. Excluye opcionalmente un ID (al editar).
-     */
     public function cuitExiste(string $cuit, ?int $exceptId = null): bool
     {
         if ($cuit === '') return false;
 
-        $sql = "SELECT id FROM cliente WHERE cuit = :cuit";
-        $params = [':cuit' => $cuit];
+        $sql = "SELECT id FROM cliente
+                WHERE cuit = :cuit
+                  AND tenant_id = :tenant";
+        $params = [
+            ':cuit'   => $cuit,
+            ':tenant' => tenantId(),
+        ];
         if ($exceptId !== null) {
             $sql .= " AND id <> :id";
             $params[':id'] = $exceptId;
@@ -119,13 +117,33 @@ class Cliente
        ========================================================== */
     public function combos(): array
     {
+        // Vendedores del tenant actual (rol 3 vía tenant_user)
+        $sqlVend = "SELECT u.id, u.nombre
+                    FROM usuario u
+                    INNER JOIN tenant_user tu ON tu.user_id = u.id
+                    WHERE tu.tenant_id = :tenant
+                      AND tu.role_id = 3
+                      AND tu.estado = 'ACTIVO'
+                      AND u.estado = 1
+                    ORDER BY u.nombre";
+        $stmtVend = $this->db->prepare($sqlVend);
+        $stmtVend->execute([':tenant' => tenantId()]);
+        $vendedores = $stmtVend->fetchAll();
+
+        // Categorías del tenant
+        $stmtCat = $this->db->prepare(
+            "SELECT id, descripcion FROM cliente_categoria WHERE tenant_id = :tenant ORDER BY id"
+        );
+        $stmtCat->execute([':tenant' => tenantId()]);
+        $categorias = $stmtCat->fetchAll();
+
         return [
             'tipos_documento'   => $this->db->query("SELECT id, descripcion FROM tipos_documento ORDER BY id")->fetchAll(),
-            'categorias'        => $this->db->query("SELECT id, descripcion FROM cliente_categoria ORDER BY id")->fetchAll(),
+            'categorias'        => $categorias,
             'condiciones_iva'   => $this->db->query("SELECT id, descripcion FROM condiciones_iva ORDER BY id")->fetchAll(),
             'condiciones_iibb'  => $this->db->query("SELECT id, descripcion FROM condiciones_iibb ORDER BY id")->fetchAll(),
             'provincias'        => $this->db->query("SELECT codigo AS id, descripcion FROM provincias ORDER BY descripcion")->fetchAll(),
-            'vendedores'        => $this->db->query("SELECT id, nombre FROM usuario WHERE rol = 3 AND estado = 1 ORDER BY nombre")->fetchAll(),
+            'vendedores'        => $vendedores,
         ];
     }
 
@@ -139,20 +157,22 @@ class Cliente
         }
 
         $sql = "INSERT INTO cliente
-                (tipo_documento_id, cuit, razon_social, nombre_fantasia, codigo,
+                (tenant_id, tipo_documento_id, cuit, razon_social, nombre_fantasia, codigo,
                  personeria, categoria, id_condicion_iva, id_condicion_iibb, nro_inscripcion_iibb,
                  email, email_facturacion, telefono,
                  domicilio_fiscal, domicilio_entrega, localidad, provincia_id,
                  condicion_venta, vendedor_id, limite_credito, estado)
                 VALUES
-                (:tipo_documento_id, :cuit, :razon_social, :nombre_fantasia, :codigo,
+                (:tenant, :tipo_documento_id, :cuit, :razon_social, :nombre_fantasia, :codigo,
                  :personeria, :categoria, :id_condicion_iva, :id_condicion_iibb, :nro_inscripcion_iibb,
                  :email, :email_facturacion, :telefono,
                  :domicilio_fiscal, :domicilio_entrega, :localidad, :provincia_id,
                  :condicion_venta, :vendedor_id, :limite_credito, :estado)";
 
         $stmt = $this->db->prepare($sql);
-        $ok = $stmt->execute($this->mapearParams($d));
+        $params = $this->mapearParams($d);
+        $params[':tenant'] = tenantId();
+        $ok = $stmt->execute($params);
 
         return $ok ? (int)$this->db->lastInsertId() : false;
     }
@@ -189,19 +209,17 @@ class Cliente
                     limite_credito = :limite_credito,
                     estado = :estado,
                     actualizado_el = NOW()
-                WHERE id = :id";
+                WHERE id = :id
+                  AND tenant_id = :tenant";
 
         $params = $this->mapearParams($d);
         $params[':id'] = $id;
+        $params[':tenant'] = tenantId();
 
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($params);
     }
 
-    /**
-     * Cuando el vendedor edita, NO puede tocar estado/categoría/vendedor.
-     * Este método arma el UPDATE solo con los campos permitidos.
-     */
     public function actualizarComoVendedor(int $id, array $d): bool
     {
         if (!empty($d['cuit']) && $this->cuitExiste($d['cuit'], $id)) {
@@ -228,7 +246,8 @@ class Cliente
                     condicion_venta = :condicion_venta,
                     limite_credito = :limite_credito,
                     actualizado_el = NOW()
-                WHERE id = :id";
+                WHERE id = :id
+                  AND tenant_id = :tenant";
 
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
@@ -251,14 +270,22 @@ class Cliente
             ':condicion_venta'      => $d['condicion_venta'],
             ':limite_credito'       => $d['limite_credito'],
             ':id'                   => $id,
+            ':tenant'               => tenantId(),
         ]);
     }
 
     public function cambiarEstado(int $id, string $estado): bool
     {
-        $sql = "UPDATE cliente SET estado = :estado, actualizado_el = NOW() WHERE id = :id";
+        $sql = "UPDATE cliente
+                SET estado = :estado, actualizado_el = NOW()
+                WHERE id = :id
+                  AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':estado' => $estado, ':id' => $id]);
+        return $stmt->execute([
+            ':estado' => $estado,
+            ':id'     => $id,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     /* ==========================================================
