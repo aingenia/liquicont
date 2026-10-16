@@ -22,8 +22,8 @@ class Insumo
                        um.abreviatura AS unidad_abrev
                 FROM insumo i
                 INNER JOIN unidades_medida um ON um.id = i.unidad_medida_id
-                WHERE 1=1";
-        $params = [];
+                WHERE i.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
 
         if ($search !== '') {
             $sql .= " AND (i.nombre LIKE :s1
@@ -56,9 +56,10 @@ class Insumo
                 FROM insumo i
                 INNER JOIN unidades_medida um ON um.id = i.unidad_medida_id
                 WHERE i.id = :id
+                  AND i.tenant_id = :tenant
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
@@ -67,8 +68,13 @@ class Insumo
     {
         if ($codigo === '') return false;
 
-        $sql = "SELECT id FROM insumo WHERE codigo = :c";
-        $params = [':c' => $codigo];
+        $sql = "SELECT id FROM insumo
+                WHERE codigo = :c
+                  AND tenant_id = :tenant";
+        $params = [
+            ':c'      => $codigo,
+            ':tenant' => tenantId(),
+        ];
         if ($exceptId !== null) {
             $sql .= " AND id <> :id";
             $params[':id'] = $exceptId;
@@ -82,14 +88,19 @@ class Insumo
 
     public function combos(): array
     {
+        $stmtProv = $this->db->prepare(
+            "SELECT id, razon_social, nombre_fantasia FROM proveedor
+             WHERE estado = 'ACTIVO'
+               AND tenant_id = :tenant
+             ORDER BY razon_social"
+        );
+        $stmtProv->execute([':tenant' => tenantId()]);
+
         return [
             'unidades_medida' => $this->db->query(
                 "SELECT id, nombre, abreviatura FROM unidades_medida ORDER BY nombre"
             )->fetchAll(),
-            'proveedores' => $this->db->query(
-                "SELECT id, razon_social, nombre_fantasia FROM proveedor
-                WHERE estado = 'ACTIVO' ORDER BY razon_social"
-            )->fetchAll(),
+            'proveedores' => $stmtProv->fetchAll(),
         ];
     }
 
@@ -103,16 +114,17 @@ class Insumo
         }
 
         $sql = "INSERT INTO insumo
-                (codigo, nombre, descripcion, unidad_medida_id, medida, stock,
+                (tenant_id, codigo, nombre, descripcion, unidad_medida_id, medida, stock,
                  saldo_fraccionario, ppedido, metodo_costo, costo,
                  es_alcoholico, aplica_impuestos_internos, alicuota_impuestos_internos, estado)
                 VALUES
-                (:codigo, :nombre, :descripcion, :unidad_medida_id, :medida, :stock,
+                (:tenant, :codigo, :nombre, :descripcion, :unidad_medida_id, :medida, :stock,
                  0, :ppedido, :metodo_costo, 0,
                  :es_alcoholico, :aplica_impuestos_internos, :alicuota, :estado)";
 
         $stmt = $this->db->prepare($sql);
         $ok = $stmt->execute([
+            ':tenant'                    => tenantId(),
             ':codigo'                    => $d['codigo'],
             ':nombre'                    => $d['nombre'],
             ':descripcion'               => $d['descripcion'],
@@ -136,8 +148,6 @@ class Insumo
             return false;
         }
 
-        // Nota: NO se toca `stock` ni `saldo_fraccionario` — se modifican
-        // automáticamente por compras y facturación.
         $sql = "UPDATE insumo SET
                     codigo = :codigo,
                     nombre = :nombre,
@@ -151,7 +161,8 @@ class Insumo
                     alicuota_impuestos_internos = :alicuota,
                     estado = :estado,
                     actualizado_el = NOW()
-                WHERE id = :id";
+                WHERE id = :id
+                  AND tenant_id = :tenant";
 
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
@@ -167,15 +178,23 @@ class Insumo
             ':alicuota'                  => $d['alicuota_impuestos_internos'],
             ':estado'                    => $d['estado'],
             ':id'                        => $id,
+            ':tenant'                    => tenantId(),
         ]);
     }
 
     public function cambiarEstado(int $id, string $estado): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE insumo SET estado = :e, actualizado_el = NOW() WHERE id = :id"
+            "UPDATE insumo
+             SET estado = :e, actualizado_el = NOW()
+             WHERE id = :id
+               AND tenant_id = :tenant"
         );
-        return $stmt->execute([':e' => $estado, ':id' => $id]);
+        return $stmt->execute([
+            ':e'      => $estado,
+            ':id'     => $id,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     /* ==========================================================
@@ -187,41 +206,44 @@ class Insumo
                 FROM insumo_proveedor ip
                 INNER JOIN proveedor p ON p.id = ip.proveedor_id
                 WHERE ip.insumo_id = :id
+                  AND ip.tenant_id = :tenant
                 ORDER BY ip.costo ASC";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $insumoId]);
+        $stmt->execute([':id' => $insumoId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
-    /**
-     * Inserta o actualiza un proveedor del insumo (upsert por UNIQUE
-     * insumo_id+proveedor_id). Devuelve el id de la fila.
-     */
     public function guardarProveedor(int $insumoId, int $proveedorId, float $costo, ?string $codigoProv): int|false
     {
         try {
-            $sql = "INSERT INTO insumo_proveedor (insumo_id, proveedor_id, costo, codigo_proveedor)
-                    VALUES (:i, :p, :c, :cp)
+            $sql = "INSERT INTO insumo_proveedor (tenant_id, insumo_id, proveedor_id, costo, codigo_proveedor)
+                    VALUES (:tenant, :i, :p, :c, :cp)
                     ON DUPLICATE KEY UPDATE
                         costo = VALUES(costo),
                         codigo_proveedor = VALUES(codigo_proveedor),
                         actualizado_el = NOW()";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
-                ':i'  => $insumoId,
-                ':p'  => $proveedorId,
-                ':c'  => $costo,
-                ':cp' => $codigoProv,
+                ':tenant' => tenantId(),
+                ':i'      => $insumoId,
+                ':p'      => $proveedorId,
+                ':c'      => $costo,
+                ':cp'     => $codigoProv,
             ]);
 
-            // Si fue INSERT, lastInsertId; si fue UPDATE, hace falta consultar
             $last = (int)$this->db->lastInsertId();
             if ($last > 0) return $last;
 
             $stmt = $this->db->prepare(
-                "SELECT id FROM insumo_proveedor WHERE insumo_id = :i AND proveedor_id = :p LIMIT 1"
+                "SELECT id FROM insumo_proveedor
+                 WHERE insumo_id = :i AND proveedor_id = :p AND tenant_id = :tenant
+                 LIMIT 1"
             );
-            $stmt->execute([':i' => $insumoId, ':p' => $proveedorId]);
+            $stmt->execute([
+                ':i'      => $insumoId,
+                ':p'      => $proveedorId,
+                ':tenant' => tenantId(),
+            ]);
             return (int)$stmt->fetchColumn() ?: false;
         } catch (PDOException $e) {
             error_log('[Insumo::guardarProveedor] ' . $e->getMessage());
@@ -231,25 +253,24 @@ class Insumo
 
     public function eliminarProveedor(int $id, int $insumoId): bool
     {
-        $sql = "DELETE FROM insumo_proveedor WHERE id = :id AND insumo_id = :i";
+        $sql = "DELETE FROM insumo_proveedor
+                WHERE id = :id
+                  AND insumo_id = :i
+                  AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':id' => $id, ':i' => $insumoId]);
+        return $stmt->execute([
+            ':id'     => $id,
+            ':i'      => $insumoId,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     /* ==========================================================
        CÁLCULO DE COSTO
        ========================================================== */
 
-    /**
-     * Recalcula insumo.costo según:
-     *   - método (PROMEDIO o MAYOR) sobre insumo_proveedor.costo
-     *   - impuestos internos si aplica_impuestos_internos = 1
-     * Registra el cambio en historial_valores si varió.
-     *
-     * @return float El nuevo costo.
-     */
-       public function recalcularCosto(int $insumoId): float
-       {
+    public function recalcularCosto(int $insumoId): float
+    {
         $insumo = $this->obtenerPorId($insumoId);
         if (!$insumo) return 0.0;
 
@@ -271,33 +292,35 @@ class Insumo
 
         $baseAnterior = $this->obtenerUltimoCostoBase($insumoId);
 
-        $stmt = $this->db->prepare("UPDATE insumo SET costo = :c WHERE id = :id");
-        $stmt->execute([':c' => $final, ':id' => $insumoId]);
+        $stmt = $this->db->prepare(
+            "UPDATE insumo SET costo = :c WHERE id = :id AND tenant_id = :tenant"
+        );
+        $stmt->execute([
+            ':c'      => $final,
+            ':id'     => $insumoId,
+            ':tenant' => tenantId(),
+        ]);
 
         if ($baseAnterior === null || abs($base - $baseAnterior) > 0.0001) {
             $this->registrarCambioCosto($insumoId, $baseAnterior ?? 0.0, $base);
         }
 
-        // ← NUEVO: recalcular en cascada todos los artículos que usan este insumo
         $this->recalcularArticulosQueUsan($insumoId);
 
         return $final;
     }
 
-    /**
-     * Recalcula el costo de todos los artículos cuya fórmula incluye este insumo.
-     * Instancia Articulo sin requerirlo al inicio para evitar dependencia circular.
-     */
     private function recalcularArticulosQueUsan(int $insumoId): void
     {
-        $sql = "SELECT DISTINCT idarticulo FROM formula WHERE idinsumo = :id";
+        $sql = "SELECT DISTINCT idarticulo FROM formula
+                WHERE idinsumo = :id
+                  AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $insumoId]);
+        $stmt->execute([':id' => $insumoId, ':tenant' => tenantId()]);
         $articulos = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
         if (empty($articulos)) return;
 
-        // Carga diferida para evitar dependencia circular con Articulo
         if (!class_exists('Articulo')) {
             $path = __DIR__ . '/Articulo.php';
             if (file_exists($path)) require_once $path;
@@ -310,42 +333,38 @@ class Insumo
         }
     }
 
-/**
- * Devuelve el último `valor_nuevo` registrado en historial para este insumo,
- * o null si no hay ninguno. Se usa para comparar el costo BASE (sin impuestos).
- */
-private function obtenerUltimoCostoBase(int $insumoId): ?float
-{
-    $sql = "SELECT valor_nuevo
-              FROM historial_valores
-             WHERE tipo = 'INSUMO_COSTO'
-               AND referencia_id = :ref
-               AND anulado = 0
-             ORDER BY fecha DESC, id DESC
-             LIMIT 1";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute([':ref' => $insumoId]);
-    $v = $stmt->fetchColumn();
-    return $v !== false ? (float)$v : null;
-}
+    private function obtenerUltimoCostoBase(int $insumoId): ?float
+    {
+        $sql = "SELECT valor_nuevo
+                  FROM historial_valores
+                 WHERE tipo = 'INSUMO_COSTO'
+                   AND referencia_id = :ref
+                   AND anulado = 0
+                   AND tenant_id = :tenant
+                 ORDER BY fecha DESC, id DESC
+                 LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':ref' => $insumoId, ':tenant' => tenantId()]);
+        $v = $stmt->fetchColumn();
+        return $v !== false ? (float)$v : null;
+    }
 
-        /**
-     * Actualiza el costo y el código de un proveedor ya asociado a un insumo.
-     * No permite cambiar de proveedor (para eso: eliminar + agregar).
-     */
     public function actualizarProveedor(int $rowId, int $insumoId, float $costo, ?string $codigoProv): bool
     {
         $sql = "UPDATE insumo_proveedor
                    SET costo = :c,
                        codigo_proveedor = :cp,
                        actualizado_el = NOW()
-                 WHERE id = :id AND insumo_id = :i";
+                 WHERE id = :id
+                   AND insumo_id = :i
+                   AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
-            ':c'  => $costo,
-            ':cp' => $codigoProv,
-            ':id' => $rowId,
-            ':i'  => $insumoId,
+            ':c'      => $costo,
+            ':cp'     => $codigoProv,
+            ':id'     => $rowId,
+            ':i'      => $insumoId,
+            ':tenant' => tenantId(),
         ]);
     }
 
@@ -358,21 +377,19 @@ private function obtenerUltimoCostoBase(int $insumoId): ?float
         $usuarioId = $_SESSION['user_id'] ?? null;
 
         $sql = "INSERT INTO historial_valores
-                (tipo, referencia_id, valor_anterior, valor_nuevo, variacion_pct, usuario_id)
-                VALUES ('INSUMO_COSTO', :ref, :va, :vn, :vp, :u)";
+                (tenant_id, tipo, referencia_id, valor_anterior, valor_nuevo, variacion_pct, usuario_id)
+                VALUES (:tenant, 'INSUMO_COSTO', :ref, :va, :vn, :vp, :u)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':ref' => $insumoId,
-            ':va'  => $anterior,
-            ':vn'  => $nuevo,
-            ':vp'  => $variacion,
-            ':u'   => $usuarioId,
+            ':tenant' => tenantId(),
+            ':ref'    => $insumoId,
+            ':va'     => $anterior,
+            ':vn'     => $nuevo,
+            ':vp'     => $variacion,
+            ':u'      => $usuarioId,
         ]);
     }
 
-    /**
-     * Devuelve el historial de cambios de costo del insumo (no anulados).
-     */
     public function historialCostos(int $insumoId, int $limite = 15): array
     {
         $sql = "SELECT hv.*, u.nombre AS usuario_nombre
@@ -381,10 +398,12 @@ private function obtenerUltimoCostoBase(int $insumoId): ?float
                 WHERE hv.tipo = 'INSUMO_COSTO'
                   AND hv.referencia_id = :ref
                   AND hv.anulado = 0
+                  AND hv.tenant_id = :tenant
                 ORDER BY hv.fecha DESC
                 LIMIT :lim";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':ref', $insumoId, PDO::PARAM_INT);
+        $stmt->bindValue(':tenant', tenantId(), PDO::PARAM_INT);
         $stmt->bindValue(':lim', $limite, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
