@@ -64,7 +64,7 @@ function generarPdfListaPrecios(
     // PDF
     // ============================================================
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-    $pdf->SetCreator('Krown');
+    $pdf->SetCreator('LiquiCont');
     $pdf->SetAuthor($empresa['razon_social']);
     $pdf->SetTitle('Lista de Precios N° ' . $numero);
     $pdf->setPrintHeader(false);
@@ -74,7 +74,7 @@ function generarPdfListaPrecios(
     $pdf->AddPage();
 
     // ---------- LOGO ----------
-    $logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-krown-black.png';
+    $logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-liquicont-black.png';
     if (is_file($logoPath)) {
         $anchoLogo = 55;
         $dim = @getimagesize($logoPath);
@@ -165,7 +165,7 @@ function generarPdfListaPrecios(
 
     if (!empty($grupos)) {
         $pdf->SetFont('dejavusans', 'B', 10);
-        $pdf->SetTextColor(20, 17, 14);        // negro Krown
+        $pdf->SetTextColor(20, 17, 14);        // negro LiquiCont
         $pdf->Cell(0, 7, 'LOS PRECIOS NO INCLUYEN IVA - FLETE A CARGO DEL CLIENTE', 0, 1, 'C');
         $pdf->SetFont('dejavusans', '', 9);
         $pdf->SetTextColor(0, 0, 0);

@@ -1,6 +1,6 @@
 ;
 //asignar un nombre y versión al cache
-const CACHE_NAME = 'v1_cache_krown',
+const CACHE_NAME = 'v1_cache_liquicont',
   urlsToCache = [
     './',
     'https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap', 

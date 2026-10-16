@@ -36,7 +36,7 @@
         return null;
     }
 
-    // Paleta Krown para gráficos
+    // Paleta LiquiCont para gráficos
     var COLORS = [
         '#14110E', // negro
         '#C9973A', // dorado

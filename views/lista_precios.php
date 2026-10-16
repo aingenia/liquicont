@@ -86,8 +86,8 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
 
     <!-- Logo -->
     <div class="lp-logo-wrap">
-        <img src="<?= BASE_URL ?>dist/img/logo-krown-black.png"
-             alt="Krown" class="lp-logo">
+        <img src="<?= BASE_URL ?>dist/img/logo-liquicont-black.png"
+             alt="LiquiCont" class="lp-logo">
     </div>
 
 

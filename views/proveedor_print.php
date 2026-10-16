@@ -27,7 +27,7 @@
 
 <header class="print-header">
     <div class="print-brand">
-        <img src="<?= BASE_URL ?>dist/img/logo-krown-small.png" alt="Krown" class="print-logo">
+        <img src="<?= BASE_URL ?>dist/img/logo-liquicont-small.png" alt="LiquiCont" class="print-logo">
         <div>
             <h1><?= APP_NAME ?></h1>
             <p>Listado de Proveedores</p>

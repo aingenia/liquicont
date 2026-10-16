@@ -2,7 +2,7 @@
 if (strlen(session_id()) < 1) {
     session_start();
 }
-if (empty($_SESSION['krown_ok'])) {
+if (empty($_SESSION['liquicont_ok'])) {
     header('Location: ../login');
     exit;
 }
@@ -37,7 +37,7 @@ $baseHref = ($esHttps ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $appPa
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="dist/img/icon.png">
-<title>Listado de Clientes — Krown</title>
+<title>Listado de Clientes — LiquiCont</title>
 <link rel="stylesheet" href="dist/css/style.css">
 <style>
     body { background: #fff; padding: 28px; }
@@ -62,7 +62,7 @@ $baseHref = ($esHttps ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $appPa
 
 <div class="reporte-header">
     <div>
-        <h1>Krown Spirits — Listado de clientes</h1>
+        <h1>LiquiCont Spirits — Listado de clientes</h1>
         <p>
             Generado el <?= date('d/m/Y H:i') ?>
             <?php if ($buscar !== ''): ?> · Búsqueda: "<?= htmlspecialchars($buscar) ?>"<?php endif; ?>

@@ -3,7 +3,7 @@
  * views/pedido_print.php
  * Variable: $sinPrecios (bool)
  */
-$logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-krown-small.png';
+$logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-liquicont-small.png';
 $logoBase64 = '';
 if (file_exists($logoPath)) {
     $logoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
@@ -83,7 +83,7 @@ if (file_exists($logoPath)) {
 <header class="print-header">
     <div class="print-brand">
         <?php if ($logoBase64): ?>
-            <img src="<?= $logoBase64 ?>" alt="Krown" class="print-logo">
+            <img src="<?= $logoBase64 ?>" alt="LiquiCont" class="print-logo">
         <?php endif; ?>
         <div>
             <h1><?= APP_NAME ?></h1>

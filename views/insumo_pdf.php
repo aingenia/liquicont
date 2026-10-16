@@ -1,5 +1,5 @@
 <?php
-$logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-krown-small.png';
+$logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-liquicont-small.png';
 $logoBase64 = '';
 if (file_exists($logoPath)) {
     $logoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
@@ -52,7 +52,7 @@ if (file_exists($logoPath)) {
                 <table>
                     <tr>
                         <?php if ($logoBase64): ?>
-                            <td style="width:44px;"><img src="<?= $logoBase64 ?>" class="logo" alt="Krown"></td>
+                            <td style="width:44px;"><img src="<?= $logoBase64 ?>" class="logo" alt="LiquiCont"></td>
                         <?php endif; ?>
                         <td>
                             <div class="brand"><?= APP_NAME ?></div>

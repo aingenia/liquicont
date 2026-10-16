@@ -17,7 +17,7 @@
             <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; width:100%; background:#FFFFFF; border-radius:12px; overflow:hidden;">
                 <tr>
                     <td style="background:#14110E; padding:36px 30px; text-align:center;">
-                        <div style="font-size:22px; font-weight:800; letter-spacing:3px; color:#E4C077;">KROWN SPIRITS</div>
+                        <div style="font-size:22px; font-weight:800; letter-spacing:3px; color:#E4C077;">LIQUICONT</div>
                         <div style="font-size:11px; letter-spacing:2px; color:#7A7266; text-transform:uppercase; margin-top:6px;">Sistema de gestión</div>
                     </td>
                 </tr>

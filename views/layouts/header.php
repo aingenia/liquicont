@@ -45,8 +45,8 @@ $headerGreeting = $headerGreeting ?? ('HOLA. ' . strtoupper($userName));
     <!-- ===================== SIDEBAR ===================== -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <img src="<?= BASE_URL ?>dist/img/logo-krown-small.png" alt="Krown" class="sidebar-logo-small">
-            <span class="sidebar-logo-text">KROWN</span>
+            <img src="<?= BASE_URL ?>dist/img/logo-liquicont-small.png" alt="LiquiCont" class="sidebar-logo-small">
+            <span class="sidebar-logo-text">LIQUICONT</span>
         </div>
 
         <nav class="sidebar-nav">

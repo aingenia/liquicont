@@ -1,5 +1,5 @@
 <?php
-$logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-krown-small.png';
+$logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-liquicont-small.png';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -17,7 +17,7 @@ $logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-krown-small.png';
 
 <header class="print-header">
     <div class="print-brand">
-        <img src="<?= BASE_URL ?>dist/img/logo-krown-small.png" alt="Krown" class="print-logo">
+        <img src="<?= BASE_URL ?>dist/img/logo-liquicont-small.png" alt="LiquiCont" class="print-logo">
         <div>
             <h1><?= APP_NAME ?></h1>
             <p>Listado de Insumos</p>

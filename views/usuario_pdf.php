@@ -6,7 +6,7 @@
  */
 
 // Logo como base64 embebido — más confiable que URL en Dompdf
-$logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-krown-small.png';
+$logoPath = ROOT_PATH . 'dist' . DS . 'img' . DS . 'logo-liquicont-small.png';
 $logoBase64 = '';
 if (file_exists($logoPath)) {
     $logoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
@@ -144,7 +144,7 @@ if (file_exists($logoPath)) {
                     <tr>
                         <?php if ($logoBase64): ?>
                             <td style="width:50px;">
-                                <img src="<?= $logoBase64 ?>" class="logo" alt="Krown">
+                                <img src="<?= $logoBase64 ?>" class="logo" alt="LiquiCont">
                             </td>
                         <?php endif; ?>
                         <td>

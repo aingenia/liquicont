@@ -18,7 +18,7 @@ $clienteModel = new Cliente();
 
 $c = ($clienteId > 0) ? $clienteModel->buscarPorId($clienteId) : [];
 
-$miPropioId = (int) ($_SESSION['krown_id'] ?? 0);
+$miPropioId = (int) ($_SESSION['liquicont_id'] ?? 0);
 
 if ($clienteId && !$c) {
     header('Location: '. BASE_URL .'clientes');

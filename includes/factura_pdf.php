@@ -15,7 +15,7 @@ require_once __DIR__ . '/tcpdf/tcpdf.php';
    CONSTANTES
    ============================================================ */
 if (!defined('FACTURA_LOGO_DEFAULT')) {
-    define('FACTURA_LOGO_DEFAULT', 'dist/img/logo-krown-black.png');
+    define('FACTURA_LOGO_DEFAULT', 'dist/img/logo-liquicont-black.png');
 }
 
 /* ============================================================
@@ -35,7 +35,7 @@ function generarPdfFactura(int $facturaId): string
     $detalle = $facturaModel->obtenerDetalle($facturaId);
 
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-    $pdf->SetCreator('Krown');
+    $pdf->SetCreator('LiquiCont');
     $pdf->SetAuthor($factura['emisor_razon_social']);
     $pdf->SetTitle('Factura ' . $factura['arca_tipo_comprobante_letra']);
     $pdf->setPrintHeader(false);
@@ -67,7 +67,7 @@ function generarPdfRemito(int $facturaId, bool $conPrecio): string
     $detalle = $facturaModel->obtenerDetalle($facturaId);
 
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-    $pdf->SetCreator('Krown');
+    $pdf->SetCreator('LiquiCont');
     $pdf->SetAuthor($factura['emisor_razon_social']);
     $pdf->SetTitle('Remito ' . str_pad((string)$factura['remito_punto_venta'], 4, '0', STR_PAD_LEFT)
                     . '-' . str_pad((string)$factura['remito_numero'], 8, '0', STR_PAD_LEFT));

@@ -2,7 +2,7 @@
 if (strlen(session_id()) < 1) {
     session_start();
 }
-if (empty($_SESSION['krown_ok'])) {
+if (empty($_SESSION['liquicont_ok'])) {
     header('Location: ../login');
     exit;
 }
@@ -40,7 +40,7 @@ function margenTexto(float $costo, float $precio): string
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="dist/img/icon.png">
-<title>Listado de artículos — Krown</title>
+<title>Listado de artículos — LiquiCont</title>
 <link rel="stylesheet" href="dist/css/style.css">
 <style>
     body { background: #fff; padding: 28px; }
@@ -65,7 +65,7 @@ function margenTexto(float $costo, float $precio): string
 
 <div class="reporte-header">
     <div>
-        <h1>Krown Spirits — Listado de artículos</h1>
+        <h1>LiquiCont Spirits — Listado de artículos</h1>
         <p>
             Generado el <?= date('d/m/Y H:i') ?>
             <?php if ($buscar !== ''): ?> · Búsqueda: "<?= htmlspecialchars($buscar) ?>"<?php endif; ?>

@@ -1,5 +1,5 @@
 /* ============================================================
-   KROWN SPIRITS — Sistema de gestión
+   LIQUICONT — Sistema de gestión
    Paleta inspirada en el mundo de la destilería: negro obsidiana,
    ámbar de barril, verde botella y un rojo bitter como acento de alerta.
    ============================================================ */
@@ -81,7 +81,7 @@ button { font-family: var(--font-body); cursor: pointer; }
     align-items: center;
     position: relative;
     z-index: 1;
-    margin: auto 0; /* Centra verticalmente el logo de Krown */
+    margin: auto 0; /* Centra verticalmente el logo de LiquiCont */
 }
 
 

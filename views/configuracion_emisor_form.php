@@ -119,7 +119,7 @@ require_once ROOT_PATH . 'views' . DS . 'layouts' . DS . 'header.php';
                 <label for="logo_path">Logo (ruta relativa)</label>
                 <input type="text" id="logo_path" name="logo_path" maxlength="255"
                        value="<?= $val('logo_path') ?>"
-                       placeholder="dist/img/logo-krown-black.png">
+                       placeholder="dist/img/logo-liquicont-black.png">
                 <div class="form-hint">Dejar vacío para usar el logo por defecto.</div>
             </div>
 

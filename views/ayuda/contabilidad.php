@@ -1,6 +1,6 @@
 <h3>¿Qué es el módulo de Contabilidad?</h3>
 <p>
-    Es la contabilidad <strong>gerencial</strong> de Krown: sirve para llevar el registro
+    Es la contabilidad <strong>gerencial</strong> de LiquiCont: sirve para llevar el registro
     de las operaciones con <strong>partida doble</strong> (todo movimiento tiene un Debe
     y un Haber que balancean), y obtener reportes internos.
 </p>

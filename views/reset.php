@@ -19,7 +19,7 @@ if ($token === '') {
     <div class="auth-screen">
         <div class="auth-brand">
             <div class="brand-content">
-                <img src="<?= BASE_URL; ?>dist/img/logo-krown.png" alt="<?= APP_NAME; ?>">
+                <img src="<?= BASE_URL; ?>dist/img/logo-liquicont.png" alt="<?= APP_NAME; ?>">
                 <p>Sistema de gestión</p>
             </div>
 

@@ -1,6 +1,6 @@
 <?php
 /* ============================================================
-   KROWN SPIRITS — Sistema de gestión
+   LIQUICONT — Sistema de gestión
     ============================================================ */
 
 // Previene acceso directo a la configuracion
