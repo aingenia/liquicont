@@ -18,6 +18,10 @@ if (!file_exists($configFile)) {
 }
 require_once $configFile;
 
+// Detección del tenant actual (por subdominio o fallback en desarrollo)
+require_once ROOT_PATH . 'includes' . DS . 'Tenant.php';
+Tenant::bootstrap();
+
 spl_autoload_register(function (string $class): void {
     $candidates = [
         ROOT_PATH . 'models'      . DS . $class . '.php',
