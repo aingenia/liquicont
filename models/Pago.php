@@ -28,12 +28,14 @@ class Pago
                        pr.nombre_fantasia AS proveedor_fantasia,
                        pr.cuit AS proveedor_cuit,
                        u.nombre AS creado_por_nombre,
-                       (SELECT COUNT(*) FROM pago_compra WHERE pago_id = p.id) AS compras_count
+                       (SELECT COUNT(*) FROM pago_compra pc
+                        WHERE pc.pago_id = p.id
+                          AND pc.tenant_id = p.tenant_id) AS compras_count
                 FROM pago p
                 INNER JOIN proveedor pr ON pr.id = p.proveedor_id
                 LEFT JOIN usuario u ON u.id = p.creado_por_id
-                WHERE 1=1";
-        $params = [];
+                WHERE p.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
 
         if ($desde !== '') {
             $sql .= " AND p.fecha >= :desde";
@@ -86,17 +88,23 @@ class Pago
                 INNER JOIN proveedor pr ON pr.id = p.proveedor_id
                 LEFT JOIN usuario u ON u.id = p.creado_por_id
                 LEFT JOIN usuario ua ON ua.id = p.anulado_por_id
-                WHERE p.id = :id LIMIT 1";
+                WHERE p.id = :id
+                  AND p.tenant_id = :tenant
+                LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
 
     public function obtenerMedios(int $pagoId): array
     {
-        $stmt = $this->db->prepare("SELECT * FROM pago_medio WHERE pago_id = :id ORDER BY id");
-        $stmt->execute([':id' => $pagoId]);
+        $stmt = $this->db->prepare(
+            "SELECT * FROM pago_medio
+             WHERE pago_id = :id AND tenant_id = :tenant
+             ORDER BY id"
+        );
+        $stmt->execute([':id' => $pagoId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
@@ -110,44 +118,61 @@ class Pago
                 INNER JOIN compra c ON c.id = pc.compra_id
                 LEFT JOIN tipos_comprobante_compra t ON t.id = c.tipo_comprobante_id
                 WHERE pc.pago_id = :id
+                  AND pc.tenant_id = :tenant
                 ORDER BY pc.id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $pagoId]);
+        $stmt->execute([':id' => $pagoId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
     /* ==========================================================
        COMPRAS PENDIENTES DE PAGO
        ========================================================== */
-        public function comprasPendientes(int $proveedorId): array
+    public function comprasPendientes(int $proveedorId): array
     {
+        // Nota: se usan placeholders con nombres distintos (:tenant_p1,
+        // :tenant_p2, :tenant) para evitar el error HY093 de PDO cuando
+        // el mismo nombre se repite en un statement con emulación OFF.
         $sql = "SELECT * FROM (
                     SELECT c.id, c.fecha_comprobante, c.total,
                            c.punto_venta, c.numero, c.cae,
                            c.primer_vencimiento, c.segundo_vencimiento,
                            t.descripcion AS tipo_comprobante_desc, t.letra,
                            COALESCE(
-                               (SELECT SUM(importe_aplicado) FROM pago_compra
-                                WHERE compra_id = c.id
-                                  AND pago_id IN (SELECT id FROM pago WHERE estado = 'ACTIVO')),
+                               (SELECT SUM(pc.importe_aplicado)
+                                FROM pago_compra pc
+                                INNER JOIN pago pg ON pg.id = pc.pago_id
+                                WHERE pc.compra_id = c.id
+                                  AND pg.estado = 'ACTIVO'
+                                  AND pc.tenant_id = :tenant_p1),
                                0
                            ) AS pagado,
                            c.total - COALESCE(
-                               (SELECT SUM(importe_aplicado) FROM pago_compra
-                                WHERE compra_id = c.id
-                                  AND pago_id IN (SELECT id FROM pago WHERE estado = 'ACTIVO')),
+                               (SELECT SUM(pc.importe_aplicado)
+                                FROM pago_compra pc
+                                INNER JOIN pago pg ON pg.id = pc.pago_id
+                                WHERE pc.compra_id = c.id
+                                  AND pg.estado = 'ACTIVO'
+                                  AND pc.tenant_id = :tenant_p2),
                                0
                            ) AS saldo_pendiente
                     FROM compra c
                     LEFT JOIN tipos_comprobante_compra t ON t.id = c.tipo_comprobante_id
                     WHERE c.proveedor_id = :pid
                       AND c.estado = 'REGISTRADA'
+                      AND c.tenant_id = :tenant
                 ) AS sub
                 WHERE saldo_pendiente > 0.004
                 ORDER BY fecha_comprobante ASC, id ASC";
 
+        $tenant = tenantId();
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':pid' => $proveedorId]);
+        $stmt->execute([
+            ':pid'       => $proveedorId,
+            ':tenant'    => $tenant,
+            ':tenant_p1' => $tenant,
+            ':tenant_p2' => $tenant,
+        ]);
         return $stmt->fetchAll();
     }
 
@@ -167,7 +192,6 @@ class Pago
             return ['ok' => false, 'msg' => 'Imputá el pago a al menos una compra.'];
         }
 
-        // Validar totales
         $totalMedios = 0;
         foreach ($medios as $m) {
             $totalMedios += (float)($m['importe'] ?? 0);
@@ -190,28 +214,31 @@ class Pago
         try {
             $this->db->beginTransaction();
 
+            $tenant = tenantId();
+
             // 1) Cabecera
-            $sql = "INSERT INTO pago (proveedor_id, fecha, total, notas, creado_por_id)
-                    VALUES (:pid, :fecha, :total, :notas, :uid)";
+            $sql = "INSERT INTO pago (tenant_id, proveedor_id, fecha, total, notas, creado_por_id)
+                    VALUES (:tenant, :pid, :fecha, :total, :notas, :uid)";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
-                ':pid'   => (int)$cabecera['proveedor_id'],
-                ':fecha' => $cabecera['fecha'],
-                ':total' => $totalMedios,
-                ':notas' => $cabecera['notas'] ?? null,
-                ':uid'   => $usuarioId,
+                ':tenant' => $tenant,
+                ':pid'    => (int)$cabecera['proveedor_id'],
+                ':fecha'  => $cabecera['fecha'],
+                ':total'  => $totalMedios,
+                ':notas'  => $cabecera['notas'] ?? null,
+                ':uid'    => $usuarioId,
             ]);
             $pagoId = (int)$this->db->lastInsertId();
 
             // 2) Medios + cheques propios en calendario
             $stmtMedio = $this->db->prepare(
                 "INSERT INTO pago_medio
-                 (pago_id, medio, importe,
+                 (tenant_id, pago_id, medio, importe,
                   cheque_banco, cheque_numero, cheque_fecha_cobro, cheque_titular,
                   retencion_tipo, retencion_nro,
                   calendario_cheque_id, observaciones)
                  VALUES
-                 (:pid, :medio, :importe,
+                 (:tenant, :pid, :medio, :importe,
                   :cb, :cn, :cfc, :ct,
                   :rt, :rn,
                   :cal, :obs)"
@@ -223,23 +250,25 @@ class Pago
                 if ($m['medio'] === 'CHEQUE' && !empty($m['cheque_fecha_cobro'])) {
                     $stmtCal = $this->db->prepare(
                         "INSERT INTO calendario_cheques
-                         (fecha, descripcion, importe, banco, nro_cheque, tipo, creado_por_id)
-                         VALUES (:fecha, :desc, :imp, :banco, :nro, 'PROPIO', :uid)"
+                         (tenant_id, fecha, descripcion, importe, banco, nro_cheque, tipo, creado_por_id)
+                         VALUES (:tenant, :fecha, :desc, :imp, :banco, :nro, 'PROPIO', :uid)"
                     );
                     $descripcion = 'Cheque propio a ' . ($m['cheque_titular'] ?? 'proveedor')
                                  . ' - N° ' . ($m['cheque_numero'] ?? '');
                     $stmtCal->execute([
-                        ':fecha' => $m['cheque_fecha_cobro'],
-                        ':desc'  => $descripcion,
-                        ':imp'   => (float)$m['importe'],
-                        ':banco' => $m['cheque_banco']  ?? null,
-                        ':nro'   => $m['cheque_numero'] ?? null,
-                        ':uid'   => $usuarioId,
+                        ':tenant' => $tenant,
+                        ':fecha'  => $m['cheque_fecha_cobro'],
+                        ':desc'   => $descripcion,
+                        ':imp'    => (float)$m['importe'],
+                        ':banco'  => $m['cheque_banco']  ?? null,
+                        ':nro'    => $m['cheque_numero'] ?? null,
+                        ':uid'    => $usuarioId,
                     ]);
                     $calendarioChequeId = (int)$this->db->lastInsertId();
                 }
 
                 $stmtMedio->execute([
+                    ':tenant'  => $tenant,
                     ':pid'     => $pagoId,
                     ':medio'   => $m['medio'],
                     ':importe' => (float)$m['importe'],
@@ -256,19 +285,19 @@ class Pago
 
             // 3) Imputación a compras
             $stmtImp = $this->db->prepare(
-                "INSERT INTO pago_compra (pago_id, compra_id, importe_aplicado)
-                 VALUES (:pid, :cid, :imp)"
+                "INSERT INTO pago_compra (tenant_id, pago_id, compra_id, importe_aplicado)
+                 VALUES (:tenant, :pid, :cid, :imp)"
             );
             foreach ($imputacion as $i) {
                 $stmtImp->execute([
-                    ':pid' => $pagoId,
-                    ':cid' => (int)$i['compra_id'],
-                    ':imp' => (float)$i['importe_aplicado'],
+                    ':tenant' => $tenant,
+                    ':pid'    => $pagoId,
+                    ':cid'    => (int)$i['compra_id'],
+                    ':imp'    => (float)$i['importe_aplicado'],
                 ]);
             }
 
             // 4) Movimiento en cuenta corriente proveedor
-            //    (HABER = reduce lo que le debemos)
             $cc = new CuentaCorrienteProveedor();
             $cc->registrar(
                 (int)$cabecera['proveedor_id'],
@@ -283,7 +312,6 @@ class Pago
 
             $this->db->commit();
 
-            // Fase 2: asiento contable automático
             require_once ROOT_PATH . 'includes' . DS . 'ContabilidadService.php';
             try {
                 $svc = new ContabilidadService();
@@ -324,15 +352,18 @@ class Pago
         try {
             $this->db->beginTransaction();
 
+            $tenant = tenantId();
+
             $this->db->prepare(
                 "UPDATE pago
                  SET estado = 'ANULADO', anulado_el = NOW(),
                      anulado_por_id = :uid, anulado_motivo = :mot
-                 WHERE id = :id"
+                 WHERE id = :id AND tenant_id = :tenant"
             )->execute([
-                ':uid' => $usuarioId,
-                ':mot' => $motivo ?: null,
-                ':id'  => $pagoId,
+                ':uid'    => $usuarioId,
+                ':mot'    => $motivo ?: null,
+                ':id'     => $pagoId,
+                ':tenant' => $tenant,
             ]);
 
             // Anular movimiento CC
@@ -342,20 +373,23 @@ class Pago
             // Eliminar cheques propios del calendario
             $stmt = $this->db->prepare(
                 "SELECT calendario_cheque_id FROM pago_medio
-                 WHERE pago_id = :id AND calendario_cheque_id IS NOT NULL"
+                 WHERE pago_id = :id
+                   AND calendario_cheque_id IS NOT NULL
+                   AND tenant_id = :tenant"
             );
-            $stmt->execute([':id' => $pagoId]);
+            $stmt->execute([':id' => $pagoId, ':tenant' => $tenant]);
             $idsCheques = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
             if (!empty($idsCheques)) {
                 $placeholders = implode(',', array_fill(0, count($idsCheques), '?'));
-                $this->db->prepare("DELETE FROM calendario_cheques WHERE id IN ($placeholders)")
-                         ->execute($idsCheques);
+                $this->db->prepare(
+                    "DELETE FROM calendario_cheques
+                     WHERE id IN ($placeholders) AND tenant_id = ?"
+                )->execute(array_merge($idsCheques, [$tenant]));
             }
 
             $this->db->commit();
 
-            // Fase 2: anular el asiento contable asociado
             require_once ROOT_PATH . 'includes' . DS . 'ContabilidadService.php';
             try {
                 $svc = new ContabilidadService();
@@ -379,22 +413,21 @@ class Pago
        ========================================================== */
     public function combos(): array
     {
-        $proveedores = $this->db->query(
+        $stmt = $this->db->prepare(
             "SELECT id, razon_social, nombre_fantasia, cuit
-             FROM proveedor WHERE estado = 'ACTIVO' ORDER BY razon_social"
-        )->fetchAll();
+             FROM proveedor
+             WHERE estado = 'ACTIVO'
+               AND tenant_id = :tenant
+             ORDER BY razon_social"
+        );
+        $stmt->execute([':tenant' => tenantId()]);
 
-        return ['proveedores' => $proveedores];
+        return ['proveedores' => $stmt->fetchAll()];
     }
 
-        /* ==========================================================
+    /* ==========================================================
        LISTAR COMPRAS CON ESTADO DE PAGO
        ========================================================== */
-    /**
-     * Devuelve compras con su estado de pago calculado.
-     *
-     * @param string $estadoPago  '' | 'PENDIENTE' | 'PARCIAL' | 'PAGADA' | 'ANULADA'
-     */
     public function listarComprasConEstado(
         string $desde = '',
         string $hasta = '',
@@ -402,6 +435,8 @@ class Pago
         string $estadoPago = '',
         string $busqueda = ''
     ): array {
+        // Placeholders únicos para evitar HY093 (mismo problema que en
+        // comprasPendientes)
         $sql = "SELECT * FROM (
                     SELECT c.id, c.fecha_comprobante, c.total, c.estado,
                            c.punto_venta, c.numero, c.cae,
@@ -412,23 +447,34 @@ class Pago
                            p.cuit AS proveedor_cuit,
                            t.descripcion AS tipo_comprobante_desc, t.letra,
                            COALESCE(
-                               (SELECT SUM(importe_aplicado) FROM pago_compra
-                                WHERE compra_id = c.id
-                                  AND pago_id IN (SELECT id FROM pago WHERE estado = 'ACTIVO')),
+                               (SELECT SUM(pc.importe_aplicado)
+                                FROM pago_compra pc
+                                INNER JOIN pago pg ON pg.id = pc.pago_id
+                                WHERE pc.compra_id = c.id
+                                  AND pg.estado = 'ACTIVO'
+                                  AND pc.tenant_id = :tenant_l1),
                                0
                            ) AS pagado,
                            c.total - COALESCE(
-                               (SELECT SUM(importe_aplicado) FROM pago_compra
-                                WHERE compra_id = c.id
-                                  AND pago_id IN (SELECT id FROM pago WHERE estado = 'ACTIVO')),
+                               (SELECT SUM(pc.importe_aplicado)
+                                FROM pago_compra pc
+                                INNER JOIN pago pg ON pg.id = pc.pago_id
+                                WHERE pc.compra_id = c.id
+                                  AND pg.estado = 'ACTIVO'
+                                  AND pc.tenant_id = :tenant_l2),
                                0
                            ) AS saldo_pendiente
                     FROM compra c
                     INNER JOIN proveedor p ON p.id = c.proveedor_id
                     LEFT JOIN tipos_comprobante_compra t ON t.id = c.tipo_comprobante_id
-                    WHERE 1=1";
+                    WHERE c.tenant_id = :tenant";
 
-        $params = [];
+        $tenant = tenantId();
+        $params = [
+            ':tenant'    => $tenant,
+            ':tenant_l1' => $tenant,
+            ':tenant_l2' => $tenant,
+        ];
 
         if ($desde !== '') {
             $sql .= " AND c.fecha_comprobante >= :desde";
@@ -458,9 +504,7 @@ class Pago
 
         $sql .= ") AS sub WHERE 1=1";
 
-        // Filtro de estado de pago
         if ($estadoPago === 'POR_PAGAR') {
-            // Pendientes + parciales (excluye pagadas y anuladas)
             $sql .= " AND sub.saldo_pendiente > 0.004 AND sub.estado = 'REGISTRADA'";
         } elseif ($estadoPago === 'PENDIENTE') {
             $sql .= " AND sub.pagado = 0 AND sub.estado = 'REGISTRADA'";

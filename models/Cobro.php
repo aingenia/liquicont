@@ -131,39 +131,42 @@ class Cobro
     {
         $sql = "SELECT * FROM (
                     SELECT f.id, f.fecha, f.total,
-                           f.remito_prefijo, f.remito_punto_venta, f.remito_numero,
-                           f.arca_tipo_comprobante_letra, f.arca_punto_venta,
-                           f.arca_numero_comprobante, f.cae,
-                           COALESCE(
-                               (SELECT SUM(cf.importe_aplicado)
+                        f.remito_prefijo, f.remito_punto_venta, f.remito_numero,
+                        f.arca_tipo_comprobante_letra, f.arca_punto_venta,
+                        f.arca_numero_comprobante, f.cae,
+                        COALESCE(
+                            (SELECT SUM(cf.importe_aplicado)
                                 FROM cobro_factura cf
                                 INNER JOIN cobro c ON c.id = cf.cobro_id
                                 WHERE cf.factura_id = f.id
-                                  AND c.estado = 'ACTIVO'
-                                  AND cf.tenant_id = :tenant),
-                               0
-                           ) AS cobrado,
-                           f.total - COALESCE(
-                               (SELECT SUM(cf.importe_aplicado)
+                                AND c.estado = 'ACTIVO'
+                                AND cf.tenant_id = :tenant_fp1),
+                            0
+                        ) AS cobrado,
+                        f.total - COALESCE(
+                            (SELECT SUM(cf.importe_aplicado)
                                 FROM cobro_factura cf
                                 INNER JOIN cobro c ON c.id = cf.cobro_id
                                 WHERE cf.factura_id = f.id
-                                  AND c.estado = 'ACTIVO'
-                                  AND cf.tenant_id = :tenant),
-                               0
-                           ) AS saldo_pendiente
+                                AND c.estado = 'ACTIVO'
+                                AND cf.tenant_id = :tenant_fp2),
+                            0
+                        ) AS saldo_pendiente
                     FROM factura f
                     WHERE f.cliente_id = :cid
-                      AND f.estado = 'ACTIVA'
-                      AND f.tenant_id = :tenant
+                    AND f.estado = 'ACTIVA'
+                    AND f.tenant_id = :tenant
                 ) AS sub
                 WHERE saldo_pendiente > 0.004
                 ORDER BY fecha ASC, id ASC";
 
+        $tenant = tenantId();
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':cid'    => $clienteId,
-            ':tenant' => tenantId(),
+            ':cid'        => $clienteId,
+            ':tenant'     => $tenant,
+            ':tenant_fp1' => $tenant,
+            ':tenant_fp2' => $tenant,
         ]);
         return $stmt->fetchAll();
     }
