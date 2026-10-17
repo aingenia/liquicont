@@ -15,17 +15,18 @@ class CuentaCorriente
     /* ==========================================================
        SALDO ACTUAL
        ========================================================== */
-    /**
-     * Devuelve el saldo actual del cliente (positivo = nos debe,
-     * negativo = tiene saldo a favor).
-     */
     public function obtenerSaldo(int $clienteId): float
     {
         $sql = "SELECT COALESCE(SUM(debe) - SUM(haber), 0)
                 FROM cuenta_corriente_movimiento
-                WHERE cliente_id = :cid AND anulado = 0";
+                WHERE cliente_id = :cid
+                  AND anulado = 0
+                  AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':cid' => $clienteId]);
+        $stmt->execute([
+            ':cid'    => $clienteId,
+            ':tenant' => tenantId(),
+        ]);
         return round((float)$stmt->fetchColumn(), 2);
     }
 
@@ -41,8 +42,12 @@ class CuentaCorriente
         $sql = "SELECT ccm.*, u.nombre AS usuario_nombre
                 FROM cuenta_corriente_movimiento ccm
                 LEFT JOIN usuario u ON u.id = ccm.creado_por_id
-                WHERE ccm.cliente_id = :cid";
-        $params = [':cid' => $clienteId];
+                WHERE ccm.cliente_id = :cid
+                  AND ccm.tenant_id = :tenant";
+        $params = [
+            ':cid'    => $clienteId,
+            ':tenant' => tenantId(),
+        ];
 
         if (!$incluirAnulados) {
             $sql .= " AND ccm.anulado = 0";
@@ -65,14 +70,6 @@ class CuentaCorriente
     /* ==========================================================
        REGISTRAR MOVIMIENTO
        ========================================================== */
-    /**
-     * Registra un movimiento en la cuenta corriente.
-     * Calcula el saldo acumulado automáticamente.
-     *
-     * @param bool $recalcular  Si es true, recalcula el saldo_acumulado
-     *                          de TODOS los movimientos posteriores.
-     *                          Usar al anular un movimiento viejo.
-     */
     public function registrar(
         int $clienteId,
         string $fecha,
@@ -85,22 +82,25 @@ class CuentaCorriente
         bool $recalcular = false
     ): int|false {
         try {
+            $tenant = tenantId();
+
             $sql = "INSERT INTO cuenta_corriente_movimiento
-                    (cliente_id, fecha, tipo, referencia_id, debe, haber,
+                    (tenant_id, cliente_id, fecha, tipo, referencia_id, debe, haber,
                      saldo_acumulado, observaciones, creado_por_id)
                     VALUES
-                    (:cid, :fecha, :tipo, :ref, :debe, :haber,
+                    (:tenant, :cid, :fecha, :tipo, :ref, :debe, :haber,
                      0, :obs, :uid)";
             $stmt = $this->db->prepare($sql);
             $ok = $stmt->execute([
-                ':cid'   => $clienteId,
-                ':fecha' => $fecha,
-                ':tipo'  => $tipo,
-                ':ref'   => $referenciaId,
-                ':debe'  => $debe,
-                ':haber' => $haber,
-                ':obs'   => $observaciones,
-                ':uid'   => $usuarioId,
+                ':tenant' => $tenant,
+                ':cid'    => $clienteId,
+                ':fecha'  => $fecha,
+                ':tipo'   => $tipo,
+                ':ref'    => $referenciaId,
+                ':debe'   => $debe,
+                ':haber'  => $haber,
+                ':obs'    => $observaciones,
+                ':uid'    => $usuarioId,
             ]);
             if (!$ok) return false;
 
@@ -115,27 +115,39 @@ class CuentaCorriente
 
     /**
      * Recalcula el saldo acumulado desde un movimiento en adelante.
-     * Se llama después de insertar o anular un movimiento.
+     * Solo sobre movimientos del tenant actual.
      */
     private function recalcularSaldos(int $clienteId, int $desdeMovimientoId = 0): void
     {
-        // Traer todos los movimientos activos ordenados
+        $tenant = tenantId();
+
         $sql = "SELECT id, debe, haber
                 FROM cuenta_corriente_movimiento
-                WHERE cliente_id = :cid AND anulado = 0
+                WHERE cliente_id = :cid
+                  AND anulado = 0
+                  AND tenant_id = :tenant
                 ORDER BY fecha ASC, id ASC";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':cid' => $clienteId]);
+        $stmt->execute([
+            ':cid'    => $clienteId,
+            ':tenant' => $tenant,
+        ]);
         $movs = $stmt->fetchAll();
 
         $stmtUpd = $this->db->prepare(
-            "UPDATE cuenta_corriente_movimiento SET saldo_acumulado = :s WHERE id = :id"
+            "UPDATE cuenta_corriente_movimiento
+             SET saldo_acumulado = :s
+             WHERE id = :id AND tenant_id = :tenant"
         );
 
         $saldo = 0.0;
         foreach ($movs as $m) {
             $saldo += (float)$m['debe'] - (float)$m['haber'];
-            $stmtUpd->execute([':s' => round($saldo, 2), ':id' => (int)$m['id']]);
+            $stmtUpd->execute([
+                ':s'      => round($saldo, 2),
+                ':id'     => (int)$m['id'],
+                ':tenant' => $tenant,
+            ]);
         }
     }
 
@@ -145,24 +157,37 @@ class CuentaCorriente
     public function anularPorReferencia(int $referenciaId, string $tipo, int $usuarioId): bool
     {
         try {
+            $tenant = tenantId();
+
             $stmt = $this->db->prepare(
                 "UPDATE cuenta_corriente_movimiento
                  SET anulado = 1, anulado_el = NOW(), anulado_por_id = :uid
-                 WHERE referencia_id = :ref AND tipo = :tipo AND anulado = 0"
+                 WHERE referencia_id = :ref
+                   AND tipo = :tipo
+                   AND anulado = 0
+                   AND tenant_id = :tenant"
             );
             $ok = $stmt->execute([
-                ':uid'  => $usuarioId,
-                ':ref'  => $referenciaId,
-                ':tipo' => $tipo,
+                ':uid'    => $usuarioId,
+                ':ref'    => $referenciaId,
+                ':tipo'   => $tipo,
+                ':tenant' => $tenant,
             ]);
             if (!$ok) return false;
 
             // Obtener cliente para recalcular
             $stmt = $this->db->prepare(
                 "SELECT DISTINCT cliente_id FROM cuenta_corriente_movimiento
-                 WHERE referencia_id = :ref AND tipo = :tipo LIMIT 1"
+                 WHERE referencia_id = :ref
+                   AND tipo = :tipo
+                   AND tenant_id = :tenant
+                 LIMIT 1"
             );
-            $stmt->execute([':ref' => $referenciaId, ':tipo' => $tipo]);
+            $stmt->execute([
+                ':ref'    => $referenciaId,
+                ':tipo'   => $tipo,
+                ':tenant' => $tenant,
+            ]);
             $clienteId = (int)$stmt->fetchColumn();
             if ($clienteId > 0) {
                 $this->recalcularSaldos($clienteId);
@@ -177,19 +202,21 @@ class CuentaCorriente
     /* ==========================================================
        LISTAR CLIENTES CON SALDO
        ========================================================== */
-    /**
-     * Resumen de cuenta corriente de todos los clientes.
-     * Útil para el listado principal del módulo.
-     */
     public function resumenPorCliente(string $soloConSaldo = ''): array
     {
+        // Nota: el JOIN filtra con ccm.tenant_id = c.tenant_id (referencia
+        // a columna, no placeholder) para evitar HY093 y garantizar que
+        // solo se suman movimientos del mismo tenant que el cliente.
         $sql = "SELECT c.id AS cliente_id, c.razon_social, c.nombre_fantasia, c.cuit,
                        c.condicion_venta, c.limite_credito,
                        COALESCE(SUM(ccm.debe) - SUM(ccm.haber), 0) AS saldo
                 FROM cliente c
                 LEFT JOIN cuenta_corriente_movimiento ccm
-                       ON ccm.cliente_id = c.id AND ccm.anulado = 0
-                WHERE c.estado = 'ACTIVO'";
+                       ON ccm.cliente_id = c.id
+                      AND ccm.anulado = 0
+                      AND ccm.tenant_id = c.tenant_id
+                WHERE c.estado = 'ACTIVO'
+                  AND c.tenant_id = :tenant";
 
         if ($soloConSaldo === 'DEUDORES') {
             $sql .= " GROUP BY c.id
@@ -203,6 +230,8 @@ class CuentaCorriente
 
         $sql .= " ORDER BY saldo DESC, c.razon_social ASC";
 
-        return $this->db->query($sql)->fetchAll();
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':tenant' => tenantId()]);
+        return $stmt->fetchAll();
     }
 }
