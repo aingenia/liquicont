@@ -28,13 +28,15 @@ class Pedido
                        c.categoria AS cliente_categoria_id,
                        cc.descripcion AS cliente_categoria,
                        u.nombre AS creado_por_nombre,
-                       (SELECT COUNT(*) FROM pedido_detalle WHERE pedido_id = p.id) AS items_count
+                       (SELECT COUNT(*) FROM pedido_detalle pd
+                        WHERE pd.pedido_id = p.id
+                          AND pd.tenant_id = p.tenant_id) AS items_count
                 FROM pedido p
                 INNER JOIN cliente c ON c.id = p.cliente_id
                 LEFT JOIN cliente_categoria cc ON cc.id = c.categoria
                 LEFT JOIN usuario u ON u.id = p.creado_por_id
-                WHERE 1=1";
-        $params = [];
+                WHERE p.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
 
         if ($search !== '') {
             $sql .= " AND (c.razon_social LIKE :s1
@@ -65,7 +67,6 @@ class Pedido
             $params[':hasta'] = $hasta;
         }
 
-        // Estados activos primero, luego por fecha descendente
         $sql .= " ORDER BY 
                     FIELD(p.estado, 'RECIBIDO','PROCESANDO','PREPARADO','FACTURADO','ENTREGADO','ANULADO'),
                     p.fecha_pedido DESC, p.id DESC";
@@ -96,9 +97,11 @@ class Pedido
                 LEFT JOIN condiciones_iva ci ON ci.id = c.id_condicion_iva
                 LEFT JOIN provincias pv ON pv.codigo = c.provincia_id
                 LEFT JOIN usuario u ON u.id = p.creado_por_id
-                WHERE p.id = :id LIMIT 1";
+                WHERE p.id = :id
+                  AND p.tenant_id = :tenant
+                LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
@@ -115,9 +118,10 @@ class Pedido
                 INNER JOIN articulo a ON a.id = pd.articulo_id
                 LEFT JOIN pakaging pk ON pk.id = pd.pakaging_id
                 WHERE pd.pedido_id = :id
+                  AND pd.tenant_id = :tenant
                 ORDER BY pd.id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $pedidoId]);
+        $stmt->execute([':id' => $pedidoId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
@@ -132,15 +136,16 @@ class Pedido
             $this->db->beginTransaction();
 
             $sql = "INSERT INTO pedido
-                    (cliente_id, creado_por_id, fecha_pedido, estado,
+                    (tenant_id, cliente_id, creado_por_id, fecha_pedido, estado,
                      subtotal, descuento_general_porcentaje, total,
                      notas, notas_internas)
                     VALUES
-                    (:cliente_id, :creado_por_id, :fecha_pedido, 'RECIBIDO',
+                    (:tenant, :cliente_id, :creado_por_id, :fecha_pedido, 'RECIBIDO',
                      :subtotal, :desc_gral, :total,
                      :notas, :notas_internas)";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
+                ':tenant'          => tenantId(),
                 ':cliente_id'      => $cabecera['cliente_id'],
                 ':creado_por_id'   => $usuarioId,
                 ':fecha_pedido'    => $cabecera['fecha_pedido'],
@@ -193,6 +198,7 @@ class Pedido
                 ':notas'           => $cabecera['notas'],
                 ':notas_internas'  => $cabecera['notas_internas'],
                 ':id'              => $id,
+                ':tenant'          => tenantId(),
             ];
 
             // Marcar como modificado por vendedor
@@ -201,14 +207,15 @@ class Pedido
                           modificado_por_vendedor_visto = 0";
             }
 
-            $sql .= " WHERE id = :id";
+            $sql .= " WHERE id = :id AND tenant_id = :tenant";
 
             $stmt = $this->db->prepare($sql);
             $stmt->execute($params);
 
             // Reemplazar detalle
-            $this->db->prepare("DELETE FROM pedido_detalle WHERE pedido_id = :id")
-                     ->execute([':id' => $id]);
+            $this->db->prepare(
+                "DELETE FROM pedido_detalle WHERE pedido_id = :id AND tenant_id = :tenant"
+            )->execute([':id' => $id, ':tenant' => tenantId()]);
             $this->guardarDetalle($id, $detalle);
 
             $this->db->commit();
@@ -223,15 +230,16 @@ class Pedido
     private function guardarDetalle(int $pedidoId, array $detalle): void
     {
         $sql = "INSERT INTO pedido_detalle
-                (pedido_id, articulo_id, pakaging_id, cantidad,
+                (tenant_id, pedido_id, articulo_id, pakaging_id, cantidad,
                  cantidad_pakaging, cantidad_unidades,
                  precio_unitario, descuento_porcentaje, subtotal_linea)
                 VALUES
-                (:pedido_id, :articulo_id, :pakaging_id, :cantidad,
+                (:tenant, :pedido_id, :articulo_id, :pakaging_id, :cantidad,
                  :cantidad_pakaging, :cantidad_unidades,
                  :precio_unitario, :descuento_porcentaje, :subtotal_linea)";
         $stmt = $this->db->prepare($sql);
 
+        $tenant = tenantId();
         foreach ($detalle as $linea) {
             $cantidadUnidades = (float)$linea['cantidad_unidades'];
             $precio           = (float)$linea['precio_unitario'];
@@ -239,10 +247,11 @@ class Pedido
             $subtotalLinea    = round($cantidadUnidades * $precio * (1 - $descPct / 100), 4);
 
             $stmt->execute([
+                ':tenant'              => $tenant,
                 ':pedido_id'           => $pedidoId,
                 ':articulo_id'         => (int)$linea['articulo_id'],
                 ':pakaging_id'         => !empty($linea['pakaging_id']) ? (int)$linea['pakaging_id'] : null,
-                ':cantidad'            => $cantidadUnidades, // columna legacy
+                ':cantidad'            => $cantidadUnidades,
                 ':cantidad_pakaging'   => (float)$linea['cantidad_pakaging'],
                 ':cantidad_unidades'   => $cantidadUnidades,
                 ':precio_unitario'     => $precio,
@@ -277,9 +286,14 @@ class Pedido
 
         try {
             $stmt = $this->db->prepare(
-                "UPDATE pedido SET estado = :est $extra, actualizado_el = NOW() WHERE id = :id"
+                "UPDATE pedido SET estado = :est $extra, actualizado_el = NOW()
+                 WHERE id = :id AND tenant_id = :tenant"
             );
-            $stmt->execute([':est' => $nuevoEstado, ':id' => $id]);
+            $stmt->execute([
+                ':est'    => $nuevoEstado,
+                ':id'     => $id,
+                ':tenant' => tenantId(),
+            ]);
             return ['ok' => true, 'msg' => 'Estado actualizado a ' . $nuevoEstado . '.'];
         } catch (PDOException $e) {
             error_log('[Pedido::cambiarEstado] ' . $e->getMessage());
@@ -304,9 +318,10 @@ class Pedido
         }
 
         $stmt = $this->db->prepare(
-            "UPDATE pedido SET estado = 'ANULADO', actualizado_el = NOW() WHERE id = :id"
+            "UPDATE pedido SET estado = 'ANULADO', actualizado_el = NOW()
+             WHERE id = :id AND tenant_id = :tenant"
         );
-        if (!$stmt->execute([':id' => $id])) {
+        if (!$stmt->execute([':id' => $id, ':tenant' => tenantId()])) {
             return ['ok' => false, 'msg' => 'No se pudo anular.'];
         }
         return ['ok' => true, 'msg' => 'Pedido anulado.'];
@@ -318,9 +333,10 @@ class Pedido
     public function marcarModificadoVisto(int $id): void
     {
         $stmt = $this->db->prepare(
-            "UPDATE pedido SET modificado_por_vendedor_visto = 1 WHERE id = :id"
+            "UPDATE pedido SET modificado_por_vendedor_visto = 1
+             WHERE id = :id AND tenant_id = :tenant"
         );
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
     }
 
     /* ==========================================================
@@ -328,7 +344,19 @@ class Pedido
        ========================================================== */
     public function precioArticulo(int $articuloId, int $clienteId, ?int $categoriaOverride = null): array
     {
-        // Traer categoría del cliente y datos del artículo
+        $tenant = tenantId();
+
+        // Si viene override, usamos esa categoría; sino, la del cliente
+        if ($categoriaOverride === null) {
+            $stmt = $this->db->prepare(
+                "SELECT categoria FROM cliente
+                 WHERE id = :id AND tenant_id = :tenant
+                 LIMIT 1"
+            );
+            $stmt->execute([':id' => $clienteId, ':tenant' => $tenant]);
+            $categoriaOverride = (int)$stmt->fetchColumn();
+        }
+
         $sql = "SELECT a.id, a.nombre, a.codigo, a.pakaging_id,
                     c.categoria AS categoria_cliente_id,
                     cc.descripcion AS categoria_desc,
@@ -341,21 +369,18 @@ class Pedido
                 LEFT JOIN articulo_precio_categoria apc
                     ON apc.articulo_id = a.id
                     AND apc.categoria_id = :categoria_id
-                WHERE a.id = :articulo_id LIMIT 1";
-
-        // Si viene override, usamos esa categoría; sino, la del cliente
-        if ($categoriaOverride === null) {
-            // Primero necesitamos saber la categoría del cliente
-            $stmt = $this->db->prepare("SELECT categoria FROM cliente WHERE id = :id LIMIT 1");
-            $stmt->execute([':id' => $clienteId]);
-            $categoriaOverride = (int)$stmt->fetchColumn();
-        }
+                    AND apc.tenant_id = a.tenant_id
+                WHERE a.id = :articulo_id
+                  AND a.tenant_id = :tenant
+                  AND c.tenant_id = :tenant
+                LIMIT 1";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             ':cliente_id'     => $clienteId,
             ':articulo_id'    => $articuloId,
-            ':categoria_id'   => $categoriaOverride
+            ':categoria_id'   => $categoriaOverride,
+            ':tenant'         => $tenant,
         ]);
         $row = $stmt->fetch();
 
@@ -363,8 +388,12 @@ class Pedido
         if ($row) {
             $row['categoria_efectiva_id'] = $categoriaOverride;
             // Buscar la descripción de la categoría efectiva
-            $stmt2 = $this->db->prepare("SELECT descripcion FROM cliente_categoria WHERE id = :id");
-            $stmt2->execute([':id' => $categoriaOverride]);
+            $stmt2 = $this->db->prepare(
+                "SELECT descripcion FROM cliente_categoria
+                 WHERE id = :id AND tenant_id = :tenant
+                 LIMIT 1"
+            );
+            $stmt2->execute([':id' => $categoriaOverride, ':tenant' => $tenant]);
             $row['categoria_desc'] = (string)$stmt2->fetchColumn();
         }
 
@@ -376,13 +405,16 @@ class Pedido
        ========================================================== */
     public function combos(?int $vendedorId = null): array
     {
+        $tenant = tenantId();
+
         // Clientes (filtrados por vendedor si aplica)
         $sqlCli = "SELECT c.id, c.razon_social, c.nombre_fantasia, c.cuit,
                         c.categoria, cc.descripcion AS categoria_desc
                 FROM cliente c
                 LEFT JOIN cliente_categoria cc ON cc.id = c.categoria
-                WHERE c.estado = 'ACTIVO'";
-        $params = [];
+                WHERE c.estado = 'ACTIVO'
+                  AND c.tenant_id = :tenant";
+        $params = [':tenant' => $tenant];
         if ($vendedorId !== null) {
             $sqlCli .= " AND c.vendedor_id = :vid";
             $params[':vid'] = $vendedorId;
@@ -393,30 +425,39 @@ class Pedido
         $clientes = $stmt->fetchAll();
 
         // Artículos activos (con packaging)
-        $articulos = $this->db->query(
+        $stmtArt = $this->db->prepare(
             "SELECT a.id, a.nombre, a.codigo, a.precio, a.pakaging_id,
                     pk.descripcion AS pakaging_desc, pk.cantidad AS pakaging_factor
             FROM articulo a
             LEFT JOIN pakaging pk ON pk.id = a.pakaging_id
             WHERE a.estado = 'ACTIVO'
+              AND a.tenant_id = :tenant
             ORDER BY a.nombre"
-        )->fetchAll();
+        );
+        $stmtArt->execute([':tenant' => $tenant]);
+        $articulos = $stmtArt->fetchAll();
 
         // Packagings
-        $packagings = $this->db->query(
-            "SELECT id, descripcion, cantidad FROM pakaging ORDER BY cantidad"
-        )->fetchAll();
+        $stmtPk = $this->db->prepare(
+            "SELECT id, descripcion, cantidad FROM pakaging
+             WHERE tenant_id = :tenant ORDER BY cantidad"
+        );
+        $stmtPk->execute([':tenant' => $tenant]);
+        $packagings = $stmtPk->fetchAll();
 
-        // ← NUEVO: Categorías de cliente
-        $categorias = $this->db->query(
-            "SELECT id, descripcion FROM cliente_categoria ORDER BY id"
-        )->fetchAll();
+        // Categorías de cliente
+        $stmtCat = $this->db->prepare(
+            "SELECT id, descripcion FROM cliente_categoria
+             WHERE tenant_id = :tenant ORDER BY id"
+        );
+        $stmtCat->execute([':tenant' => $tenant]);
+        $categorias = $stmtCat->fetchAll();
 
         return [
             'clientes'   => $clientes,
             'articulos'  => $articulos,
             'packagings' => $packagings,
-            'categorias' => $categorias,   // ← NUEVO
+            'categorias' => $categorias,
         ];
     }
 }
