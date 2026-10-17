@@ -33,8 +33,8 @@ class Compra
                 INNER JOIN proveedor p ON p.id = c.proveedor_id
                 LEFT JOIN tipos_comprobante_compra t ON t.id = c.tipo_comprobante_id
                 LEFT JOIN cuenta_contable cc ON cc.id = c.cuenta_contable_id
-                WHERE 1=1";
-        $params = [];
+                WHERE c.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
 
         if ($desde !== '') {
             $sql .= " AND c.fecha_comprobante >= :desde";
@@ -87,9 +87,11 @@ class Compra
                 LEFT JOIN condiciones_iva ci ON ci.id = p.id_condicion_iva
                 LEFT JOIN tipos_comprobante_compra t ON t.id = c.tipo_comprobante_id
                 LEFT JOIN cuenta_contable cc ON cc.id = c.cuenta_contable_id
-                WHERE c.id = :id LIMIT 1";
+                WHERE c.id = :id
+                  AND c.tenant_id = :tenant
+                LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
@@ -104,9 +106,10 @@ class Compra
                 LEFT JOIN insumo i ON i.id = cd.insumo_id
                 LEFT JOIN unidades_medida um ON um.id = i.unidad_medida_id
                 WHERE cd.compra_id = :id
+                  AND cd.tenant_id = :tenant
                 ORDER BY cd.id ASC";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $compraId]);
+        $stmt->execute([':id' => $compraId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
@@ -121,7 +124,7 @@ class Compra
             $this->db->beginTransaction();
 
             $sql = "INSERT INTO compra
-                    (proveedor_id, tipo_comprobante_id, punto_venta, numero,
+                    (tenant_id, proveedor_id, tipo_comprobante_id, punto_venta, numero,
                      fecha_comprobante, cae, cae_vencimiento, cuenta_contable_id,
                      primer_vencimiento, segundo_vencimiento,
                      archivo_path, archivo_nombre_original,
@@ -129,7 +132,7 @@ class Compra
                      iva, perc_iva, perc_iibb, impuestos_internos, total,
                      observaciones, estado)
                     VALUES
-                    (:proveedor_id, :tipo_comprobante_id, :punto_venta, :numero,
+                    (:tenant, :proveedor_id, :tipo_comprobante_id, :punto_venta, :numero,
                      :fecha_comprobante, :cae, :cae_vencimiento, :cuenta_contable_id,
                      :primer_vencimiento, :segundo_vencimiento,
                      :archivo_path, :archivo_nombre_original,
@@ -138,6 +141,7 @@ class Compra
                      :observaciones, 'REGISTRADA')";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
+                ':tenant'                 => tenantId(),
                 ':proveedor_id'           => $cabecera['proveedor_id'],
                 ':tipo_comprobante_id'    => $cabecera['tipo_comprobante_id'],
                 ':punto_venta'            => $cabecera['punto_venta'],
@@ -186,7 +190,6 @@ class Compra
 
             $this->db->commit();
 
-            // Fase 2: asiento contable automático
             require_once ROOT_PATH . 'includes' . DS . 'ContabilidadService.php';
             try {
                 $svc = new ContabilidadService();
@@ -229,10 +232,12 @@ class Compra
                     SET anulado = 1, anulado_el = NOW(), anulado_por = :u
                   WHERE referencia_compra_id = :cid
                     AND tipo = 'INSUMO_COSTO'
-                    AND anulado = 0"
+                    AND anulado = 0
+                    AND tenant_id = :tenant"
             )->execute([
-                ':u'   => $_SESSION['user_id'] ?? null,
-                ':cid' => $compraId,
+                ':u'      => $_SESSION['user_id'] ?? null,
+                ':cid'    => $compraId,
+                ':tenant' => tenantId(),
             ]);
 
             $lineasParaRevertir = [];
@@ -255,8 +260,9 @@ class Compra
                 );
             }
 
-            $this->db->prepare("DELETE FROM compra_detalle WHERE compra_id = :id")
-                     ->execute([':id' => $compraId]);
+            $this->db->prepare(
+                "DELETE FROM compra_detalle WHERE compra_id = :id AND tenant_id = :tenant"
+            )->execute([':id' => $compraId, ':tenant' => tenantId()]);
 
             $sql = "UPDATE compra SET
                         proveedor_id          = :proveedor_id,
@@ -282,7 +288,8 @@ class Compra
                         editado_el            = NOW(),
                         editado_por_id        = :user_id,
                         cantidad_ediciones    = cantidad_ediciones + 1
-                    WHERE id = :id";
+                    WHERE id = :id
+                      AND tenant_id = :tenant";
             $this->db->prepare($sql)->execute([
                 ':proveedor_id'         => $cabecera['proveedor_id'],
                 ':tipo_comprobante_id'  => $cabecera['tipo_comprobante_id'],
@@ -306,6 +313,7 @@ class Compra
                 ':observaciones'        => $cabecera['observaciones'],
                 ':user_id'              => $_SESSION['user_id'] ?? null,
                 ':id'                   => $compraId,
+                ':tenant'               => tenantId(),
             ]);
 
             $this->aplicarDetalle(
@@ -370,12 +378,13 @@ class Compra
     ): void {
         $esNotaCredito = $this->esNotaCredito($tipoComprobanteId);
         $sumaStock = $revertir ? $esNotaCredito : !$esNotaCredito;
+        $tenant = tenantId();
 
         $stmtDet = $this->db->prepare(
             "INSERT INTO compra_detalle
-                (compra_id, insumo_id, concepto, cantidad, costo_unitario, subtotal_linea,
+                (tenant_id, compra_id, insumo_id, concepto, cantidad, costo_unitario, subtotal_linea,
                  condicion_iva, alicuota_iva, importe_iva)
-             VALUES (:c, :i, :cn, :q, :cu, :st, :cond, :al, :imp)"
+             VALUES (:tenant, :c, :i, :cn, :q, :cu, :st, :cond, :al, :imp)"
         );
 
         foreach ($detalle as $linea) {
@@ -385,7 +394,6 @@ class Compra
             $costo    = (float)$linea['costo_unitario'];
             $subtotal = round($cantidad * $costo, 4);
 
-            // Fiscal
             $condicionIva = strtoupper((string)($linea['condicion_iva'] ?? 'GRAVADO'));
             if (!in_array($condicionIva, ['GRAVADO','NO_GRAVADO','EXENTO'], true)) {
                 $condicionIva = 'GRAVADO';
@@ -400,15 +408,16 @@ class Compra
 
             if (!$revertir) {
                 $stmtDet->execute([
-                    ':c'    => $compraId,
-                    ':i'    => $insumoId,
-                    ':cn'   => $concepto,
-                    ':q'    => $cantidad,
-                    ':cu'   => $costo,
-                    ':st'   => $subtotal,
-                    ':cond' => $condicionIva,
-                    ':al'   => $alicuota,
-                    ':imp'  => $importeIva,
+                    ':tenant' => $tenant,
+                    ':c'      => $compraId,
+                    ':i'      => $insumoId,
+                    ':cn'     => $concepto,
+                    ':q'      => $cantidad,
+                    ':cu'     => $costo,
+                    ':st'     => $subtotal,
+                    ':cond'   => $condicionIva,
+                    ':al'     => $alicuota,
+                    ':imp'    => $importeIva,
                 ]);
             }
 
@@ -417,11 +426,13 @@ class Compra
             }
 
             if ($sumaStock) {
-                $this->db->prepare("UPDATE insumo SET stock = stock + :q WHERE id = :id")
-                         ->execute([':q' => $cantidad, ':id' => $insumoId]);
+                $this->db->prepare(
+                    "UPDATE insumo SET stock = stock + :q WHERE id = :id AND tenant_id = :tenant"
+                )->execute([':q' => $cantidad, ':id' => $insumoId, ':tenant' => $tenant]);
             } else {
-                $this->db->prepare("UPDATE insumo SET stock = stock - :q WHERE id = :id")
-                         ->execute([':q' => $cantidad, ':id' => $insumoId]);
+                $this->db->prepare(
+                    "UPDATE insumo SET stock = stock - :q WHERE id = :id AND tenant_id = :tenant"
+                )->execute([':q' => $cantidad, ':id' => $insumoId, ':tenant' => $tenant]);
             }
 
             if (!$revertir) {
@@ -434,12 +445,17 @@ class Compra
 
     private function upsertCostoProveedor(int $insumoId, int $proveedorId, float $costo): void
     {
-        $sql = "INSERT INTO insumo_proveedor (insumo_id, proveedor_id, costo, actualizado_el)
-                VALUES (:i, :p, :c, NOW())
+        $sql = "INSERT INTO insumo_proveedor (tenant_id, insumo_id, proveedor_id, costo, actualizado_el)
+                VALUES (:tenant, :i, :p, :c, NOW())
                 ON DUPLICATE KEY UPDATE
                     costo = VALUES(costo),
                     actualizado_el = NOW()";
-        $this->db->prepare($sql)->execute([':i' => $insumoId, ':p' => $proveedorId, ':c' => $costo]);
+        $this->db->prepare($sql)->execute([
+            ':tenant' => tenantId(),
+            ':i'      => $insumoId,
+            ':p'      => $proveedorId,
+            ':c'      => $costo,
+        ]);
     }
 
     private function recalcularInsumo(int $insumoId, ?int $compraId = null): void
@@ -459,8 +475,13 @@ class Compra
                   WHERE tipo = 'INSUMO_COSTO'
                     AND referencia_id = :iid
                     AND referencia_compra_id IS NULL
-                    AND anulado = 0"
-            )->execute([':cid' => $compraId, ':iid' => $insumoId]);
+                    AND anulado = 0
+                    AND tenant_id = :tenant"
+            )->execute([
+                ':cid'    => $compraId,
+                ':iid'    => $insumoId,
+                ':tenant' => tenantId(),
+            ]);
         }
     }
 
@@ -519,14 +540,18 @@ class Compra
                     SET anulado = 1, anulado_el = NOW(), anulado_por = :u
                   WHERE referencia_compra_id = :cid
                     AND tipo = 'INSUMO_COSTO'
-                    AND anulado = 0"
+                    AND anulado = 0
+                    AND tenant_id = :tenant"
             )->execute([
-                ':u'   => $_SESSION['user_id'] ?? null,
-                ':cid' => $compraId,
+                ':u'      => $_SESSION['user_id'] ?? null,
+                ':cid'    => $compraId,
+                ':tenant' => tenantId(),
             ]);
 
-            $this->db->prepare("UPDATE compra SET estado = 'ANULADA' WHERE id = :id")
-                     ->execute([':id' => $compraId]);
+            $this->db->prepare(
+                "UPDATE compra SET estado = 'ANULADA'
+                 WHERE id = :id AND tenant_id = :tenant"
+            )->execute([':id' => $compraId, ':tenant' => tenantId()]);
 
             require_once __DIR__ . '/CuentaCorrienteProveedor.php';
             $ccProv = new CuentaCorrienteProveedor();
@@ -556,9 +581,15 @@ class Compra
     public function actualizarAdjunto(int $id, ?string $path, ?string $nombreOriginal): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE compra SET archivo_path = :p, archivo_nombre_original = :n WHERE id = :id"
+            "UPDATE compra SET archivo_path = :p, archivo_nombre_original = :n
+             WHERE id = :id AND tenant_id = :tenant"
         );
-        return $stmt->execute([':p' => $path, ':n' => $nombreOriginal, ':id' => $id]);
+        return $stmt->execute([
+            ':p'      => $path,
+            ':n'      => $nombreOriginal,
+            ':id'     => $id,
+            ':tenant' => tenantId(),
+        ]);
     }
 
     /* ==========================================================
@@ -566,30 +597,42 @@ class Compra
        ========================================================== */
     public function combos(): array
     {
+        $stmtProv = $this->db->prepare(
+            "SELECT id, razon_social, nombre_fantasia, cuit
+             FROM proveedor WHERE estado = 'ACTIVO' AND tenant_id = :tenant
+             ORDER BY razon_social"
+        );
+        $stmtProv->execute([':tenant' => tenantId()]);
+
+        $stmtCtas = $this->db->prepare(
+            "SELECT id, codigo, nombre, plan_cuenta_id
+             FROM cuenta_contable
+             WHERE estado = 'ACTIVA' AND tenant_id = :tenant
+             ORDER BY codigo"
+        );
+        $stmtCtas->execute([':tenant' => tenantId()]);
+
+        $stmtIns = $this->db->prepare(
+            "SELECT i.id, i.nombre, i.codigo, i.costo,
+                    um.abreviatura AS unidad_abrev
+             FROM insumo i
+             INNER JOIN unidades_medida um ON um.id = i.unidad_medida_id
+             WHERE i.estado = 'ACTIVO'
+               AND i.tenant_id = :tenant
+             ORDER BY i.nombre"
+        );
+        $stmtIns->execute([':tenant' => tenantId()]);
+
         return [
-            'proveedores' => $this->db->query(
-                "SELECT id, razon_social, nombre_fantasia, cuit
-                 FROM proveedor WHERE estado = 'ACTIVO' ORDER BY razon_social"
-            )->fetchAll(),
+            'proveedores' => $stmtProv->fetchAll(),
             'tipos_comprobante' => $this->db->query(
                 "SELECT id, codigo_afip, descripcion, letra
                  FROM tipos_comprobante_compra
                  WHERE id <= 11
                  ORDER BY id"
             )->fetchAll(),
-            'cuentas_contables' => $this->db->query(
-                "SELECT id, codigo, nombre, plan_cuenta_id
-                 FROM cuenta_contable
-                 WHERE estado = 'ACTIVA' ORDER BY codigo"
-            )->fetchAll(),
-            'insumos' => $this->db->query(
-                "SELECT i.id, i.nombre, i.codigo, i.costo,
-                        um.abreviatura AS unidad_abrev
-                 FROM insumo i
-                 INNER JOIN unidades_medida um ON um.id = i.unidad_medida_id
-                 WHERE i.estado = 'ACTIVO'
-                 ORDER BY i.nombre"
-            )->fetchAll(),
+            'cuentas_contables' => $stmtCtas->fetchAll(),
+            'insumos' => $stmtIns->fetchAll(),
         ];
     }
 }
