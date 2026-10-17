@@ -21,9 +21,14 @@ class CalendarioCheque
                 FROM calendario_cheques cc
                 LEFT JOIN usuario u ON u.id = cc.creado_por_id
                 WHERE cc.fecha BETWEEN :desde AND :hasta
+                  AND cc.tenant_id = :tenant
                 ORDER BY cc.fecha ASC, cc.id ASC";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':desde' => $desde, ':hasta' => $hasta]);
+        $stmt->execute([
+            ':desde'  => $desde,
+            ':hasta'  => $hasta,
+            ':tenant' => tenantId(),
+        ]);
         return $stmt->fetchAll();
     }
 
@@ -36,9 +41,13 @@ class CalendarioCheque
                 FROM calendario_cheques cc
                 LEFT JOIN usuario u ON u.id = cc.creado_por_id
                 WHERE cc.fecha = :fecha
+                  AND cc.tenant_id = :tenant
                 ORDER BY cc.id ASC";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':fecha' => $fecha]);
+        $stmt->execute([
+            ':fecha'  => $fecha,
+            ':tenant' => tenantId(),
+        ]);
         return $stmt->fetchAll();
     }
 
@@ -56,8 +65,12 @@ class CalendarioCheque
        ========================================================== */
     public function obtenerPorId(int $id): ?array
     {
-        $stmt = $this->db->prepare("SELECT * FROM calendario_cheques WHERE id = :id LIMIT 1");
-        $stmt->execute([':id' => $id]);
+        $stmt = $this->db->prepare(
+            "SELECT * FROM calendario_cheques
+             WHERE id = :id AND tenant_id = :tenant
+             LIMIT 1"
+        );
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
@@ -69,18 +82,19 @@ class CalendarioCheque
     {
         try {
             $sql = "INSERT INTO calendario_cheques
-                    (fecha, descripcion, importe, banco, nro_cheque, tipo, creado_por_id)
+                    (tenant_id, fecha, descripcion, importe, banco, nro_cheque, tipo, creado_por_id)
                     VALUES
-                    (:fecha, :descripcion, :importe, :banco, :nro_cheque, :tipo, :usuario_id)";
+                    (:tenant, :fecha, :descripcion, :importe, :banco, :nro_cheque, :tipo, :usuario_id)";
             $stmt = $this->db->prepare($sql);
             $ok = $stmt->execute([
-                ':fecha'        => $d['fecha'],
-                ':descripcion'  => $d['descripcion'],
-                ':importe'      => (float)($d['importe'] ?? 0),
-                ':banco'        => $d['banco'] ?? null,
-                ':nro_cheque'   => $d['nro_cheque'] ?? null,
-                ':tipo'         => $d['tipo'] ?? 'TERCERO',
-                ':usuario_id'   => $usuarioId,
+                ':tenant'      => tenantId(),
+                ':fecha'       => $d['fecha'],
+                ':descripcion' => $d['descripcion'],
+                ':importe'     => (float)($d['importe'] ?? 0),
+                ':banco'       => $d['banco'] ?? null,
+                ':nro_cheque'  => $d['nro_cheque'] ?? null,
+                ':tipo'        => $d['tipo'] ?? 'TERCERO',
+                ':usuario_id'  => $usuarioId,
             ]);
             return $ok ? (int)$this->db->lastInsertId() : false;
         } catch (PDOException $e) {
@@ -102,16 +116,18 @@ class CalendarioCheque
                     nro_cheque = :nro_cheque,
                     tipo = :tipo,
                     actualizado_el = NOW()
-                WHERE id = :id";
+                WHERE id = :id
+                  AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
-            ':fecha'        => $d['fecha'],
-            ':descripcion'  => $d['descripcion'],
-            ':importe'      => (float)($d['importe'] ?? 0),
-            ':banco'        => $d['banco'] ?? null,
-            ':nro_cheque'   => $d['nro_cheque'] ?? null,
-            ':tipo'         => $d['tipo'] ?? 'TERCERO',
-            ':id'           => $id,
+            ':fecha'       => $d['fecha'],
+            ':descripcion' => $d['descripcion'],
+            ':importe'     => (float)($d['importe'] ?? 0),
+            ':banco'       => $d['banco'] ?? null,
+            ':nro_cheque'  => $d['nro_cheque'] ?? null,
+            ':tipo'        => $d['tipo'] ?? 'TERCERO',
+            ':id'          => $id,
+            ':tenant'      => tenantId(),
         ]);
     }
 
@@ -120,7 +136,10 @@ class CalendarioCheque
        ========================================================== */
     public function eliminar(int $id): bool
     {
-        $stmt = $this->db->prepare("DELETE FROM calendario_cheques WHERE id = :id");
-        return $stmt->execute([':id' => $id]);
+        $stmt = $this->db->prepare(
+            "DELETE FROM calendario_cheques
+             WHERE id = :id AND tenant_id = :tenant"
+        );
+        return $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
     }
 }

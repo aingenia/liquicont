@@ -379,7 +379,7 @@ class ComprasController
         $netoExento  = round($netoExento, 2);
         $ivaTotal    = round($ivaTotal, 2);
 
-        // IVA cabecera: usar el calculado salvo que el usuario lo haya forzado
+                // IVA cabecera: usar el calculado salvo que el usuario lo haya forzado
         $ivaForzado = isset($_POST['iva_manual']) && $_POST['iva_manual'] === '1';
         $iva = $ivaForzado ? (float)($_POST['iva'] ?? 0) : $ivaTotal;
 
@@ -389,9 +389,9 @@ class ComprasController
 
         $total = round($subtotal + $iva + $percIva + $percIibb + $impInt, 2);
 
-        $iva    = (float)($_POST['iva'] ?? 0);
-        $impInt = (float)($_POST['impuestos_internos'] ?? 0);
-        $total  = round($subtotal + $iva + $impInt, 2);
+        $cuentaContableId = !empty($_POST['cuenta_contable_id'])
+            ? (int)$_POST['cuenta_contable_id']
+            : null;
 
         $cabecera = [
             'proveedor_id'            => $proveedorId,
@@ -401,7 +401,7 @@ class ComprasController
             'fecha_comprobante'       => $fecha,
             'cae'                     => trim($_POST['cae'] ?? '') ?: null,
             'cae_vencimiento'         => trim($_POST['cae_vencimiento'] ?? '') ?: null,
-            'cuenta_contable_id'      => $cuentaId ?: null,
+            'cuenta_contable_id'      => $cuentaContableId,
             'primer_vencimiento'      => trim($_POST['primer_vencimiento'] ?? '') ?: null,
             'segundo_vencimiento'     => trim($_POST['segundo_vencimiento'] ?? '') ?: null,
             'archivo_path'            => null,
@@ -417,6 +417,7 @@ class ComprasController
             'total'                   => $total,
             'observaciones'           => trim($_POST['observaciones'] ?? '') ?: null,
         ];
+
 
         $r = $this->compra->actualizar($id, $cabecera, $detalle);
         if ($r['ok']) {
