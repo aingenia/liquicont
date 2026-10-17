@@ -15,17 +15,18 @@ class CuentaCorrienteProveedor
     /* ==========================================================
        SALDO ACTUAL
        ========================================================== */
-    /**
-     * Saldo actual del proveedor.
-     * Positivo = le debemos. Negativo = tenemos saldo a favor.
-     */
     public function obtenerSaldo(int $proveedorId): float
     {
         $sql = "SELECT COALESCE(SUM(debe) - SUM(haber), 0)
                 FROM cuenta_corriente_proveedor_movimiento
-                WHERE proveedor_id = :pid AND anulado = 0";
+                WHERE proveedor_id = :pid
+                  AND anulado = 0
+                  AND tenant_id = :tenant";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':pid' => $proveedorId]);
+        $stmt->execute([
+            ':pid'    => $proveedorId,
+            ':tenant' => tenantId(),
+        ]);
         return round((float)$stmt->fetchColumn(), 2);
     }
 
@@ -41,8 +42,12 @@ class CuentaCorrienteProveedor
         $sql = "SELECT ccm.*, u.nombre AS usuario_nombre
                 FROM cuenta_corriente_proveedor_movimiento ccm
                 LEFT JOIN usuario u ON u.id = ccm.creado_por_id
-                WHERE ccm.proveedor_id = :pid";
-        $params = [':pid' => $proveedorId];
+                WHERE ccm.proveedor_id = :pid
+                  AND ccm.tenant_id = :tenant";
+        $params = [
+            ':pid'    => $proveedorId,
+            ':tenant' => tenantId(),
+        ];
 
         if (!$incluirAnulados) {
             $sql .= " AND ccm.anulado = 0";
@@ -76,22 +81,25 @@ class CuentaCorrienteProveedor
         ?int $usuarioId = null
     ): int|false {
         try {
+            $tenant = tenantId();
+
             $sql = "INSERT INTO cuenta_corriente_proveedor_movimiento
-                    (proveedor_id, fecha, tipo, referencia_id, debe, haber,
+                    (tenant_id, proveedor_id, fecha, tipo, referencia_id, debe, haber,
                      saldo_acumulado, observaciones, creado_por_id)
                     VALUES
-                    (:pid, :fecha, :tipo, :ref, :debe, :haber,
+                    (:tenant, :pid, :fecha, :tipo, :ref, :debe, :haber,
                      0, :obs, :uid)";
             $stmt = $this->db->prepare($sql);
             $ok = $stmt->execute([
-                ':pid'   => $proveedorId,
-                ':fecha' => $fecha,
-                ':tipo'  => $tipo,
-                ':ref'   => $referenciaId,
-                ':debe'  => $debe,
-                ':haber' => $haber,
-                ':obs'   => $observaciones,
-                ':uid'   => $usuarioId,
+                ':tenant' => $tenant,
+                ':pid'    => $proveedorId,
+                ':fecha'  => $fecha,
+                ':tipo'   => $tipo,
+                ':ref'    => $referenciaId,
+                ':debe'   => $debe,
+                ':haber'  => $haber,
+                ':obs'    => $observaciones,
+                ':uid'    => $usuarioId,
             ]);
             if (!$ok) return false;
 
@@ -106,45 +114,71 @@ class CuentaCorrienteProveedor
 
     private function recalcularSaldos(int $proveedorId): void
     {
+        $tenant = tenantId();
+
         $sql = "SELECT id, debe, haber
                 FROM cuenta_corriente_proveedor_movimiento
-                WHERE proveedor_id = :pid AND anulado = 0
+                WHERE proveedor_id = :pid
+                  AND anulado = 0
+                  AND tenant_id = :tenant
                 ORDER BY fecha ASC, id ASC";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':pid' => $proveedorId]);
+        $stmt->execute([
+            ':pid'    => $proveedorId,
+            ':tenant' => $tenant,
+        ]);
         $movs = $stmt->fetchAll();
 
         $stmtUpd = $this->db->prepare(
-            "UPDATE cuenta_corriente_proveedor_movimiento SET saldo_acumulado = :s WHERE id = :id"
+            "UPDATE cuenta_corriente_proveedor_movimiento
+             SET saldo_acumulado = :s
+             WHERE id = :id AND tenant_id = :tenant"
         );
 
         $saldo = 0.0;
         foreach ($movs as $m) {
             $saldo += (float)$m['debe'] - (float)$m['haber'];
-            $stmtUpd->execute([':s' => round($saldo, 2), ':id' => (int)$m['id']]);
+            $stmtUpd->execute([
+                ':s'      => round($saldo, 2),
+                ':id'     => (int)$m['id'],
+                ':tenant' => $tenant,
+            ]);
         }
     }
 
     public function anularPorReferencia(int $referenciaId, string $tipo, int $usuarioId): bool
     {
         try {
+            $tenant = tenantId();
+
             $stmt = $this->db->prepare(
                 "UPDATE cuenta_corriente_proveedor_movimiento
                  SET anulado = 1, anulado_el = NOW(), anulado_por_id = :uid
-                 WHERE referencia_id = :ref AND tipo = :tipo AND anulado = 0"
+                 WHERE referencia_id = :ref
+                   AND tipo = :tipo
+                   AND anulado = 0
+                   AND tenant_id = :tenant"
             );
             $ok = $stmt->execute([
-                ':uid'  => $usuarioId,
-                ':ref'  => $referenciaId,
-                ':tipo' => $tipo,
+                ':uid'    => $usuarioId,
+                ':ref'    => $referenciaId,
+                ':tipo'   => $tipo,
+                ':tenant' => $tenant,
             ]);
             if (!$ok) return false;
 
             $stmt = $this->db->prepare(
                 "SELECT DISTINCT proveedor_id FROM cuenta_corriente_proveedor_movimiento
-                 WHERE referencia_id = :ref AND tipo = :tipo LIMIT 1"
+                 WHERE referencia_id = :ref
+                   AND tipo = :tipo
+                   AND tenant_id = :tenant
+                 LIMIT 1"
             );
-            $stmt->execute([':ref' => $referenciaId, ':tipo' => $tipo]);
+            $stmt->execute([
+                ':ref'    => $referenciaId,
+                ':tipo'   => $tipo,
+                ':tenant' => $tenant,
+            ]);
             $proveedorId = (int)$stmt->fetchColumn();
             if ($proveedorId > 0) {
                 $this->recalcularSaldos($proveedorId);
@@ -166,12 +200,18 @@ class CuentaCorrienteProveedor
        ========================================================== */
     public function resumenPorProveedor(string $soloConSaldo = ''): array
     {
+        // El JOIN filtra con ccm.tenant_id = p.tenant_id (referencia a
+        // columna) para evitar HY093 y garantizar que solo se suman
+        // movimientos del mismo tenant que el proveedor.
         $sql = "SELECT p.id AS proveedor_id, p.razon_social, p.nombre_fantasia, p.cuit,
                        COALESCE(SUM(ccm.debe) - SUM(ccm.haber), 0) AS saldo
                 FROM proveedor p
                 LEFT JOIN cuenta_corriente_proveedor_movimiento ccm
-                       ON ccm.proveedor_id = p.id AND ccm.anulado = 0
-                WHERE p.estado = 'ACTIVO'";
+                       ON ccm.proveedor_id = p.id
+                      AND ccm.anulado = 0
+                      AND ccm.tenant_id = p.tenant_id
+                WHERE p.estado = 'ACTIVO'
+                  AND p.tenant_id = :tenant";
 
         if ($soloConSaldo === 'ACREEDORES') {
             $sql .= " GROUP BY p.id HAVING saldo > 0";
@@ -182,6 +222,9 @@ class CuentaCorrienteProveedor
         }
 
         $sql .= " ORDER BY saldo DESC, p.razon_social ASC";
-        return $this->db->query($sql)->fetchAll();
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':tenant' => tenantId()]);
+        return $stmt->fetchAll();
     }
 }
