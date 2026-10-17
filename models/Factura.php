@@ -40,8 +40,8 @@ class Factura
                 INNER JOIN cliente c ON c.id = f.cliente_id
                 LEFT JOIN usuario u ON u.id = f.creado_por_id
                 LEFT JOIN pedido p ON p.id = f.pedido_id
-                WHERE 1=1";
-        $params = [];
+                WHERE f.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
 
         if ($desde !== '') {
             $sql .= " AND f.fecha >= :desde";
@@ -114,9 +114,11 @@ class Factura
                 INNER JOIN cliente c ON c.id = f.cliente_id
                 LEFT JOIN condiciones_iva ci ON ci.id = c.id_condicion_iva
                 LEFT JOIN usuario u ON u.id = f.creado_por_id
-                WHERE f.id = :id LIMIT 1";
+                WHERE f.id = :id
+                  AND f.tenant_id = :tenant
+                LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
@@ -131,27 +133,32 @@ class Factura
                 INNER JOIN articulo a ON a.id = fd.articulo_id
                 LEFT JOIN pakaging pk ON pk.id = fd.pakaging_id
                 WHERE fd.factura_id = :id
+                  AND fd.tenant_id = :tenant
                 ORDER BY fd.id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $facturaId]);
+        $stmt->execute([':id' => $facturaId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
     public function obtenerMovimientosStock(int $facturaId): array
     {
-        $sql = "SELECT * FROM factura_movimiento_stock WHERE factura_id = :id ORDER BY id";
+        $sql = "SELECT * FROM factura_movimiento_stock
+                WHERE factura_id = :id AND tenant_id = :tenant
+                ORDER BY id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $facturaId]);
+        $stmt->execute([':id' => $facturaId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
     public function obtenerActivaPorPedido(int $pedidoId): ?array
     {
         $sql = "SELECT * FROM factura
-                WHERE pedido_id = :pid AND estado = 'ACTIVA'
+                WHERE pedido_id = :pid
+                  AND estado = 'ACTIVA'
+                  AND tenant_id = :tenant
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':pid' => $pedidoId]);
+        $stmt->execute([':pid' => $pedidoId, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
@@ -224,8 +231,8 @@ class Factura
         $this->db->prepare(
             "UPDATE pedido
              SET estado = 'FACTURADO', stock_descontado = 1, fecha_facturacion = CURDATE()
-             WHERE id = :id"
-        )->execute([':id' => $pedidoId]);
+             WHERE id = :id AND tenant_id = :tenant"
+        )->execute([':id' => $pedidoId, ':tenant' => tenantId()]);
 
         return $resultado;
     }
@@ -282,7 +289,7 @@ class Factura
             );
 
             $sql = "INSERT INTO factura
-                    (emisor_id, pedido_id, cliente_id, categoria_override, fecha,
+                    (tenant_id, emisor_id, pedido_id, cliente_id, categoria_override, fecha,
                      remito_prefijo, remito_punto_venta, remito_numero,
                      arca_tipo_comprobante_letra, arca_punto_venta,
                      subtotal, descuento_general_porcentaje,
@@ -290,7 +297,7 @@ class Factura
                      iva, perc_iva, perc_iibb, impuestos_internos, total,
                      notas, creado_por_id)
                     VALUES
-                    (:emisor_id, :pedido_id, :cliente_id, :categoria_override, :fecha,
+                    (:tenant, :emisor_id, :pedido_id, :cliente_id, :categoria_override, :fecha,
                      :remito_prefijo, :remito_pv, :remito_nro,
                      :arca_letra, :arca_pv,
                      :subtotal, :desc_gral,
@@ -299,6 +306,7 @@ class Factura
                      :notas, :creado_por)";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
+                ':tenant'             => tenantId(),
                 ':emisor_id'          => (int)$cabecera['emisor_id'],
                 ':pedido_id'          => $cabecera['pedido_id'] ?? null,
                 ':cliente_id'         => (int)$cabecera['cliente_id'],
@@ -369,17 +377,18 @@ class Factura
     private function guardarDetalle(int $facturaId, array $detalle): void
     {
         $sql = "INSERT INTO factura_detalle
-                (factura_id, articulo_id, pakaging_id,
+                (tenant_id, factura_id, articulo_id, pakaging_id,
                  cantidad_pakaging, cantidad_unidades,
                  precio_unitario, descuento_porcentaje, subtotal_linea, sin_precio,
                  condicion_iva, alicuota_iva, importe_iva)
                 VALUES
-                (:factura_id, :articulo_id, :pakaging_id,
+                (:tenant, :factura_id, :articulo_id, :pakaging_id,
                  :cant_pk, :cant_un,
                  :precio, :desc, :subtotal, :sin_precio,
                  :cond, :al, :imp)";
         $stmt = $this->db->prepare($sql);
 
+        $tenant = tenantId();
         foreach ($detalle as $d) {
             $cantidadUnidades = (float)$d['cantidad_unidades'];
             $precio           = (float)$d['precio_unitario'];
@@ -406,6 +415,7 @@ class Factura
             }
 
             $stmt->execute([
+                ':tenant'       => $tenant,
                 ':factura_id'   => $facturaId,
                 ':articulo_id'  => (int)$d['articulo_id'],
                 ':pakaging_id'  => !empty($d['pakaging_id']) ? (int)$d['pakaging_id'] : null,
@@ -427,6 +437,7 @@ class Factura
        ========================================================== */
     private function descontarStock(int $facturaId, array $detalle): void
     {
+        $tenant = tenantId();
         $acumulado = ['ARTICULO' => [], 'INSUMO' => []];
 
         foreach ($detalle as $d) {
@@ -441,9 +452,10 @@ class Factura
             $acumulado['ARTICULO'][$articuloId] += $cantidadUnidades;
 
             $stmt = $this->db->prepare(
-                "SELECT idinsumo, cantidad FROM formula WHERE idarticulo = :aid"
+                "SELECT idinsumo, cantidad FROM formula
+                 WHERE idarticulo = :aid AND tenant_id = :tenant"
             );
-            $stmt->execute([':aid' => $articuloId]);
+            $stmt->execute([':aid' => $articuloId, ':tenant' => $tenant]);
             $formula = $stmt->fetchAll();
 
             foreach ($formula as $f) {
@@ -457,43 +469,57 @@ class Factura
             }
         }
 
-        $stmtArt = $this->db->prepare("UPDATE articulo SET stock = stock - :c WHERE id = :id");
+        $stmtArt = $this->db->prepare(
+            "UPDATE articulo SET stock = stock - :c WHERE id = :id AND tenant_id = :tenant"
+        );
         $stmtMov = $this->db->prepare(
-            "INSERT INTO factura_movimiento_stock (factura_id, tipo, referencia_id, cantidad)
-             VALUES (:fid, :tipo, :ref, :cant)"
+            "INSERT INTO factura_movimiento_stock (tenant_id, factura_id, tipo, referencia_id, cantidad)
+             VALUES (:tenant, :fid, :tipo, :ref, :cant)"
         );
 
         foreach ($acumulado['ARTICULO'] as $artId => $cant) {
             $cantRedondeada = round($cant, 3);
             if ($cantRedondeada <= 0) continue;
 
-            $stmtArt->execute([':c' => $cantRedondeada, ':id' => $artId]);
+            $stmtArt->execute([
+                ':c'      => $cantRedondeada,
+                ':id'     => $artId,
+                ':tenant' => $tenant,
+            ]);
             $stmtMov->execute([
-                ':fid'  => $facturaId,
-                ':tipo' => 'ARTICULO',
-                ':ref'  => $artId,
-                ':cant' => $cantRedondeada,
+                ':tenant' => $tenant,
+                ':fid'    => $facturaId,
+                ':tipo'   => 'ARTICULO',
+                ':ref'    => $artId,
+                ':cant'   => $cantRedondeada,
             ]);
         }
 
-        $stmtIns = $this->db->prepare("UPDATE insumo SET stock = stock - :c WHERE id = :id");
+        $stmtIns = $this->db->prepare(
+            "UPDATE insumo SET stock = stock - :c WHERE id = :id AND tenant_id = :tenant"
+        );
 
         foreach ($acumulado['INSUMO'] as $insId => $cant) {
             $cantRedondeada = round($cant, 3);
             if ($cantRedondeada <= 0) continue;
 
-            $stmtIns->execute([':c' => $cantRedondeada, ':id' => $insId]);
+            $stmtIns->execute([
+                ':c'      => $cantRedondeada,
+                ':id'     => $insId,
+                ':tenant' => $tenant,
+            ]);
             $stmtMov->execute([
-                ':fid'  => $facturaId,
-                ':tipo' => 'INSUMO',
-                ':ref'  => $insId,
-                ':cant' => $cantRedondeada,
+                ':tenant' => $tenant,
+                ':fid'    => $facturaId,
+                ':tipo'   => 'INSUMO',
+                ':ref'    => $insId,
+                ':cant'   => $cantRedondeada,
             ]);
         }
     }
 
     /* ==========================================================
-       CÁLCULO DE TOTALES
+       CÁLCULO DE TOTALES (sin cambios — solo calcula)
        ========================================================== */
     private function calcularTotales(
         array $detalle,
@@ -581,20 +607,24 @@ class Factura
                      anulada_el = NOW(),
                      anulada_por_id = :u,
                      anulada_motivo = :m
-                 WHERE id = :id"
+                 WHERE id = :id AND tenant_id = :tenant"
             );
             $stmt->execute([
-                ':u'  => $usuarioId,
-                ':m'  => $motivo ?: null,
-                ':id' => $facturaId,
+                ':u'      => $usuarioId,
+                ':m'      => $motivo ?: null,
+                ':id'     => $facturaId,
+                ':tenant' => tenantId(),
             ]);
 
             if (!empty($factura['pedido_id'])) {
                 $this->db->prepare(
                     "UPDATE pedido
                      SET estado = 'PREPARADO', stock_descontado = 0, fecha_facturacion = NULL
-                     WHERE id = :pid"
-                )->execute([':pid' => (int)$factura['pedido_id']]);
+                     WHERE id = :pid AND tenant_id = :tenant"
+                )->execute([
+                    ':pid'    => (int)$factura['pedido_id'],
+                    ':tenant' => tenantId(),
+                ]);
             }
 
             $cc = new CuentaCorriente();
@@ -622,16 +652,29 @@ class Factura
     private function revertirStock(int $facturaId): void
     {
         $movs = $this->obtenerMovimientosStock($facturaId);
+        $tenant = tenantId();
 
-        $stmtArt = $this->db->prepare("UPDATE articulo SET stock = stock + :c WHERE id = :id");
-        $stmtIns = $this->db->prepare("UPDATE insumo SET stock = stock + :c WHERE id = :id");
+        $stmtArt = $this->db->prepare(
+            "UPDATE articulo SET stock = stock + :c WHERE id = :id AND tenant_id = :tenant"
+        );
+        $stmtIns = $this->db->prepare(
+            "UPDATE insumo SET stock = stock + :c WHERE id = :id AND tenant_id = :tenant"
+        );
 
         foreach ($movs as $m) {
             $cant = (float)$m['cantidad'];
             if ($m['tipo'] === 'ARTICULO') {
-                $stmtArt->execute([':c' => $cant, ':id' => (int)$m['referencia_id']]);
+                $stmtArt->execute([
+                    ':c'      => $cant,
+                    ':id'     => (int)$m['referencia_id'],
+                    ':tenant' => $tenant,
+                ]);
             } else {
-                $stmtIns->execute([':c' => $cant, ':id' => (int)$m['referencia_id']]);
+                $stmtIns->execute([
+                    ':c'      => $cant,
+                    ':id'     => (int)$m['referencia_id'],
+                    ':tenant' => $tenant,
+                ]);
             }
         }
     }
@@ -639,9 +682,6 @@ class Factura
     /* ==========================================================
        HELPERS FISCALES
        ========================================================== */
-    /**
-     * Devuelve ['mixtas' => bool, 'alicuotas' => [21, 10.5]]
-     */
     public function tieneAlicuotasMixtas(int $facturaId): array
     {
         $sql = "SELECT DISTINCT alicuota_iva
@@ -649,9 +689,10 @@ class Factura
                 WHERE factura_id = :id
                   AND condicion_iva = 'GRAVADO'
                   AND sin_precio = 0
+                  AND tenant_id = :tenant
                 ORDER BY alicuota_iva";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $facturaId]);
+        $stmt->execute([':id' => $facturaId, ':tenant' => tenantId()]);
         $alicuotas = array_map('floatval', $stmt->fetchAll(PDO::FETCH_COLUMN));
 
         return [
@@ -660,9 +701,6 @@ class Factura
         ];
     }
 
-    /**
-     * Devuelve la única alícuota gravada de la factura, o null si no hay.
-     */
     public function getAlicuotaUnica(int $facturaId): ?float
     {
         $sql = "SELECT DISTINCT alicuota_iva
@@ -670,21 +708,19 @@ class Factura
                 WHERE factura_id = :id
                   AND condicion_iva = 'GRAVADO'
                   AND sin_precio = 0
+                  AND tenant_id = :tenant
                 LIMIT 2";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $facturaId]);
+        $stmt->execute([':id' => $facturaId, ':tenant' => tenantId()]);
         $alicuotas = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
         if (count($alicuotas) !== 1) return null;
         return (float)$alicuotas[0];
     }
 
-    /**
-     * Mapea alícuota (21, 10.5, 27, 0) al código de ARCA (iva_id).
-     */
     public static function alicuotaToArcaId(?float $alicuota): int
     {
-        if ($alicuota === null) return 5; // default 21%
+        if ($alicuota === null) return 5;
         if (abs($alicuota - 0)   < 0.01) return 3;
         if (abs($alicuota - 10.5) < 0.01) return 4;
         if (abs($alicuota - 21)  < 0.01) return 5;
@@ -716,7 +752,6 @@ class Factura
             return ['ok' => false, 'msg' => 'El emisor no tiene configurado el punto de venta de ARCA.'];
         }
 
-        // Guard: alícuotas mixtas
         $chk = $this->tieneAlicuotasMixtas($facturaId);
         if ($chk['mixtas']) {
             $lista = implode(', ', array_map(function ($a) {
@@ -729,7 +764,6 @@ class Factura
             ];
         }
 
-        // Alícuota única → iva_id de ARCA
         $alicuotaUnica = $this->getAlicuotaUnica($facturaId);
         $arcaIdDinamico = self::alicuotaToArcaId($alicuotaUnica);
 
@@ -746,7 +780,6 @@ class Factura
         $factor = 1 - (float)$factura['descuento_general_porcentaje'] / 100;
         $netoGravado = round($netoGravado * $factor, 2);
 
-        // Total a facturar: subtotal - desc + IVA + percepciones + internos
         $totalParaArca = (float)$factura['subtotal']
                        + (float)$factura['iva']
                        + (float)$factura['perc_iva']
@@ -778,10 +811,11 @@ class Factura
                  SET arca_estado = 'ERROR',
                      arca_observaciones = :obs,
                      arca_enviado_el = NOW()
-                 WHERE id = :id"
+                 WHERE id = :id AND tenant_id = :tenant"
             )->execute([
-                ':obs' => substr($res['msg'], 0, 500),
-                ':id'  => $facturaId,
+                ':obs'    => substr($res['msg'], 0, 500),
+                ':id'     => $facturaId,
+                ':tenant' => tenantId(),
             ]);
             return ['ok' => false, 'msg' => $res['msg']];
         }
@@ -795,12 +829,13 @@ class Factura
                  cae_vencimiento = :vto,
                  arca_observaciones = NULL,
                  arca_enviado_el = NOW()
-             WHERE id = :id"
+             WHERE id = :id AND tenant_id = :tenant"
         )->execute([
-            ':nro' => (int)$d['numero_comprobante'],
-            ':cae' => $d['cae'],
-            ':vto' => $d['cae_vencimiento'],
-            ':id'  => $facturaId,
+            ':nro'    => (int)$d['numero_comprobante'],
+            ':cae'    => $d['cae'],
+            ':vto'    => $d['cae_vencimiento'],
+            ':id'     => $facturaId,
+            ':tenant' => tenantId(),
         ]);
 
         return [
