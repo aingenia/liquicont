@@ -28,12 +28,14 @@ class Cobro
                        cl.nombre_fantasia AS cliente_fantasia,
                        cl.cuit AS cliente_cuit,
                        u.nombre AS creado_por_nombre,
-                       (SELECT COUNT(*) FROM cobro_factura WHERE cobro_id = c.id) AS facturas_count
+                       (SELECT COUNT(*) FROM cobro_factura cf
+                        WHERE cf.cobro_id = c.id
+                          AND cf.tenant_id = c.tenant_id) AS facturas_count
                 FROM cobro c
                 INNER JOIN cliente cl ON cl.id = c.cliente_id
                 LEFT JOIN usuario u ON u.id = c.creado_por_id
-                WHERE 1=1";
-        $params = [];
+                WHERE c.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
 
         if ($desde !== '') {
             $sql .= " AND c.fecha >= :desde";
@@ -86,27 +88,22 @@ class Cobro
                 INNER JOIN cliente cl ON cl.id = c.cliente_id
                 LEFT JOIN usuario u ON u.id = c.creado_por_id
                 LEFT JOIN usuario ua ON ua.id = c.anulado_por_id
-                WHERE c.id = :id LIMIT 1";
+                WHERE c.id = :id
+                  AND c.tenant_id = :tenant
+                LIMIT 1";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $id, ':tenant' => tenantId()]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
 
     public function obtenerMedios(int $cobroId): array
     {
-        $sql = "SELECT cm.*, cc.numero_cheque_calendario
-                FROM cobro_medio cm
-                LEFT JOIN (
-                    SELECT id, id AS numero_cheque_calendario FROM calendario_cheques
-                ) cc ON cc.id = cm.calendario_cheque_id
-                WHERE cm.cobro_id = :id
-                ORDER BY cm.id";
-        // Nota: simplificamos el SELECT porque el JOIN de arriba era complejo
-        // Vamos con lo básico:
-        $sql = "SELECT * FROM cobro_medio WHERE cobro_id = :id ORDER BY id";
+        $sql = "SELECT * FROM cobro_medio
+                WHERE cobro_id = :id AND tenant_id = :tenant
+                ORDER BY id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $cobroId]);
+        $stmt->execute([':id' => $cobroId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
@@ -120,19 +117,17 @@ class Cobro
                 FROM cobro_factura cf
                 INNER JOIN factura f ON f.id = cf.factura_id
                 WHERE cf.cobro_id = :id
+                  AND cf.tenant_id = :tenant
                 ORDER BY cf.id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $cobroId]);
+        $stmt->execute([':id' => $cobroId, ':tenant' => tenantId()]);
         return $stmt->fetchAll();
     }
 
     /* ==========================================================
        FACTURAS PENDIENTES DE UN CLIENTE
        ========================================================== */
-    /**
-     * Lista facturas ACTIVAS con saldo pendiente del cliente.
-     */
-        public function facturasPendientes(int $clienteId): array
+    public function facturasPendientes(int $clienteId): array
     {
         $sql = "SELECT * FROM (
                     SELECT f.id, f.fecha, f.total,
@@ -140,44 +135,42 @@ class Cobro
                            f.arca_tipo_comprobante_letra, f.arca_punto_venta,
                            f.arca_numero_comprobante, f.cae,
                            COALESCE(
-                               (SELECT SUM(importe_aplicado) FROM cobro_factura
-                                WHERE factura_id = f.id
-                                  AND cobro_id IN (SELECT id FROM cobro WHERE estado = 'ACTIVO')),
+                               (SELECT SUM(cf.importe_aplicado)
+                                FROM cobro_factura cf
+                                INNER JOIN cobro c ON c.id = cf.cobro_id
+                                WHERE cf.factura_id = f.id
+                                  AND c.estado = 'ACTIVO'
+                                  AND cf.tenant_id = :tenant),
                                0
                            ) AS cobrado,
                            f.total - COALESCE(
-                               (SELECT SUM(importe_aplicado) FROM cobro_factura
-                                WHERE factura_id = f.id
-                                  AND cobro_id IN (SELECT id FROM cobro WHERE estado = 'ACTIVO')),
+                               (SELECT SUM(cf.importe_aplicado)
+                                FROM cobro_factura cf
+                                INNER JOIN cobro c ON c.id = cf.cobro_id
+                                WHERE cf.factura_id = f.id
+                                  AND c.estado = 'ACTIVO'
+                                  AND cf.tenant_id = :tenant),
                                0
                            ) AS saldo_pendiente
                     FROM factura f
                     WHERE f.cliente_id = :cid
                       AND f.estado = 'ACTIVA'
+                      AND f.tenant_id = :tenant
                 ) AS sub
                 WHERE saldo_pendiente > 0.004
                 ORDER BY fecha ASC, id ASC";
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':cid' => $clienteId]);
+        $stmt->execute([
+            ':cid'    => $clienteId,
+            ':tenant' => tenantId(),
+        ]);
         return $stmt->fetchAll();
     }
 
     /* ==========================================================
        CREAR COBRO (transacción)
        ========================================================== */
-    /**
-     * Crea un cobro completo:
-     *   - cabecera
-     *   - medios de pago (uno o varios)
-     *   - imputación a facturas
-     *   - movimientos de cuenta corriente
-     *   - (opcional) altas en calendario de cheques
-     *
-     * @param array $cabecera   ['cliente_id', 'fecha', 'notas']
-     * @param array $medios     [['medio','importe', ...campos opcionales], ...]
-     * @param array $imputacion [['factura_id','importe_aplicado'], ...]
-     */
     public function crear(
         array $cabecera,
         array $medios,
@@ -191,7 +184,6 @@ class Cobro
             return ['ok' => false, 'msg' => 'Imputá el cobro a al menos una factura.'];
         }
 
-        // Validar que el total de medios coincida con el total de imputación
         $totalMedios = 0;
         foreach ($medios as $m) {
             $totalMedios += (float)($m['importe'] ?? 0);
@@ -214,28 +206,31 @@ class Cobro
         try {
             $this->db->beginTransaction();
 
+            $tenant = tenantId();
+
             // 1) Cabecera del cobro
-            $sql = "INSERT INTO cobro (cliente_id, fecha, total, notas, creado_por_id)
-                    VALUES (:cid, :fecha, :total, :notas, :uid)";
+            $sql = "INSERT INTO cobro (tenant_id, cliente_id, fecha, total, notas, creado_por_id)
+                    VALUES (:tenant, :cid, :fecha, :total, :notas, :uid)";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
-                ':cid'   => (int)$cabecera['cliente_id'],
-                ':fecha' => $cabecera['fecha'],
-                ':total' => $totalMedios,
-                ':notas' => $cabecera['notas'] ?? null,
-                ':uid'   => $usuarioId,
+                ':tenant' => $tenant,
+                ':cid'    => (int)$cabecera['cliente_id'],
+                ':fecha'  => $cabecera['fecha'],
+                ':total'  => $totalMedios,
+                ':notas'  => $cabecera['notas'] ?? null,
+                ':uid'    => $usuarioId,
             ]);
             $cobroId = (int)$this->db->lastInsertId();
 
             // 2) Medios de pago + cheques en calendario
             $stmtMedio = $this->db->prepare(
                 "INSERT INTO cobro_medio
-                 (cobro_id, medio, importe,
+                 (tenant_id, cobro_id, medio, importe,
                   cheque_banco, cheque_numero, cheque_fecha_cobro, cheque_titular,
                   retencion_tipo, retencion_nro,
                   calendario_cheque_id, observaciones)
                  VALUES
-                 (:cid, :medio, :importe,
+                 (:tenant, :cid, :medio, :importe,
                   :cb, :cn, :cfc, :ct,
                   :rt, :rn,
                   :cal, :obs)"
@@ -244,52 +239,54 @@ class Cobro
             foreach ($medios as $m) {
                 $calendarioChequeId = null;
 
-                // Si es cheque con fecha de cobro, crear el registro en el calendario
                 if ($m['medio'] === 'CHEQUE' && !empty($m['cheque_fecha_cobro'])) {
                     $stmtCal = $this->db->prepare(
                         "INSERT INTO calendario_cheques
-                         (fecha, descripcion, importe, banco, nro_cheque, tipo, creado_por_id)
-                         VALUES (:fecha, :desc, :imp, :banco, :nro, :tipo, :uid)"
+                         (tenant_id, fecha, descripcion, importe, banco, nro_cheque, tipo, creado_por_id)
+                         VALUES (:tenant, :fecha, :desc, :imp, :banco, :nro, :tipo, :uid)"
                     );
                     $descripcion = 'Cobro ' . ($m['cheque_titular'] ?? 'cliente')
                                  . ' - Cheque ' . ($m['cheque_numero'] ?? '');
                     $stmtCal->execute([
-                        ':fecha' => $m['cheque_fecha_cobro'],
-                        ':desc'  => $descripcion,
-                        ':imp'   => (float)$m['importe'],
-                        ':banco' => $m['cheque_banco']   ?? null,
-                        ':nro'   => $m['cheque_numero']  ?? null,
-                        ':tipo'  => 'TERCERO', // asumimos tercero por defecto
-                        ':uid'   => $usuarioId,
+                        ':tenant' => $tenant,
+                        ':fecha'  => $m['cheque_fecha_cobro'],
+                        ':desc'   => $descripcion,
+                        ':imp'    => (float)$m['importe'],
+                        ':banco'  => $m['cheque_banco']  ?? null,
+                        ':nro'    => $m['cheque_numero'] ?? null,
+                        ':tipo'   => 'TERCERO',
+                        ':uid'    => $usuarioId,
                     ]);
                     $calendarioChequeId = (int)$this->db->lastInsertId();
                 }
 
                 $stmtMedio->execute([
+                    ':tenant'  => $tenant,
                     ':cid'     => $cobroId,
                     ':medio'   => $m['medio'],
                     ':importe' => (float)$m['importe'],
-                    ':cb'      => $m['cheque_banco']        ?? null,
-                    ':cn'      => $m['cheque_numero']       ?? null,
-                    ':cfc'     => $m['cheque_fecha_cobro']  ?? null,
-                    ':ct'      => $m['cheque_titular']      ?? null,
-                    ':rt'      => $m['retencion_tipo']      ?? null,
-                    ':rn'      => $m['retencion_nro']       ?? null,
+                    ':cb'      => $m['cheque_banco']       ?? null,
+                    ':cn'      => $m['cheque_numero']      ?? null,
+                    ':cfc'     => $m['cheque_fecha_cobro'] ?? null,
+                    ':ct'      => $m['cheque_titular']     ?? null,
+                    ':rt'      => $m['retencion_tipo']     ?? null,
+                    ':rn'      => $m['retencion_nro']      ?? null,
                     ':cal'     => $calendarioChequeId,
-                    ':obs'     => $m['observaciones']       ?? null,
+                    ':obs'     => $m['observaciones']      ?? null,
                 ]);
             }
 
             // 3) Imputación a facturas
             $stmtImp = $this->db->prepare(
-                "INSERT INTO cobro_factura (cobro_id, factura_id, importe_aplicado)
-                 VALUES (:cid, :fid, :imp)"
+                "INSERT INTO cobro_factura (tenant_id, cobro_id, factura_id, importe_aplicado)
+                 VALUES (:tenant, :cid, :fid, :imp)"
             );
             foreach ($imputacion as $i) {
                 $stmtImp->execute([
-                    ':cid' => $cobroId,
-                    ':fid' => (int)$i['factura_id'],
-                    ':imp' => (float)$i['importe_aplicado'],
+                    ':tenant' => $tenant,
+                    ':cid'    => $cobroId,
+                    ':fid'    => (int)$i['factura_id'],
+                    ':imp'    => (float)$i['importe_aplicado'],
                 ]);
             }
 
@@ -308,7 +305,6 @@ class Cobro
 
             $this->db->commit();
 
-            // Fase 2: asiento contable automático
             require_once ROOT_PATH . 'includes' . DS . 'ContabilidadService.php';
             try {
                 $svc = new ContabilidadService();
@@ -349,16 +345,19 @@ class Cobro
         try {
             $this->db->beginTransaction();
 
+            $tenant = tenantId();
+
             // 1) Marcar cobro como anulado
             $this->db->prepare(
                 "UPDATE cobro
                  SET estado = 'ANULADO', anulado_el = NOW(),
                      anulado_por_id = :uid, anulado_motivo = :mot
-                 WHERE id = :id"
+                 WHERE id = :id AND tenant_id = :tenant"
             )->execute([
-                ':uid' => $usuarioId,
-                ':mot' => $motivo ?: null,
-                ':id'  => $cobroId,
+                ':uid'    => $usuarioId,
+                ':mot'    => $motivo ?: null,
+                ':id'     => $cobroId,
+                ':tenant' => $tenant,
             ]);
 
             // 2) Anular movimientos de cuenta corriente asociados
@@ -368,19 +367,23 @@ class Cobro
             // 3) Eliminar los cheques del calendario que se crearon
             $stmt = $this->db->prepare(
                 "SELECT calendario_cheque_id FROM cobro_medio
-                 WHERE cobro_id = :id AND calendario_cheque_id IS NOT NULL"
+                 WHERE cobro_id = :id
+                   AND calendario_cheque_id IS NOT NULL
+                   AND tenant_id = :tenant"
             );
-            $stmt->execute([':id' => $cobroId]);
+            $stmt->execute([':id' => $cobroId, ':tenant' => $tenant]);
             $idsCheques = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
             if (!empty($idsCheques)) {
                 $placeholders = implode(',', array_fill(0, count($idsCheques), '?'));
-                $this->db->prepare("DELETE FROM calendario_cheques WHERE id IN ($placeholders)")
-                         ->execute($idsCheques);
+                $this->db->prepare(
+                    "DELETE FROM calendario_cheques
+                     WHERE id IN ($placeholders) AND tenant_id = ?"
+                )->execute(array_merge($idsCheques, [$tenant]));
             }
 
             $this->db->commit();
-            // Fase 2: anular el asiento contable asociado
+
             require_once ROOT_PATH . 'includes' . DS . 'ContabilidadService.php';
             try {
                 $svc = new ContabilidadService();
@@ -405,8 +408,9 @@ class Cobro
         $sqlCli = "SELECT c.id, c.razon_social, c.nombre_fantasia, c.cuit,
                           c.condicion_venta, c.limite_credito
                    FROM cliente c
-                   WHERE c.estado = 'ACTIVO'";
-        $params = [];
+                   WHERE c.estado = 'ACTIVO'
+                     AND c.tenant_id = :tenant";
+        $params = [':tenant' => tenantId()];
         if ($vendedorId !== null) {
             $sqlCli .= " AND c.vendedor_id = :vid";
             $params[':vid'] = $vendedorId;
